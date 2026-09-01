@@ -1,0 +1,533 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="go_home_main">
+    <ForceSuccess>
+      <ReactiveSequence>
+        <ButtonMonitor name="Halt"
+                       button="halt"
+                       _description="Sequence has been reset to start state"/>
+        <SubTree ID="go_home_process"
+                 _autoremap="true"/>
+      </ReactiveSequence>
+    </ForceSuccess>
+  </BehaviorTree>
+
+  <BehaviorTree ID="go_home_process">
+    <SequenceWithMemory>
+      <Progress start="0"
+                end="50">
+        <Sequence>
+          <RetryUntilSuccessful num_attempts="3">
+            <GetCurrentJointState name="Get Current Joint State"
+                                  topic_name="/joint_states"
+                                  current_state="{current_state}"/>
+          </RetryUntilSuccessful>
+          <CreateJointStateMessage name="Create Joint State Message"
+                                   joint_names="{home_state_joint_names}"
+                                   joint_positions="{home_state_joint_positions}"
+                                   joint_state="{home_state}"/>
+          <GenerateFreespaceMotionPlanService name="Plan Motion"
+                                              service_name="generate_freespace_motion_plan"
+                                              motion_group="{freespace_motion_group}"
+                                              tcp_frame="{tcp_frame}"
+                                              start_joint_state="{current_state}"
+                                              goal_joint_state="{home_state}"
+                                              trajectory="{trajectory}"/>
+          <MotionPlanPub name="Display Motion Plan"
+                         topic_name="motion_plan"
+                         trajectory="{trajectory}"/>
+        </Sequence>
+      </Progress>
+      <Progress start="50"
+                end="100">
+        <Sequence>
+          <SetPage index="3">
+            <ButtonApproval name="Approve Scan Execution"
+                            approve_button="execute"
+                            disapprove_button="back"
+                            _description="Press next to approve the scan motion plan and proceed to scan motion execution"/>
+          </SetPage>
+          <SubTree ID="motion"
+                   trajectory="{trajectory}"
+                   _autoremap="true"/>
+        </Sequence>
+      </Progress>
+      <SetPage index="4">
+        <ButtonApproval name="Approve Restart"
+                        approve_button=""
+                        disapprove_button="back"/>
+      </SetPage>
+    </SequenceWithMemory>
+  </BehaviorTree>
+
+  <BehaviorTree ID="main">
+    <ForceSuccess>
+      <Sequence>
+        <Script name="Initialize Flags"
+                code="skip_motion_plan := false; skip_scan := false; skip_generate_scan_motion := false"/>
+        <ReactiveSequence>
+          <ButtonMonitor name="Reset"
+                         button="reset"
+                         _description="Sequence has been reset to start state"/>
+          <KeepRunningUntilFailure>
+            <ForceSuccess>
+              <ReactiveSequence>
+                <ButtonMonitor name="Halt"
+                               button="halt"
+                               _description="Current task has been halted"/>
+                <SubTree ID="process"
+                         _autoremap="true"/>
+              </ReactiveSequence>
+            </ForceSuccess>
+          </KeepRunningUntilFailure>
+        </ReactiveSequence>
+      </Sequence>
+    </ForceSuccess>
+  </BehaviorTree>
+
+  <BehaviorTree ID="motion">
+    <Sequence>
+      <RetryUntilSuccessful num_attempts="3">
+        <GetCurrentJointState name="Get Current Joint State"
+                              topic_name="/joint_states"
+                              current_state="{current_state}"/>
+      </RetryUntilSuccessful>
+      <UpdateTrajectoryStartState name="Update Trajectory Start State"
+                                  joint_state="{current_state}"
+                                  input_trajectory="{trajectory}"
+                                  replacement_tolerance="{start_state_replacement_tolerance}"
+                                  output="{updated_trajectory}"/>
+      <StartPointQueueMode name="Enable Robot"
+                           service_name="start_point_queue_mode"/>
+      <FollowJointTrajectoryAction name="Execute Approach Motion"
+                                   action_name="{follow_joint_trajectory_action}"
+                                   trajectory="{updated_trajectory}"/>
+      <Sleep msec="1000"/>
+      <TriggerService name="Disable Robot"
+                      service_name="stop_traj_mode"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="process">
+    <SNPSequenceWithMemory>
+      <Progress start="0"
+                end="20">
+        <Sequence _skipIf="skip_generate_scan_motion">
+          <SetPage index="0">
+            <ButtonApproval name="Approve Scan Motion Plan Creation"
+                            approve_button="scan"
+                            disapprove_button="back"
+                            _description="Press next to generate a motion plan for part scanning"/>
+          </SetPage>
+          <LoadTrajectoryFromFile name="Load Trajectory From File"
+                                  file="{scan_trajectory_file}"
+                                  trajectory="{scan_trajectory}"/>
+          <MotionPlanPub name="Publish Scan Motion Plan"
+                         topic_name="motion_plan"
+                         trajectory="{scan_trajectory}"/>
+        </Sequence>
+      </Progress>
+      <Progress start="20"
+                end="40">
+        <Sequence _skipIf="skip_scan">
+          <MarkerPub topic_name="/industrial_reconstruction_mesh"
+                     marker="{reference_frame}"/>
+          <SetPage index="3">
+            <ButtonApproval name="Approve Scan Execution"
+                            approve_button="execute"
+                            disapprove_button="back"
+                            _description="Press next to approve the scan motion plan and proceed to scan motion execution"
+                            _onFailure="skip_generate_scan_motion=false"/>
+          </SetPage>
+          <ExtractApproachProcessDepartureTrajectories name="Extract Trajectories"
+                                                       trajectory="{scan_trajectory}"
+                                                       approach="{scan_approach}"
+                                                       process="{scan_process}"
+                                                       departure="{scan_departure}"/>
+          <SubTree ID="scan"
+                   approach="{scan_approach}"
+                   process="{scan_process}"
+                   departure="{scan_departure}"
+                   _onFailure="skip_generate_scan_motion=true"
+                   _autoremap="true"/>
+        </Sequence>
+      </Progress>
+      <Progress start="40"
+                end="60">
+        <Sequence>
+          <ToolPathsPub topic_name="tool_paths"
+                        tool_paths="{reference_frame}"/>
+          <SetPage index="1">
+            <ButtonApproval name="Approve Tool Path Plan"
+                            approve_button="tpp"
+                            disapprove_button="back"
+                            _description="Press next to create a tool path plan"
+                            _onFailure="skip_scan=false"/>
+          </SetPage>
+          <PlanToolPathService name="Plan Tool Paths"
+                               service_name="plan_tool_path"
+                               config_file="{process_tpp_config_file}"
+                               mesh_file="{process_mesh_file}"
+                               mesh_frame="{reference_frame}"
+                               tool_paths="{tool_paths}"
+                               _onFailure="skip_scan=true"/>
+          <ToolPathsPub name="Publish Tool Paths"
+                        topic_name="tool_paths"
+                        tool_paths="{tool_paths}"/>
+        </Sequence>
+      </Progress>
+      <Progress start="60"
+                end="80">
+        <ReactiveSequence _skipIf="skip_motion_plan">
+          <ButtonMonitor name="Tool Path Configuration Changed"
+                         button="tpp_config"/>
+          <Sequence>
+            <SetPage index="1">
+              <ButtonApproval name="Approve Motion Plan Generation"
+                              approve_button="plan"
+                              disapprove_button="back"
+                              _description="Press next to generate a motion plan for the tool path"/>
+            </SetPage>
+            <GenerateMotionPlanService service_name="generate_motion_plan"
+                                       motion_group="{process_motion_group}"
+                                       tcp_frame="{tcp_frame}"
+                                       tool_paths="{tool_paths}"
+                                       approach="{approach}"
+                                       process="{process}"
+                                       departure="{departure}"/>
+            <CombineTrajectories name="Combine Trajectories"
+                                 first="{approach}"
+                                 second="{process}"
+                                 output="{trajectory}"/>
+            <CombineTrajectories name="Combine Trajectories"
+                                 first="{trajectory}"
+                                 second="{departure}"
+                                 output="{trajectory}"/>
+            <MotionPlanPub name="Publish Process Motion Plan"
+                           topic_name="motion_plan"
+                           trajectory="{trajectory}"/>
+          </Sequence>
+        </ReactiveSequence>
+      </Progress>
+      <Progress start="80"
+                end="100">
+        <Sequence>
+          <SetPage index="3">
+            <ButtonApproval name="Approve Process Motion Execution"
+                            approve_button="execute"
+                            disapprove_button="back"
+                            _description="Press next to approve the process motion plan and proceed to process motion execution"
+                            _onFailure="skip_motion_plan=false"/>
+          </SetPage>
+          <SubTree ID="motion"
+                   trajectory="{trajectory}"
+                   _onFailure="skip_motion_plan=true"
+                   _autoremap="true"/>
+        </Sequence>
+      </Progress>
+      <SetPage index="4">
+        <ButtonApproval name="Approve Restart"
+                        approve_button=""
+                        disapprove_button="back"/>
+      </SetPage>
+    </SNPSequenceWithMemory>
+  </BehaviorTree>
+
+  <BehaviorTree ID="scan">
+    <Sequence>
+      <RetryUntilSuccessful num_attempts="3">
+        <GetCurrentJointState name="Get Current Joint State"
+                              topic_name="/joint_states"
+                              current_state="{current_state}"/>
+      </RetryUntilSuccessful>
+      <UpdateTrajectoryStartState name="Update Trajectory Start State"
+                                  joint_state="{current_state}"
+                                  input_trajectory="{approach}"
+                                  replacement_tolerance="{start_state_replacement_tolerance}"
+                                  output="{updated_approach}"/>
+      <StartPointQueueMode name="Enable Robot"
+                           service_name="start_point_queue_mode"/>
+      <FollowJointTrajectoryAction name="Execute Scan Approach Motion"
+                                   action_name="{follow_joint_trajectory_action}"
+                                   trajectory="{updated_approach}"/>
+      <StartReconstructionService name="Start Reconstruction"
+                                  service_name="start_reconstruction"
+                                  camera_frame="{camera_frame}"
+                                  ref_frame="{reference_frame}"
+                                  voxel_length="{ir_voxel_length}"
+                                  sdf_trunc="{ir_sdf_trunc}"
+                                  depth_scale="{ir_depth_scale}"
+                                  depth_trunc="{ir_depth_trunc}"
+                                  translation_filter_distance="{ir_translation_filter_distance}"
+                                  rotation_filter_distance="{ir_rotation_filter_distance}"
+                                  min_x="{ir_min_x}"
+                                  min_y="{ir_min_y}"
+                                  min_z="{ir_min_z}"
+                                  max_x="{ir_max_x}"
+                                  max_y="{ir_max_y}"
+                                  max_z="{ir_max_z}"
+                                  live_reconstruction="{ir_live}"/>
+      <FollowJointTrajectoryAction name="Execute Scan Motion"
+                                   action_name="{follow_joint_trajectory_action}"
+                                   trajectory="{process}"/>
+      <StopReconstructionService name="Stop Reconstruction"
+                                 service_name="stop_reconstruction"
+                                 mesh_file="{process_mesh_file}"
+                                 min_faces="{ir_min_faces}"
+                                 normal_angle_tolerance="{ir_normal_angle_tol}"
+                                 normal_x="{ir_normal_x}"
+                                 normal_y="{ir_normal_y}"
+                                 normal_z="{ir_normal_z}"
+                                 archive_directory="{ir_archive_dir}"/>
+      <EmptyService name="Remove Scan Link"
+                    service_name="remove_scan_link"/>
+      <AddScanLinkService name="Add Scan Link"
+                          service_name="add_scan_link"
+                          mesh_file="{process_mesh_file}"
+                          mesh_frame="{reference_frame}"/>
+      <FollowJointTrajectoryAction name="Execute Scan Departure Motion"
+                                   action_name="{follow_joint_trajectory_action}"
+                                   trajectory="{departure}"/>
+      <Sleep msec="1000"/>
+      <TriggerService name="Disable Robot"
+                      service_name="stop_traj_mode"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="AddScanLinkService"
+            editable="true">
+      <input_port name="service_name"
+                  default="add_scan_link"/>
+      <input_port name="mesh_file"
+                  default="{mesh_file}"/>
+      <input_port name="mesh_frame"
+                  default="{mesh_frame}"/>
+    </Action>
+    <Action ID="ButtonApproval"
+            editable="true">
+      <input_port name="approve_button"/>
+      <input_port name="disapprove_button"/>
+    </Action>
+    <Condition ID="ButtonMonitor"
+               editable="true">
+      <input_port name="button"/>
+    </Condition>
+    <Action ID="CombineTrajectories"
+            editable="true">
+      <input_port name="first"/>
+      <input_port name="second"/>
+      <output_port name="output"/>
+    </Action>
+    <Action ID="CreateJointStateMessage"
+            editable="true">
+      <input_port name="joint_names"
+                  default="{joint_names}"/>
+      <input_port name="joint_positions"
+                  default="{joint_positions}"/>
+      <output_port name="joint_state"
+                   default="{joint_state}"/>
+    </Action>
+    <Action ID="EmptyService"
+            editable="true">
+      <input_port name="service_name"/>
+    </Action>
+    <Action ID="ExtractApproachProcessDepartureTrajectories"
+            editable="true">
+      <input_port name="trajectory"
+                  default="{trajectory}"/>
+      <output_port name="approach"
+                   default="{approach}"/>
+      <output_port name="process"
+                   default="{process}"/>
+      <output_port name="departure"
+                   default="{departure}"/>
+    </Action>
+    <Action ID="FollowJointTrajectoryAction"
+            editable="true">
+      <input_port name="action_name"
+                  default="follow_joint_trajectory"/>
+      <input_port name="trajectory"
+                  default="{trajectory}"/>
+    </Action>
+    <Action ID="GenerateFreespaceMotionPlanService"
+            editable="true">
+      <input_port name="service_name"
+                  default="generate_freespace_motion_plan"/>
+      <input_port name="motion_group"
+                  default="{freespace_motion_group}"/>
+      <input_port name="tcp_frame"
+                  default="{tcp_frame}"/>
+      <input_port name="start_joint_state"
+                  default="{start_joint_state}"/>
+      <input_port name="goal_joint_state"
+                  default="{goal_joint_state}"/>
+      <output_port name="trajectory"
+                   default="{trajectory}"/>
+    </Action>
+    <Action ID="GenerateMotionPlanService"
+            editable="true">
+      <input_port name="service_name"
+                  default="generate_motion_plan"/>
+      <input_port name="motion_group"
+                  default="{process_motion_group}"/>
+      <input_port name="tcp_frame"
+                  default="{tcp_frame}"/>
+      <input_port name="tool_paths"
+                  default="{tool_paths}"/>
+      <output_port name="approach"
+                   default="{approach}"/>
+      <output_port name="process"
+                   default="{process}"/>
+      <output_port name="departure"
+                   default="{departure}"/>
+    </Action>
+    <Action ID="GetCurrentJointState"
+            editable="true">
+      <input_port name="topic_name"
+                  default="/joint_states"/>
+      <output_port name="current_state"
+                   default="{current_state}"/>
+    </Action>
+    <Action ID="LoadTrajectoryFromFile"
+            editable="true">
+      <input_port name="file"
+                  default="{trajectory_file}"/>
+      <output_port name="trajectory"
+                   default="{trajectory}"/>
+    </Action>
+    <Action ID="MarkerPub"
+            editable="true">
+      <input_port name="topic_name"/>
+      <input_port name="marker"/>
+    </Action>
+    <Action ID="MotionPlanPub"
+            editable="true">
+      <input_port name="topic_name"/>
+      <input_port name="trajectory"/>
+    </Action>
+    <Action ID="PlanToolPathService"
+            editable="true">
+      <input_port name="service_name"
+                  default="plan_tool_path"/>
+      <input_port name="config_file"
+                  default="{tpp_config_file}"/>
+      <input_port name="mesh_file"
+                  default="{mesh_file}"/>
+      <input_port name="mesh_frame"
+                  default="{reference_frame}"/>
+      <output_port name="tool_paths"
+                   default="{tool_paths}"/>
+    </Action>
+    <Decorator ID="Progress"
+               editable="true">
+      <input_port name="start"
+                  default="0"/>
+      <input_port name="end"
+                  default="100"/>
+    </Decorator>
+    <Control ID="SNPSequenceWithMemory"
+             editable="true"/>
+    <Decorator ID="SetPage"
+               editable="true">
+      <input_port name="index"
+                  default="0"/>
+    </Decorator>
+    <Action ID="StartPointQueueMode"
+            editable="true">
+      <input_port name="service_name"
+                  default="start_point_queue_mode"/>
+    </Action>
+    <Action ID="StartReconstructionService"
+            editable="true">
+      <input_port name="service_name"
+                  default="start_reconstruction"/>
+      <input_port name="camera_frame"
+                  default="{camera_frame}"/>
+      <input_port name="ref_frame"
+                  default="{reference_frame}"/>
+      <input_port name="voxel_length"
+                  default="{ir_voxel_length}"/>
+      <input_port name="sdf_trunc"
+                  default="{ir_sdf_trunc}"/>
+      <input_port name="depth_scale"
+                  default="{ir_depth_scale}"/>
+      <input_port name="depth_trunc"
+                  default="{ir_depth_trunc}"/>
+      <input_port name="translation_filter_distance"
+                  default="{ir_translation_filter_distance}"/>
+      <input_port name="rotation_filter_distance"
+                  default="{ir_rotation_filter_distance}"/>
+      <input_port name="min_x"
+                  default="{ir_min_x}"/>
+      <input_port name="min_y"
+                  default="{ir_min_y}"/>
+      <input_port name="min_z"
+                  default="{ir_min_z}"/>
+      <input_port name="max_x"
+                  default="{ir_max_x}"/>
+      <input_port name="max_y"
+                  default="{ir_max_y}"/>
+      <input_port name="max_z"
+                  default="{ir_max_z}"/>
+      <input_port name="live_reconstruction"
+                  default="{ir_live}"/>
+    </Action>
+    <Action ID="StopReconstructionService"
+            editable="true">
+      <input_port name="service_name"
+                  default="stop_reconstruction"/>
+      <input_port name="mesh_file"
+                  default="{mesh_file}"/>
+      <input_port name="min_faces"
+                  default="{ir_min_faces}"/>
+      <input_port name="normal_angle_tolerance"
+                  default="{ir_normal_angle_tol}"/>
+      <input_port name="normal_x"
+                  default="{ir_normal_x}"/>
+      <input_port name="normal_y"
+                  default="{ir_normal_y}"/>
+      <input_port name="normal_z"
+                  default="{ir_normal_z}"/>
+      <input_port name="archive_directory"
+                  default="{ir_archive_dir}"/>
+    </Action>
+    <Action ID="ToolPathsPub"
+            editable="true">
+      <input_port name="topic_name"
+                  default="tool_paths"/>
+      <input_port name="tool_paths"
+                  default="{tool_paths}"/>
+    </Action>
+    <Action ID="TriggerService"
+            editable="true">
+      <input_port name="service_name"/>
+    </Action>
+    <Action ID="UpdateTrajectoryStartState"
+            editable="true">
+      <input_port name="joint_state"
+                  default="{current_state}"/>
+      <input_port name="input_trajectory"
+                  default="{trajectory}"/>
+      <input_port name="replacement_tolerance"
+                  default="{start_state_replacement_tolerance}"/>
+      <output_port name="output"
+                   default="{trajectory}"/>
+    </Action>
+    <SubTree ID="motion"
+             editable="true">
+      <input_port name="trajectory"/>
+    </SubTree>
+    <SubTree ID="scan"
+             editable="true">
+      <input_port name="approach"
+                  default="{approach}"/>
+      <input_port name="process"
+                  default="{process}"/>
+      <input_port name="departure"
+                  default="{departure}"/>
+    </SubTree>
+  </TreeNodesModel>
+
+</root>

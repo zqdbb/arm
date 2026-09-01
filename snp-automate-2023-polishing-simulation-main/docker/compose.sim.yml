@@ -1,0 +1,25 @@
+name: snp-automate-2023-polishing-simulation
+services:
+  snp_automate_2023_sim:
+    image: ghcr.io/ros-industrial-consortium/snp_automate_2023:jazzy-master
+    container_name: snp_automate_2023_sim
+    environment:
+      HOME: /workspace/snp_home
+      DISPLAY: ${DISPLAY:-:0}
+      QT_QPA_PLATFORM: xcb
+      QT_X11_NO_MITSHM: "1"
+      SNP_SIM_ROBOT: "true"
+      SNP_SIM_VISION: "true"
+      SNP_BYPASS_EXECUTION: "true"
+      ROS_LOG_DIR: /workspace/snp_home/.ros
+    user: "${CURRENT_UID:-1000:1000}"
+    stdin_open: true
+    tty: true
+    privileged: true
+    network_mode: host
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ../runtime/snp_home:/workspace/snp_home
+      - ../config:/workspace/config:ro
+      - ../config:/opt/snp_automate_2023/install/snp_automate_2023/share/snp_automate_2023/config:ro
+      - ../launch:/opt/snp_automate_2023/install/snp_automate_2023/share/snp_automate_2023/launch:ro

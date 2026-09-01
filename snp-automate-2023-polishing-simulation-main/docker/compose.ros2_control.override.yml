@@ -1,0 +1,4 @@
+services:
+  snp_automate_2023_sim:
+    environment:
+      SNP_BYPASS_EXECUTION: "false"

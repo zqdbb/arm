@@ -1,0 +1,16 @@
+# Runtime logs and caches
+runtime/snp_home/.ros/
+runtime/snp_home/.cache/
+runtime/snp_home/.config/
+runtime/**/*.log
+*.log
+*.mp4
+*.zip
+*.blend1
+chair_model/
+build/
+install/
+log/
+
+# GitHub Actions omitted from handover push unless workflow-scope token is available
+.github/workflows/

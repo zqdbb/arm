@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- URDF, Joint State Publisher, Robot State Publisher, Rviz -->
+  <include file="$(find-pkg-share snp_automate_2023)/launch/test.launch.xml">
+    <arg name="use_gui" value="false"/>
+    <arg name="rviz" value="false"/>
+  </include>
+
+  <!-- Connect URDF robot base frame with robot-published base frame -->
+  <node pkg="tf2_ros" exec="static_transform_publisher" name="base_to_robot_base" args="--frame-id base --child-frame-id motoros2/world "/>
+
+  <!-- Realsense -->
+  <include file="$(find-pkg-share realsense2_camera)/launch/rs_launch.py">
+    <arg name="publish_tf" value="false"/>
+  </include>
+
+  <!-- Image rectification -->
+  <node_container pkg="rclcpp_components" exec="component_container" name="image_proc_container" namespace="">
+    <composable_node pkg="image_proc" plugin="image_proc::RectifyNode" name="rectify_node" namespace="/camera/camera">
+      <remap from="image" to="color/image_raw"/>
+      <remap from="image_rect" to="color/image_rect"/>
+      <remap from="camera_info" to="color/camera_info"/>
+    </composable_node>
+  </node_container>
+</launch>

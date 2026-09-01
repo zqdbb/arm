@@ -1,0 +1,22 @@
+# Local environments and downloaded archives
+.venv/
+*.zip
+
+# Large generated/demo artifacts
+*.mp4
+*.blend
+*.blend1
+
+# ROS 2 build outputs and runtime state
+build/
+install/
+log/
+runtime/snp_home/.ros/
+runtime/snp_home/.cache/
+runtime/snp_home/.config/
+runtime/**/*.log
+
+# Secrets and local configuration
+.env
+*.local
+

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4" project_name="Project">
+    <include path="snp_automate.xml"/>
+    <!-- Description of Node Models (used by Groot) -->
+    <TreeNodesModel>
+        <Action ID="AddScanLinkService" editable="true">
+            <input_port name="service_name" default="add_scan_link"/>
+            <input_port name="mesh_file" default="{mesh_file}"/>
+            <input_port name="mesh_frame" default="{mesh_frame}"/>
+        </Action>
+        <Action ID="ButtonApproval" editable="true">
+            <input_port name="approve_button"/>
+            <input_port name="disapprove_button"/>
+        </Action>
+        <Condition ID="ButtonMonitor" editable="true">
+            <input_port name="button"/>
+        </Condition>
+        <Action ID="CombineTrajectories" editable="true">
+            <input_port name="first"/>
+            <input_port name="second"/>
+            <output_port name="output"/>
+        </Action>
+        <Action ID="CreateJointStateMessage" editable="true">
+            <input_port name="joint_names" default="{joint_names}"/>
+            <input_port name="joint_positions" default="{joint_positions}"/>
+            <output_port name="joint_state" default="{joint_state}"/>
+        </Action>
+        <Action ID="EmptyService" editable="true">
+            <input_port name="service_name"/>
+        </Action>
+        <Action ID="ExtractApproachProcessDepartureTrajectories" editable="true">
+            <input_port name="trajectory" default="{trajectory}"/>
+            <output_port name="approach" default="{approach}"/>
+            <output_port name="process" default="{process}"/>
+            <output_port name="departure" default="{departure}"/>
+        </Action>
+        <Action ID="FollowJointTrajectoryAction" editable="true">
+            <input_port name="action_name" default="follow_joint_trajectory"/>
+            <input_port name="trajectory" default="{trajectory}"/>
+        </Action>
+        <Action ID="GenerateFreespaceMotionPlanService" editable="true">
+            <input_port name="service_name" default="generate_freespace_motion_plan"/>
+            <input_port name="motion_group" default="{freespace_motion_group}"/>
+            <input_port name="tcp_frame" default="{tcp_frame}"/>
+            <input_port name="start_joint_state" default="{start_joint_state}"/>
+            <input_port name="goal_joint_state" default="{goal_joint_state}"/>
+            <output_port name="trajectory" default="{trajectory}"/>
+        </Action>
+        <Action ID="GenerateMotionPlanService" editable="true">
+            <input_port name="service_name" default="generate_motion_plan"/>
+            <input_port name="motion_group" default="{process_motion_group}"/>
+            <input_port name="tcp_frame" default="{tcp_frame}"/>
+            <input_port name="tool_paths" default="{tool_paths}"/>
+            <output_port name="approach" default="{approach}"/>
+            <output_port name="process" default="{process}"/>
+            <output_port name="departure" default="{departure}"/>
+        </Action>
+        <Action ID="GetCurrentJointState" editable="true">
+            <input_port name="topic_name" default="/joint_states"/>
+            <output_port name="current_state" default="{current_state}"/>
+        </Action>
+        <Action ID="LoadTrajectoryFromFile" editable="true">
+            <input_port name="file" default="{trajectory_file}"/>
+            <output_port name="trajectory" default="{trajectory}"/>
+        </Action>
+        <Action ID="MarkerPub" editable="true">
+            <input_port name="topic_name"/>
+            <input_port name="marker"/>
+        </Action>
+        <Action ID="MotionPlanPub" editable="true">
+            <input_port name="topic_name"/>
+            <input_port name="trajectory"/>
+        </Action>
+        <Action ID="PlanToolPathService" editable="true">
+            <input_port name="service_name" default="plan_tool_path"/>
+            <input_port name="config_file" default="{tpp_config_file}"/>
+            <input_port name="mesh_file" default="{mesh_file}"/>
+            <input_port name="mesh_frame" default="{reference_frame}"/>
+            <output_port name="tool_paths" default="{tool_paths}"/>
+        </Action>
+        <Action ID="ProcessNode" editable="true"/>
+        <Decorator ID="Progress" editable="true">
+            <input_port name="start" default="0"/>
+            <input_port name="end" default="100"/>
+        </Decorator>
+        <Action ID="ReverseTrajectory" editable="true">
+            <input_port name="input"/>
+            <output_port name="output"/>
+        </Action>
+        <Condition ID="RosSpinner" editable="true"/>
+        <Control ID="SNPSequenceWithMemory" editable="true"/>
+        <Decorator ID="SetPage" editable="true">
+            <input_port name="index" default="0"/>
+        </Decorator>
+        <Action ID="StartPointQueueMode" editable="true">
+            <input_port name="service_name" default="start_point_queue_mode"/>
+        </Action>
+        <Action ID="StartReconstructionService" editable="true">
+            <input_port name="service_name" default="start_reconstruction"/>
+            <input_port name="camera_frame" default="{camera_frame}"/>
+            <input_port name="ref_frame" default="{reference_frame}"/>
+            <input_port name="voxel_length" default="{ir_voxel_length}"/>
+            <input_port name="sdf_trunc" default="{ir_sdf_trunc}"/>
+            <input_port name="depth_scale" default="{ir_depth_scale}"/>
+            <input_port name="depth_trunc" default="{ir_depth_trunc}"/>
+            <input_port name="translation_filter_distance" default="{ir_translation_filter_distance}"/>
+            <input_port name="rotation_filter_distance" default="{ir_rotation_filter_distance}"/>
+            <input_port name="min_x" default="{ir_min_x}"/>
+            <input_port name="min_y" default="{ir_min_y}"/>
+            <input_port name="min_z" default="{ir_min_z}"/>
+            <input_port name="max_x" default="{ir_max_x}"/>
+            <input_port name="max_y" default="{ir_max_y}"/>
+            <input_port name="max_z" default="{ir_max_z}"/>
+            <input_port name="live_reconstruction" default="{ir_live}"/>
+        </Action>
+        <Action ID="StopReconstructionService" editable="true">
+            <input_port name="service_name" default="stop_reconstruction"/>
+            <input_port name="mesh_file" default="{mesh_file}"/>
+            <input_port name="min_faces" default="{ir_min_faces}"/>
+            <input_port name="normal_angle_tolerance" default="{ir_normal_angle_tol}"/>
+            <input_port name="normal_x" default="{ir_normal_x}"/>
+            <input_port name="normal_y" default="{ir_normal_y}"/>
+            <input_port name="normal_z" default="{ir_normal_z}"/>
+            <input_port name="archive_directory" default="{ir_archive_dir}"/>
+        </Action>
+        <Action ID="ToolPathsPub" editable="true">
+            <input_port name="topic_name" default="tool_paths"/>
+            <input_port name="tool_paths" default="{tool_paths}"/>
+        </Action>
+        <Action ID="TriggerService" editable="true">
+            <input_port name="service_name"/>
+        </Action>
+        <Action ID="UpdateTrajectoryStartState" editable="true">
+            <input_port name="joint_state" default="{current_state}"/>
+            <input_port name="input_trajectory" default="{trajectory}"/>
+            <input_port name="replacement_tolerance" default="{start_state_replacement_tolerance}"/>
+            <output_port name="output" default="{trajectory}"/>
+        </Action>
+        <SubTree ID="motion" editable="true">
+            <input_port name="trajectory"/>
+        </SubTree>
+        <SubTree ID="process_pub" editable="true">
+            <input_port name="approach" default="{approach}"/>
+            <input_port name="process" default="{process}"/>
+            <input_port name="departure" default="{departure}"/>
+        </SubTree>
+        <SubTree ID="scan" editable="true">
+            <input_port name="approach" default="{approach}"/>
+            <input_port name="process" default="{process}"/>
+            <input_port name="departure" default="{departure}"/>
+        </SubTree>
+    </TreeNodesModel>
+</root>

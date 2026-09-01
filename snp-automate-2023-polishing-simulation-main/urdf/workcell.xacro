@@ -1,0 +1,198 @@
+<?xml version="1.0" ?>
+<robot name="motoman_hc10" xmlns:xacro="http://ros.org/wiki/xacro" xmlns:tesseract="https://github.com/tesseract-robotics/tesseract" tesseract:make_convex="true">
+  <xacro:include filename="$(find motoman_hc10_support)/urdf/hc10dt_macro.xacro" />
+  <xacro:motoman_hc10dt prefix=""/>
+
+  <xacro:include filename="$(find snp_automate_2023)/urdf/ros2_control.xacro"/>
+  <xacro:snp_ros2_control name="snp_ros2_control" prefix=""/>
+
+  <!-- Add World -->
+  <material name="light_gray">
+    <color rgba="0.7 0.7 0.7 1"/>
+  </material>
+
+  <material name="dark_gray">
+    <color rgba="0.3 0.3 0.3 1"/>
+  </material>
+  
+  <link name="world"/>
+
+  <!-- Add Floor -->
+  <xacro:property name="length" value="9.0"/>
+  <xacro:property name="width" value="6.0"/>
+  <link name="floor">
+    <visual>
+      <origin xyz="0 -${width/10} 0.001" rpy="0 0 0"/>
+      <geometry>
+        <box size="${length} ${width} 0.001"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 -${width/10} 0.001" rpy="0 0 0"/>
+      <geometry>
+        <box size="${length} ${width} 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="world_to_floor" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="world"/>
+    <child link="floor"/>
+  </joint>
+
+  <!-- Add table -->
+  <link name="table">
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/visual/steel_table.ply"/>
+      </geometry>
+      <material name="dark_gray"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/steel_table.ply"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0.726" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.9 0.95 0.05"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="floor_to_table" type="fixed">
+    <parent link="floor"/>
+    <child link="table"/>
+  </joint>
+
+  <joint name="table_to_base" type="fixed">
+    <parent link="table"/>
+    <child link="base_link"/>
+    <origin xyz="-0.61 0 0.723" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Add End Effector Components -->
+  <xacro:property name="radius" value="${3.75 * 0.0254 / 2.0}"/>
+  <xacro:property name="length" value="${5.875 * 0.0254}"/>
+  <xacro:property name="small_radius" value="${1.0 * 0.0254 / 2.0}"/>
+  <xacro:property name="small_length" value="${2.0 * 0.0254}"/>
+  <link name="ee">
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/ati_spindle.ply"/>
+      </geometry>
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/ati_hose.ply"/>
+      </geometry>
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/ati_tool.ply"/>
+      </geometry>
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/ati_bracket.ply"/>
+      </geometry>
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/ati_standoff.ply"/>
+      </geometry>
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/hc10_standoff.ply"/>
+      </geometry>
+    </visual>
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/sensor_bracket.ply"/>
+      </geometry>
+    </visual>
+    <!-- Collision -->
+    <collision>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/ati_spindle.ply"/>
+      </geometry>
+    </collision>
+    <collision>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/ati_hose.ply"/>
+      </geometry>
+    </collision>
+    <collision>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/ati_tool.ply"/>
+      </geometry>
+    </collision>
+    <collision>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/ati_bracket.ply"/>
+      </geometry>
+    </collision>
+    <collision>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/ati_standoff.ply"/>
+      </geometry>
+    </collision>
+    <collision>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/hc10_standoff.ply"/>
+      </geometry>
+    </collision>
+    <collision>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/sensor_bracket.ply"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="tool0_to_ee" type="fixed">
+    <parent link="tool0"/>
+    <child link="ee"/>
+    <origin rpy="0.0 0.0 ${radians(45)}"/>
+  </joint>
+
+  <xacro:arg name="ros_distro" default="humble"/>
+  <xacro:if value="${'$(arg ros_distro)' > 'foxy'}">
+    <xacro:property name="camera_cal" value="${xacro.load_yaml('$(find snp_automate_2023)/config/calibration.yaml')}" />
+  </xacro:if>
+  <xacro:unless value="${'$(arg ros_distro)' > 'foxy'}">
+    <xacro:property name="camera_cal" value="${load_yaml('$(find snp_automate_2023)/config/calibration.yaml')}" />
+  </xacro:unless>
+
+  <link name="camera_frame"/>
+  <joint name="tool0_to_camera" type="fixed">
+    <parent link="flange"/>
+    <child link="camera_frame"/>
+    <origin xyz="${camera_cal['camera_mount_to_camera_pos']['x']} ${camera_cal['camera_mount_to_camera_pos']['y']} ${camera_cal['camera_mount_to_camera_pos']['z']}"
+            rpy="${camera_cal['camera_mount_to_camera_rpy']['x']} ${camera_cal['camera_mount_to_camera_rpy']['y']} ${camera_cal['camera_mount_to_camera_rpy']['z']}" />
+  </joint>
+
+  <!-- Add TCP -->
+  <link name="sand_tcp">
+    <visual>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/sponge.ply"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://snp_automate_2023/meshes/collision/sponge.ply"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="sand_tcp_joint" type="fixed">
+    <parent link="tool0"/>
+<!--    <origin xyz="-0.158 -0.158 0.123" rpy="0.0 ${radians(90)} ${radians(-135)}"/>-->
+    <origin xyz="-0.149 ${-0.149 - 0.005} 0.083" rpy="0.0 ${radians(-90)} ${radians(-135)}"/>
+<!--    <parent link="ee"/>-->
+<!--    <origin xyz="${-0.186 - 0.038} 0.0 ${0.08325}" rpy="0.0 ${radians(90)} 0.0"/>-->
+    <child link="sand_tcp"/>
+  </joint>
+</robot>

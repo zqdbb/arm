@@ -1,0 +1,550 @@
+Panels:
+  - Class: rviz_common/Displays
+    Help Height: 78
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /Status1
+        - /Tool Path1/Topic1
+      Splitter Ratio: 0.5
+    Tree Height: 776
+  - Class: rviz_common/Selection
+    Name: Selection
+  - Class: rviz_common/Tool Properties
+    Expanded:
+      - /Polygon Selection Tool1
+      - /Located Vector1
+    Name: Tool Properties
+    Splitter Ratio: 0.5886790156364441
+  - Class: rviz_common/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+  - Class: snp/SNPApplication
+    Name: SNPApplication
+  - Class: rviz_common/Displays
+    Help Height: 70
+    Name: Displays
+    Property Tree Widget:
+      Expanded: ~
+      Splitter Ratio: 0.5
+    Tree Height: 369
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz_default_plugins/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.029999999329447746
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Alpha: 1
+      Class: rviz_default_plugins/RobotModel
+      Collision Enabled: false
+      Description File: ""
+      Description Source: Topic
+      Description Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /robot_description
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        base:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        camera_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ee:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        flange:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        floor:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_1_s:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_2_l:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_3_u:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_4_r:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_5_b:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_6_t:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        sand_tcp:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        table:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        tool0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        world:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+      Mass Properties:
+        Inertia: false
+        Mass: false
+      Name: RobotModel
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Class: rviz_default_plugins/TF
+      Enabled: true
+      Filter (blacklist): ""
+      Filter (whitelist): ""
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+        base:
+          Value: false
+        base_link:
+          Value: false
+        cal_target_frame:
+          Value: false
+        camera_color_optical_frame:
+          Value: false
+        camera_frame:
+          Value: true
+        ee:
+          Value: false
+        flange:
+          Value: true
+        floor:
+          Value: false
+        link_1_s:
+          Value: false
+        link_2_l:
+          Value: false
+        link_3_u:
+          Value: false
+        link_4_r:
+          Value: false
+        link_5_b:
+          Value: false
+        link_6_t:
+          Value: false
+        motoros2/r1/flange:
+          Value: true
+        preview/base:
+          Value: false
+        preview/base_link:
+          Value: false
+        preview/camera_frame:
+          Value: true
+        preview/ee:
+          Value: false
+        preview/flange:
+          Value: true
+        preview/floor:
+          Value: false
+        preview/link_1_s:
+          Value: false
+        preview/link_2_l:
+          Value: false
+        preview/link_3_u:
+          Value: false
+        preview/link_4_r:
+          Value: false
+        preview/link_5_b:
+          Value: false
+        preview/link_6_t:
+          Value: false
+        preview/sand_tcp:
+          Value: true
+        preview/table:
+          Value: false
+        preview/tool0:
+          Value: false
+        preview/world:
+          Value: false
+        sand_tcp:
+          Value: true
+        table:
+          Value: false
+        tool0:
+          Value: false
+        world:
+          Value: false
+      Marker Scale: 0.20000000298023224
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        world:
+          floor:
+            table:
+              base_link:
+                base:
+                  {}
+                cal_target_frame:
+                  {}
+                link_1_s:
+                  link_2_l:
+                    link_3_u:
+                      link_4_r:
+                        link_5_b:
+                          link_6_t:
+                            flange:
+                              camera_frame:
+                                {}
+                              motoros2/r1/flange:
+                                camera_color_optical_frame:
+                                  {}
+                              tool0:
+                                ee:
+                                  {}
+                                sand_tcp:
+                                  {}
+          preview/world:
+            preview/floor:
+              preview/table:
+                preview/base_link:
+                  preview/base:
+                    {}
+                  preview/link_1_s:
+                    preview/link_2_l:
+                      preview/link_3_u:
+                        preview/link_4_r:
+                          preview/link_5_b:
+                            preview/link_6_t:
+                              preview/flange:
+                                preview/camera_frame:
+                                  {}
+                                preview/tool0:
+                                  preview/ee:
+                                    {}
+                                  preview/sand_tcp:
+                                    {}
+      Update Interval: 0
+      Value: true
+    - Class: rviz_default_plugins/Marker
+      Enabled: false
+      Name: TSDF Volume
+      Namespaces:
+        {}
+      Topic:
+        Depth: 5
+        Durability Policy: Transient Local
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /tsdf_volume
+      Value: false
+    - Alpha: 1
+      Arrow Length: 0.30000001192092896
+      Axes Length: 0.019999999552965164
+      Axes Radius: 0.0020000000949949026
+      Class: rviz_default_plugins/PoseArray
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.07000000029802322
+      Head Radius: 0.029999999329447746
+      Name: Tool Path
+      Shaft Length: 0.23000000417232513
+      Shaft Radius: 0.009999999776482582
+      Shape: Axes
+      Topic:
+        Depth: 5
+        Durability Policy: Transient Local
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /tool_paths
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz_default_plugins/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /camera/camera/depth/color/points
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Class: rviz_default_plugins/Marker
+      Enabled: true
+      Name: Open3d Mesh
+      Namespaces:
+        {}
+      Topic:
+        Depth: 5
+        Durability Policy: Transient Local
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /industrial_reconstruction_mesh
+      Value: true
+    - Alpha: 0.5
+      Class: rviz_default_plugins/RobotModel
+      Collision Enabled: false
+      Description File: ""
+      Description Source: Topic
+      Description Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /robot_description
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        base:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        camera_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ee:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        flange:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        floor:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_1_s:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_2_l:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_3_u:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_4_r:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_5_b:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_6_t:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        sand_tcp:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        table:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        tool0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        world:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+      Mass Properties:
+        Inertia: false
+        Mass: false
+      Name: Preview
+      TF Prefix: preview
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Class: rviz_default_plugins/Image
+      Enabled: false
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image
+      Normalize Range: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /camera/camera/color/image_raw
+      Value: false
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: floor
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+      Hide Inactive Objects: true
+    - Class: rviz_polygon_selection_tool/PolygonSelectionTool
+      Close loop: true
+      Lasso mode: true
+      Line Color: 0; 0; 0
+      Point Color: 255; 255; 255
+      Point Generation Gap: 0.0020000000949949026
+      Point Size: 5
+      Render as Overlay: true
+      Show Text: true
+      Text Size: 0.014999999664723873
+    - Class: noether_ros/LocatedVector
+      Line color: 128; 128; 0
+      Render as overlay: true
+      Service name: get_located_vector
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 2.8191206455230713
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: 0.027587760239839554
+        Y: 0.028926296159625053
+        Z: 0.9560388922691345
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.4009568691253662
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz)
+      Yaw: 1.1753209829330444
+    Saved: ~
+Window Geometry:
+  Displays:
+    collapsed: false
+  Height: 1043
+  Hide Left Dock: false
+  Hide Right Dock: true
+  Image:
+    collapsed: false
+  QMainWindow State: 000000ff00000000fd000000040000000000000240000003b5fc020000000bfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005d00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afc0000003f000003b5000002660100001efa000000010100000005fb00000026004100750074006f006d006100740065004100700070006c00690063006100740069006f006e0100000000ffffffff0000000000000000fb0000001c0053004e0050004100700070006c00690063006100740069006f006e0100000000ffffffff0000020e00fffffffb000000280054006500730073006500720061006300740045006e007600690072006f006e006d0065006e00740000000000ffffffff0000000000000000fb000000240054006500730073006500720061006300740057006f0072006b00620065006e006300680000000000ffffffff0000000000000000fb000000100044006900730070006c0061007900730100000000000001710000015600fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb000000280054006500730073006500720061006300740045006e007600690072006f006e006d0065006e0074000000028f0000014c0000000000000000fb000000100044006900730070006c0061007900730000000276000000f3000000cc00fffffffb0000000a0049006d006100670065000000032c000001120000001700ffffff000000010000010f000003b9fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d000003b9000000a900fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000073800000041fc0100000004fb00000038005400650073007300650072006100630074005400720061006a006500630074006f007200790020002d00200053006c00690064006500720100000000000007380000000000000000fb000000120020002d00200053006c00690064006500720100000000000007380000000000000000fb0000000800540069006d00650100000000000004420000000000000000fb0000000800540069006d006501000000000000045000000000000000000000053a000003b500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  SNPApplication:
+    collapsed: false
+  Selection:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
+  Views:
+    collapsed: true
+  Width: 1920
+  X: 0
+  Y: 0
