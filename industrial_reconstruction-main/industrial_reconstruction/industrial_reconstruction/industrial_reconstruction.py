@@ -90,6 +90,10 @@ class IndustrialReconstruction(Node):
         self.frame_count = 0
         self.processed_frame_count = 0
         self.reconstructed_frame_count = 0
+        # Temporary bounded-capture safeguard for eye-in-hand diagnostics.
+        # Keeping this small prevents a queued image stream from starving the
+        # stop service and makes repeatable fixed-frame tests possible.
+        self.max_saved_frames = 100
 
         self.declare_parameter("depth_image_topic")
         self.declare_parameter("color_image_topic")
@@ -312,7 +316,10 @@ class IndustrialReconstruction(Node):
             else:
                 self.sensor_data.append(
                     [o3d.geometry.Image(cv2_depth_img), o3d.geometry.Image(cv2_rgb_img), rgb_image_msg.header.stamp])
-                if (self.frame_count > 30):
+                # Do not delay images by a fixed 30-frame queue.  With an
+                # eye-in-hand camera this makes the queried TF belong to a
+                # substantially different robot pose during motion.
+                if self.sensor_data:
                     data = self.sensor_data.popleft()
                     try:
                         gm_tf_stamped = self.buffer.lookup_transform(self.relative_frame, self.tracking_frame, data[2])
@@ -327,7 +334,9 @@ class IndustrialReconstruction(Node):
                     rot_dist = Quaternion.absolute_distance(Quaternion(self.prev_pose_rot), rgb_r_quat)
 
                     # TODO: Testing if this is a good practice, min jump to accept data
-                    if (tran_dist >= self.translation_distance) or (rot_dist >= self.rotational_distance):
+                    if (len(self.color_images) < self.max_saved_frames and
+                            ((tran_dist >= self.translation_distance) or
+                             (rot_dist >= self.rotational_distance))):
                         self.prev_pose_tran = rgb_t
                         self.prev_pose_rot = rgb_r
                         rgb_pose = rgb_r_quat.transformation_matrix
@@ -338,6 +347,9 @@ class IndustrialReconstruction(Node):
                         self.depth_images.append(data[0])
                         self.color_images.append(data[1])
                         self.rgb_poses.append(rgb_pose)
+                        if len(self.color_images) >= self.max_saved_frames:
+                            self.get_logger().info(
+                                "Reached max_saved_frames; ignoring additional frames (%d)" % self.max_saved_frames)
                         if self.live_integration and self.tsdf_volume is not None:
                             self.integration_done = False
                             try:

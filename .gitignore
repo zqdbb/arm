@@ -1,6 +1,14 @@
 # Local environments and downloaded archives
 .venv/
 *.zip
+*.deb
+
+# Python caches and local editor state
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+/.vscode/
 
 # Large generated/demo artifacts
 *.mp4
@@ -16,7 +24,26 @@ runtime/snp_home/.cache/
 runtime/snp_home/.config/
 runtime/**/*.log
 
+# Keep the furniture deployment checkpoint directory even though generic ROS
+# runtime logs are ignored above.
+!项目文件夹(1)/项目文件夹/furniture_spray_deploy/log/
+!项目文件夹(1)/项目文件夹/furniture_spray_deploy/log/**
+
+# Downloaded dependencies and local installation markers
+WorldSculpt/offline_wheels/
+项目文件夹(1)/项目文件夹/furniture_spray_deploy/.deps_installed
+项目文件夹(1)/项目文件夹/furniture_spray_deploy/ultralytics/UNKNOWN.egg-info/
+
+# A duplicate upstream checkout is kept locally for reference.  The same
+# RealSense ROS source snapshot is included under official_full/.
+d435i_tsdf_sim/official_realsense_ros/
+
+# Large reproducible artifacts that cannot be stored in ordinary GitHub Git.
+# Lightweight viewer meshes, reports, RGB/depth frames and source data remain.
+d435i_tsdf_sim/output*/tsdf_mesh.ply
+项目文件夹(1)/项目文件夹/real_scan/sam_vit_b_01ec64.pth
+项目文件夹(1)/项目文件夹/real_scan/output/**/pcd_frames/
+
 # Secrets and local configuration
 .env
 *.local
-
