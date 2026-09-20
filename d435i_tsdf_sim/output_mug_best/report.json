@@ -1,0 +1,31 @@
+{
+  "renderer": "PyBullet TinyRenderer",
+  "camera": "Intel RealSense D435i (simulated)",
+  "target": "PyBullet mug mesh",
+  "resolution": [
+    640,
+    480
+  ],
+  "fov_deg": 87.0,
+  "near_clip_m": 0.105,
+  "stereo_baseline_m": 0.05,
+  "views": 144,
+  "voxel_m": 0.002,
+  "tsdf_smoothing_sigma_voxels": 0.35,
+  "ground_truth_size_m": [
+    0.123,
+    0.18244950000000001,
+    0.15000000000000002
+  ],
+  "reconstructed_bbox_m": [
+    0.12336380386352538,
+    0.17597873306274414,
+    0.1371499900817871
+  ],
+  "bbox_abs_error_m": [
+    0.00036380386352538596,
+    0.006470766937255873,
+    0.012850009918212918
+  ],
+  "pass": false
+}

@@ -1,0 +1,72 @@
+{
+  "tsdf_backend": "Open3D ScalableTSDFVolume",
+  "renderer": "PyBullet TinyRenderer",
+  "target": "procedural furniture chair",
+  "test_definition": "D435 best-case stereo geometry, exact poses, no environmental noise",
+  "depth_model": "d435_best",
+  "resolution": [
+    1280,
+    720
+  ],
+  "horizontal_fov_deg": 87.0,
+  "vertical_fov_deg": 56.185936694665564,
+  "intrinsics_px": {
+    "fx": 674.4192801798159,
+    "fy": 674.4192801798159,
+    "cx": 639.5,
+    "cy": 359.5
+  },
+  "near_clip_m": 0.105,
+  "far_clip_m": 2.0,
+  "stereo_baseline_m": 0.05,
+  "stereo_subpixel_levels": 32,
+  "views": 10,
+  "rings": 5,
+  "voxel_m": 0.001,
+  "sdf_trunc_m": 0.004,
+  "vertices": 1617388,
+  "triangles": 3206630,
+  "ground_truth_size_m": [
+    0.42,
+    0.42,
+    0.88
+  ],
+  "reconstructed_bbox_m": [
+    0.42351318059611737,
+    0.4238357934019748,
+    0.8817323980286919
+  ],
+  "reconstructed_bbox_min_m": [
+    -0.21175659029805868,
+    -0.2119178967009874,
+    0.0005
+  ],
+  "reconstructed_bbox_max_m": [
+    0.21175659029805868,
+    0.2119178967009874,
+    0.8822323980286918
+  ],
+  "bbox_abs_error_m": [
+    0.0035131805961173823,
+    0.0038357934019748186,
+    0.0017323980286918506
+  ],
+  "surface_distance_reconstruction_to_truth": {
+    "mean_m": 0.0003483208129182458,
+    "median_m": 0.00031623244285583496,
+    "p95_m": 0.0008004605770111084,
+    "max_m": 0.00185208220500499
+  },
+  "surface_distance_truth_to_reconstruction": {
+    "mean_m": 0.0019803133327513933,
+    "median_m": 0.0003815137315541506,
+    "p95_m": 0.014809277839958668,
+    "max_m": 0.038496796041727066
+  },
+  "truth_completeness_within_2mm": 0.8754366666666666,
+  "truth_completeness_within_5mm": 0.8968733333333333,
+  "reconstructed_surface_within_2mm": 1.0,
+  "reconstructed_surface_within_5mm": 1.0,
+  "mesh": "tsdf_mesh.ply",
+  "pose_file": "poses.json"
+}

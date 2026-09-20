@@ -1,0 +1,438 @@
+{
+  "tsdf_backend": "Open3D ScalableTSDFVolume",
+  "renderer": "PyBullet TinyRenderer",
+  "target": "procedural complex writing desk with drawers and hutch",
+  "test_definition": "D435 empirical sensor-noise simulation, frames rendered at exact poses, no environmental lighting/material model, TSDF uses noisy pose estimates with sigma=2.0 mm/axis and 0.150 deg/axis",
+  "depth_model": "d435_realistic",
+  "noise_model": {
+    "parameter_type": "empirical_simulation_not_device_measured",
+    "seed": 435,
+    "disparity_sigma_px": 0.045,
+    "frame_disparity_bias_sigma_px": 0.012,
+    "base_dropout_probability": 0.004,
+    "edge_dropout_increment": 0.16,
+    "silhouette_dropout_increment": 0.24,
+    "flying_pixel_probability_at_depth_edges": 0.035,
+    "dropped_pixels": 34028,
+    "flying_pixels": 1888,
+    "dropout_fraction_of_valid_input": 0.01597547435111959,
+    "pose_noise_simulated": true,
+    "per_frame": [
+      {
+        "valid_input_pixels": 125363,
+        "dropped_pixels": 2020,
+        "flying_pixels": 122,
+        "frame_disparity_bias_px": 0.001808990266653138,
+        "frame": 0
+      },
+      {
+        "valid_input_pixels": 146242,
+        "dropped_pixels": 2210,
+        "flying_pixels": 64,
+        "frame_disparity_bias_px": 0.007747938622773929,
+        "frame": 1
+      },
+      {
+        "valid_input_pixels": 136401,
+        "dropped_pixels": 2320,
+        "flying_pixels": 94,
+        "frame_disparity_bias_px": 0.011419035395505553,
+        "frame": 2
+      },
+      {
+        "valid_input_pixels": 151423,
+        "dropped_pixels": 2891,
+        "flying_pixels": 211,
+        "frame_disparity_bias_px": -0.010289986047746983,
+        "frame": 3
+      },
+      {
+        "valid_input_pixels": 127466,
+        "dropped_pixels": 2674,
+        "flying_pixels": 259,
+        "frame_disparity_bias_px": -0.0015578237196912043,
+        "frame": 4
+      },
+      {
+        "valid_input_pixels": 145645,
+        "dropped_pixels": 3054,
+        "flying_pixels": 257,
+        "frame_disparity_bias_px": 0.000986166954997478,
+        "frame": 5
+      },
+      {
+        "valid_input_pixels": 134552,
+        "dropped_pixels": 1864,
+        "flying_pixels": 68,
+        "frame_disparity_bias_px": -0.006666592609633918,
+        "frame": 6
+      },
+      {
+        "valid_input_pixels": 162052,
+        "dropped_pixels": 2369,
+        "flying_pixels": 86,
+        "frame_disparity_bias_px": -2.831204125554478e-05,
+        "frame": 7
+      },
+      {
+        "valid_input_pixels": 158953,
+        "dropped_pixels": 2420,
+        "flying_pixels": 125,
+        "frame_disparity_bias_px": 0.02089883819621158,
+        "frame": 8
+      },
+      {
+        "valid_input_pixels": 162791,
+        "dropped_pixels": 2095,
+        "flying_pixels": 75,
+        "frame_disparity_bias_px": -0.005215319356479507,
+        "frame": 9
+      },
+      {
+        "valid_input_pixels": 134830,
+        "dropped_pixels": 1668,
+        "flying_pixels": 60,
+        "frame_disparity_bias_px": 0.021886763785635418,
+        "frame": 10
+      },
+      {
+        "valid_input_pixels": 161670,
+        "dropped_pixels": 2783,
+        "flying_pixels": 193,
+        "frame_disparity_bias_px": 0.00012153400606767912,
+        "frame": 11
+      },
+      {
+        "valid_input_pixels": 107505,
+        "dropped_pixels": 1631,
+        "flying_pixels": 69,
+        "frame_disparity_bias_px": -0.005818076690073141,
+        "frame": 12
+      },
+      {
+        "valid_input_pixels": 139554,
+        "dropped_pixels": 1933,
+        "flying_pixels": 74,
+        "frame_disparity_bias_px": 0.009945051091134582,
+        "frame": 13
+      },
+      {
+        "valid_input_pixels": 135568,
+        "dropped_pixels": 2096,
+        "flying_pixels": 131,
+        "frame_disparity_bias_px": 0.005440555923366221,
+        "frame": 14
+      }
+    ]
+  },
+  "pose_noise_model": {
+    "parameter_type": "empirical_simulation_not_measured_localization_error",
+    "seed": 436,
+    "translation_sigma_m_per_axis": 0.002,
+    "rotation_sigma_deg_per_axis": 0.15,
+    "translation_error_norm_mean_m": 0.002891863692266722,
+    "translation_error_norm_max_m": 0.004905922347652997,
+    "rotation_error_norm_mean_deg": 0.23070482047847513,
+    "rotation_error_norm_max_deg": 0.38172900170353813,
+    "per_frame": [
+      {
+        "translation_error_m": [
+          -0.00010869828169989268,
+          0.001707105744141678,
+          0.0011642560610617783
+        ],
+        "rotation_error_deg_xyz": [
+          0.242909685069293,
+          -0.21080898905761003,
+          -0.05229742248701028
+        ],
+        "translation_error_norm_m": 0.002069182813055702,
+        "rotation_error_norm_deg": 0.32585359498820865,
+        "frame": 0
+      },
+      {
+        "translation_error_m": [
+          -0.00021060037624467704,
+          0.0026152999001459445,
+          0.0006503599909428721
+        ],
+        "rotation_error_deg_xyz": [
+          0.02739166765360708,
+          -0.13106586148149096,
+          -0.08719371666284748
+        ],
+        "translation_error_norm_m": 0.002703167439134505,
+        "rotation_error_norm_deg": 0.15978519245603445,
+        "frame": 1
+      },
+      {
+        "translation_error_m": [
+          0.000963291319027319,
+          0.0021720041528831497,
+          0.001359212039553565
+        ],
+        "rotation_error_deg_xyz": [
+          -0.26070426566222127,
+          -0.09660894521562524,
+          0.12931499455486123
+        ],
+        "translation_error_norm_m": 0.0027373325654590094,
+        "rotation_error_norm_deg": 0.3066306740149744,
+        "frame": 2
+      },
+      {
+        "translation_error_m": [
+          0.0006253481885633277,
+          -0.0002120237733990071,
+          0.0036682983856360343
+        ],
+        "rotation_error_deg_xyz": [
+          0.05878044431527696,
+          0.2514073107997854,
+          0.11950547950686236
+        ],
+        "translation_error_norm_m": 0.003727254684548096,
+        "rotation_error_norm_deg": 0.2845036663905166,
+        "frame": 3
+      },
+      {
+        "translation_error_m": [
+          -0.00031833282587818447,
+          -0.0013239533332094118,
+          -0.0003012109271825648
+        ],
+        "rotation_error_deg_xyz": [
+          -0.121845099284811,
+          -0.12677594524203184,
+          0.21995594241026015
+        ],
+        "translation_error_norm_m": 0.0013946025380738708,
+        "rotation_error_norm_deg": 0.2816007548166762,
+        "frame": 4
+      },
+      {
+        "translation_error_m": [
+          -3.7486081909313005e-05,
+          0.001771570595432945,
+          -6.33139486069468e-05
+        ],
+        "rotation_error_deg_xyz": [
+          -0.36396832588816513,
+          0.036962170433045574,
+          -0.10898571671840644
+        ],
+        "translation_error_norm_m": 0.0017730979208796546,
+        "rotation_error_norm_deg": 0.38172900170353813,
+        "frame": 5
+      },
+      {
+        "translation_error_m": [
+          -0.0014063541833793842,
+          -0.0005756141753736845,
+          0.0014749821081842668
+        ],
+        "rotation_error_deg_xyz": [
+          0.027269147682094128,
+          0.10060763891794303,
+          -0.09441578296173601
+        ],
+        "translation_error_norm_m": 0.0021177195252118555,
+        "rotation_error_norm_deg": 0.14064083153987927,
+        "frame": 6
+      },
+      {
+        "translation_error_m": [
+          0.004119694912166047,
+          -0.0006539752574747883,
+          0.0007095025359299237
+        ],
+        "rotation_error_deg_xyz": [
+          -0.13648598377447574,
+          0.003463640845836528,
+          0.03337691956304757
+        ],
+        "translation_error_norm_m": 0.004231189390136894,
+        "rotation_error_norm_deg": 0.14055048678077764,
+        "frame": 7
+      },
+      {
+        "translation_error_m": [
+          -0.0005457347725748125,
+          -0.0012912154485462915,
+          0.002362925766118334
+        ],
+        "rotation_error_deg_xyz": [
+          0.07085540443648371,
+          0.07134102662186798,
+          0.11648245056995962
+        ],
+        "translation_error_norm_m": 0.0027474500819392148,
+        "rotation_error_norm_deg": 0.15387719684249138,
+        "frame": 8
+      },
+      {
+        "translation_error_m": [
+          0.00022979062799924712,
+          0.004685927340810885,
+          -0.0014343483904288494
+        ],
+        "rotation_error_deg_xyz": [
+          -0.03825271083723861,
+          0.21676342834405016,
+          0.007531023965714166
+        ],
+        "translation_error_norm_m": 0.004905922347652997,
+        "rotation_error_norm_deg": 0.22024161749277932,
+        "frame": 9
+      },
+      {
+        "translation_error_m": [
+          0.001863023865203181,
+          -0.00027204285464220863,
+          -0.000805889234021901
+        ],
+        "rotation_error_deg_xyz": [
+          -0.021573956957904778,
+          -0.2116212437896206,
+          0.004986339454727687
+        ],
+        "translation_error_norm_m": 0.002048004564104018,
+        "rotation_error_norm_deg": 0.2127765260150784,
+        "frame": 10
+      },
+      {
+        "translation_error_m": [
+          -0.002534636106229077,
+          0.0026289887111504593,
+          -0.0018298729720229855
+        ],
+        "rotation_error_deg_xyz": [
+          0.012219585745998927,
+          0.1649007399353465,
+          0.0743953276982069
+        ],
+        "translation_error_norm_m": 0.004084653832100939,
+        "rotation_error_norm_deg": 0.1813180550589273,
+        "frame": 11
+      },
+      {
+        "translation_error_m": [
+          0.0011247927593954577,
+          0.0006730790169441195,
+          0.0012448819655590476
+        ],
+        "rotation_error_deg_xyz": [
+          0.009008141782070074,
+          0.017713607378957892,
+          0.2101114542444323
+        ],
+        "translation_error_norm_m": 0.001807740363772704,
+        "rotation_error_norm_deg": 0.21104914524691146,
+        "frame": 12
+      },
+      {
+        "translation_error_m": [
+          0.002833433376080222,
+          0.0003180999086430054,
+          0.0020606479597873976
+        ],
+        "rotation_error_deg_xyz": [
+          0.01592187069584655,
+          0.08212048900968384,
+          0.020426392177488147
+        ],
+        "translation_error_norm_m": 0.003517925846680117,
+        "rotation_error_norm_deg": 0.08610759652338121,
+        "frame": 13
+      },
+      {
+        "translation_error_m": [
+          -0.0002510835810387044,
+          0.002965890784834403,
+          0.0018653661217110519
+        ],
+        "rotation_error_deg_xyz": [
+          -0.3652898880663538,
+          0.074127518108458,
+          0.029590146183621976
+        ],
+        "translation_error_norm_m": 0.0035127114712512585,
+        "rotation_error_norm_deg": 0.3739079673069527,
+        "frame": 14
+      }
+    ]
+  },
+  "resolution": [
+    640,
+    480
+  ],
+  "horizontal_fov_deg": 55.73456039099189,
+  "vertical_fov_deg": 43.35369502634716,
+  "intrinsics_px": {
+    "fx": 605.210327148438,
+    "fy": 603.803466796875,
+    "cx": 324.331939697266,
+    "cy": 236.719329833984
+  },
+  "depth_scale_m_per_unit": 0.0010000000474974513,
+  "camera_parameter_source": "/home/azh/\u684c\u9762/arm/\u9879\u76ee\u6587\u4ef6\u5939(1)/\u9879\u76ee\u6587\u4ef6\u5939/real_scan/output/v12/chair/calibrate.json",
+  "camera_parameter_source_file": "/home/azh/\u684c\u9762/arm/d435i_tsdf_sim/d435i_real_measured_640x480.json",
+  "camera_parameter_type": "derived_from_saved_live_device_calibration",
+  "distortion_model": null,
+  "distortion_coeffs": null,
+  "distortion_simulated": false,
+  "near_clip_m": 0.105,
+  "far_clip_m": 3.0,
+  "stereo_baseline_m": 0.05,
+  "stereo_baseline_source": "unchanged simulation setting; not measured from the saved device calibration",
+  "stereo_subpixel_levels": 32,
+  "views": 15,
+  "rings": 5,
+  "voxel_m": 0.002,
+  "sdf_trunc_m": 0.008,
+  "vertices": 1948196,
+  "triangles": 3673023,
+  "ground_truth_size_m": [
+    0.76,
+    0.5,
+    1.1225
+  ],
+  "reconstructed_bbox_m": [
+    0.7621137365783253,
+    0.5132505066947962,
+    1.1318601546423626
+  ],
+  "reconstructed_bbox_min_m": [
+    -0.3803038183453263,
+    -0.2576517611516994,
+    -0.003
+  ],
+  "reconstructed_bbox_max_m": [
+    0.3818099182329989,
+    0.2555987455430968,
+    1.1288601546423627
+  ],
+  "bbox_abs_error_m": [
+    0.0021137365783252537,
+    0.013250506694796216,
+    0.009360154642362506
+  ],
+  "surface_distance_reconstruction_to_truth": {
+    "mean_m": 0.002636643359437585,
+    "median_m": 0.0021761134266853333,
+    "p95_m": 0.00697329780086875,
+    "max_m": 0.011998593807220459
+  },
+  "surface_distance_truth_to_reconstruction": {
+    "mean_m": 0.011817521415650845,
+    "median_m": 0.003658977337181568,
+    "p95_m": 0.040556930005550385,
+    "max_m": 0.08457963168621063
+  },
+  "truth_completeness_within_2mm": 0.34676666666666667,
+  "truth_completeness_within_5mm": 0.5515633333333333,
+  "reconstructed_surface_within_2mm": 0.46263,
+  "reconstructed_surface_within_5mm": 0.8621933333333334,
+  "mesh": "tsdf_mesh.ply",
+  "pose_file": "poses.json"
+}

@@ -1,0 +1,80 @@
+{
+  "tsdf_backend": "Open3D ScalableTSDFVolume",
+  "renderer": "PyBullet TinyRenderer",
+  "target": "procedural complex writing desk with drawers and hutch",
+  "test_definition": "D435 best-case stereo geometry, exact poses, no environmental noise",
+  "depth_model": "d435_best",
+  "resolution": [
+    640,
+    480
+  ],
+  "horizontal_fov_deg": 55.73456039099189,
+  "vertical_fov_deg": 43.35369502634716,
+  "intrinsics_px": {
+    "fx": 605.210327148438,
+    "fy": 603.803466796875,
+    "cx": 324.331939697266,
+    "cy": 236.719329833984
+  },
+  "depth_scale_m_per_unit": 0.0010000000474974513,
+  "camera_parameter_source": "/home/azh/\u684c\u9762/arm/\u9879\u76ee\u6587\u4ef6\u5939(1)/\u9879\u76ee\u6587\u4ef6\u5939/real_scan/output/v12/chair/calibrate.json",
+  "camera_parameter_source_file": "/home/azh/\u684c\u9762/arm/d435i_tsdf_sim/d435i_real_measured_640x480.json",
+  "camera_parameter_type": "derived_from_saved_live_device_calibration",
+  "distortion_model": null,
+  "distortion_coeffs": null,
+  "distortion_simulated": false,
+  "near_clip_m": 0.105,
+  "far_clip_m": 3.0,
+  "stereo_baseline_m": 0.05,
+  "stereo_baseline_source": "unchanged simulation setting; not measured from the saved device calibration",
+  "stereo_subpixel_levels": 32,
+  "views": 15,
+  "rings": 5,
+  "voxel_m": 0.002,
+  "sdf_trunc_m": 0.008,
+  "vertices": 1139945,
+  "triangles": 2224576,
+  "ground_truth_size_m": [
+    0.76,
+    0.5,
+    1.1225
+  ],
+  "reconstructed_bbox_m": [
+    0.7626666117123331,
+    0.5128631130790855,
+    1.1260000000000001
+  ],
+  "reconstructed_bbox_min_m": [
+    -0.3808845197039974,
+    -0.25773290723718467,
+    0.001
+  ],
+  "reconstructed_bbox_max_m": [
+    0.38178209200833574,
+    0.2551302058419009,
+    1.127
+  ],
+  "bbox_abs_error_m": [
+    0.002666611712333067,
+    0.012863113079085498,
+    0.0035000000000000586
+  ],
+  "surface_distance_reconstruction_to_truth": {
+    "mean_m": 0.0009830307681113482,
+    "median_m": 0.000849403440952301,
+    "p95_m": 0.002202153205871582,
+    "max_m": 0.006279587745666504
+  },
+  "surface_distance_truth_to_reconstruction": {
+    "mean_m": 0.011841830797493458,
+    "median_m": 0.0018346084980294108,
+    "p95_m": 0.046108122915029526,
+    "max_m": 0.08699069172143936
+  },
+  "truth_completeness_within_2mm": 0.5406733333333333,
+  "truth_completeness_within_5mm": 0.6341266666666666,
+  "reconstructed_surface_within_2mm": 0.89362,
+  "reconstructed_surface_within_5mm": 0.9999566666666667,
+  "mesh": "tsdf_mesh.ply",
+  "pose_file": "poses.json"
+}

@@ -1,0 +1,72 @@
+{
+  "tsdf_backend": "Open3D ScalableTSDFVolume",
+  "renderer": "PyBullet TinyRenderer",
+  "target": "procedural complex writing desk with drawers and hutch",
+  "test_definition": "D435 best-case stereo geometry, exact poses, no environmental noise",
+  "depth_model": "d435_best",
+  "resolution": [
+    1280,
+    720
+  ],
+  "horizontal_fov_deg": 87.0,
+  "vertical_fov_deg": 56.185936694665564,
+  "intrinsics_px": {
+    "fx": 674.4192801798159,
+    "fy": 674.4192801798159,
+    "cx": 639.5,
+    "cy": 359.5
+  },
+  "near_clip_m": 0.105,
+  "far_clip_m": 3.0,
+  "stereo_baseline_m": 0.05,
+  "stereo_subpixel_levels": 32,
+  "views": 15,
+  "rings": 5,
+  "voxel_m": 0.002,
+  "sdf_trunc_m": 0.008,
+  "vertices": 1084115,
+  "triangles": 2109001,
+  "ground_truth_size_m": [
+    0.76,
+    0.5,
+    1.1225
+  ],
+  "reconstructed_bbox_m": [
+    0.7638108516182762,
+    0.5116367339175176,
+    1.125641217860318
+  ],
+  "reconstructed_bbox_min_m": [
+    -0.3814897702365127,
+    -0.25793331509747947,
+    0.0009628378552812792
+  ],
+  "reconstructed_bbox_max_m": [
+    0.38232108138176346,
+    0.2537034188200381,
+    1.1266040557155992
+  ],
+  "bbox_abs_error_m": [
+    0.003810851618276212,
+    0.011636733917517628,
+    0.0031412178603178464
+  ],
+  "surface_distance_reconstruction_to_truth": {
+    "mean_m": 0.0005618954310193658,
+    "median_m": 0.0005313903093338013,
+    "p95_m": 0.0012473464012145996,
+    "max_m": 0.006395190954208374
+  },
+  "surface_distance_truth_to_reconstruction": {
+    "mean_m": 0.011356959119439125,
+    "median_m": 0.0009733732440508902,
+    "p95_m": 0.04497262462973595,
+    "max_m": 0.08720461279153824
+  },
+  "truth_completeness_within_2mm": 0.59738,
+  "truth_completeness_within_5mm": 0.6358433333333333,
+  "reconstructed_surface_within_2mm": 0.9964933333333333,
+  "reconstructed_surface_within_5mm": 0.9999633333333333,
+  "mesh": "tsdf_mesh.ply",
+  "pose_file": "poses.json"
+}

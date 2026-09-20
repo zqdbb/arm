@@ -1,0 +1,201 @@
+{
+  "tsdf_backend": "Open3D ScalableTSDFVolume",
+  "renderer": "PyBullet TinyRenderer",
+  "target": "procedural complex writing desk with drawers and hutch",
+  "test_definition": "D435 empirical sensor-noise simulation, exact poses, no environmental lighting/material model",
+  "depth_model": "d435_realistic",
+  "noise_model": {
+    "parameter_type": "empirical_simulation_not_device_measured",
+    "seed": 435,
+    "disparity_sigma_px": 0.045,
+    "frame_disparity_bias_sigma_px": 0.012,
+    "base_dropout_probability": 0.004,
+    "edge_dropout_increment": 0.16,
+    "silhouette_dropout_increment": 0.24,
+    "flying_pixel_probability_at_depth_edges": 0.035,
+    "dropped_pixels": 34028,
+    "flying_pixels": 1888,
+    "dropout_fraction_of_valid_input": 0.01597547435111959,
+    "pose_noise_simulated": false,
+    "per_frame": [
+      {
+        "valid_input_pixels": 125363,
+        "dropped_pixels": 2020,
+        "flying_pixels": 122,
+        "frame_disparity_bias_px": 0.001808990266653138,
+        "frame": 0
+      },
+      {
+        "valid_input_pixels": 146242,
+        "dropped_pixels": 2210,
+        "flying_pixels": 64,
+        "frame_disparity_bias_px": 0.007747938622773929,
+        "frame": 1
+      },
+      {
+        "valid_input_pixels": 136401,
+        "dropped_pixels": 2320,
+        "flying_pixels": 94,
+        "frame_disparity_bias_px": 0.011419035395505553,
+        "frame": 2
+      },
+      {
+        "valid_input_pixels": 151423,
+        "dropped_pixels": 2891,
+        "flying_pixels": 211,
+        "frame_disparity_bias_px": -0.010289986047746983,
+        "frame": 3
+      },
+      {
+        "valid_input_pixels": 127466,
+        "dropped_pixels": 2674,
+        "flying_pixels": 259,
+        "frame_disparity_bias_px": -0.0015578237196912043,
+        "frame": 4
+      },
+      {
+        "valid_input_pixels": 145645,
+        "dropped_pixels": 3054,
+        "flying_pixels": 257,
+        "frame_disparity_bias_px": 0.000986166954997478,
+        "frame": 5
+      },
+      {
+        "valid_input_pixels": 134552,
+        "dropped_pixels": 1864,
+        "flying_pixels": 68,
+        "frame_disparity_bias_px": -0.006666592609633918,
+        "frame": 6
+      },
+      {
+        "valid_input_pixels": 162052,
+        "dropped_pixels": 2369,
+        "flying_pixels": 86,
+        "frame_disparity_bias_px": -2.831204125554478e-05,
+        "frame": 7
+      },
+      {
+        "valid_input_pixels": 158953,
+        "dropped_pixels": 2420,
+        "flying_pixels": 125,
+        "frame_disparity_bias_px": 0.02089883819621158,
+        "frame": 8
+      },
+      {
+        "valid_input_pixels": 162791,
+        "dropped_pixels": 2095,
+        "flying_pixels": 75,
+        "frame_disparity_bias_px": -0.005215319356479507,
+        "frame": 9
+      },
+      {
+        "valid_input_pixels": 134830,
+        "dropped_pixels": 1668,
+        "flying_pixels": 60,
+        "frame_disparity_bias_px": 0.021886763785635418,
+        "frame": 10
+      },
+      {
+        "valid_input_pixels": 161670,
+        "dropped_pixels": 2783,
+        "flying_pixels": 193,
+        "frame_disparity_bias_px": 0.00012153400606767912,
+        "frame": 11
+      },
+      {
+        "valid_input_pixels": 107505,
+        "dropped_pixels": 1631,
+        "flying_pixels": 69,
+        "frame_disparity_bias_px": -0.005818076690073141,
+        "frame": 12
+      },
+      {
+        "valid_input_pixels": 139554,
+        "dropped_pixels": 1933,
+        "flying_pixels": 74,
+        "frame_disparity_bias_px": 0.009945051091134582,
+        "frame": 13
+      },
+      {
+        "valid_input_pixels": 135568,
+        "dropped_pixels": 2096,
+        "flying_pixels": 131,
+        "frame_disparity_bias_px": 0.005440555923366221,
+        "frame": 14
+      }
+    ]
+  },
+  "resolution": [
+    640,
+    480
+  ],
+  "horizontal_fov_deg": 55.73456039099189,
+  "vertical_fov_deg": 43.35369502634716,
+  "intrinsics_px": {
+    "fx": 605.210327148438,
+    "fy": 603.803466796875,
+    "cx": 324.331939697266,
+    "cy": 236.719329833984
+  },
+  "depth_scale_m_per_unit": 0.0010000000474974513,
+  "camera_parameter_source": "/home/azh/\u684c\u9762/arm/\u9879\u76ee\u6587\u4ef6\u5939(1)/\u9879\u76ee\u6587\u4ef6\u5939/real_scan/output/v12/chair/calibrate.json",
+  "camera_parameter_source_file": "/home/azh/\u684c\u9762/arm/d435i_tsdf_sim/d435i_real_measured_640x480.json",
+  "camera_parameter_type": "derived_from_saved_live_device_calibration",
+  "distortion_model": null,
+  "distortion_coeffs": null,
+  "distortion_simulated": false,
+  "near_clip_m": 0.105,
+  "far_clip_m": 3.0,
+  "stereo_baseline_m": 0.05,
+  "stereo_baseline_source": "unchanged simulation setting; not measured from the saved device calibration",
+  "stereo_subpixel_levels": 32,
+  "views": 15,
+  "rings": 5,
+  "voxel_m": 0.002,
+  "sdf_trunc_m": 0.008,
+  "vertices": 1443008,
+  "triangles": 2734431,
+  "ground_truth_size_m": [
+    0.76,
+    0.5,
+    1.1225
+  ],
+  "reconstructed_bbox_m": [
+    0.7631206766495557,
+    0.5131934394720268,
+    1.1283629327561742
+  ],
+  "reconstructed_bbox_min_m": [
+    -0.38119359807949726,
+    -0.25922261164262955,
+    0.0006370672438258912
+  ],
+  "reconstructed_bbox_max_m": [
+    0.38192707857005853,
+    0.2539708278293973,
+    1.129
+  ],
+  "bbox_abs_error_m": [
+    0.0031206766495557314,
+    0.01319343947202678,
+    0.005862932756174111
+  ],
+  "surface_distance_reconstruction_to_truth": {
+    "mean_m": 0.00107624102383852,
+    "median_m": 0.0009754002094268799,
+    "p95_m": 0.0024300843942910433,
+    "max_m": 0.007593065500259399
+  },
+  "surface_distance_truth_to_reconstruction": {
+    "mean_m": 0.011923342943191528,
+    "median_m": 0.0018075413536280394,
+    "p95_m": 0.04496879503130913,
+    "max_m": 0.08618836849927902
+  },
+  "truth_completeness_within_2mm": 0.53886,
+  "truth_completeness_within_5mm": 0.62224,
+  "reconstructed_surface_within_2mm": 0.8609966666666666,
+  "reconstructed_surface_within_5mm": 0.99923,
+  "mesh": "tsdf_mesh.ply",
+  "pose_file": "poses.json"
+}

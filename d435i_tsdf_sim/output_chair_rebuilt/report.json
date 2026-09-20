@@ -1,0 +1,31 @@
+{
+  "renderer": "PyBullet TinyRenderer",
+  "camera": "Intel RealSense D435i (simulated)",
+  "target": "procedural furniture chair",
+  "resolution": [
+    640,
+    480
+  ],
+  "fov_deg": 87.0,
+  "near_clip_m": 0.105,
+  "stereo_baseline_m": 0.05,
+  "views": 120,
+  "voxel_m": 0.004,
+  "tsdf_smoothing_sigma_voxels": 0.2,
+  "ground_truth_size_m": [
+    0.42,
+    0.42,
+    0.88
+  ],
+  "reconstructed_bbox_m": [
+    0.428,
+    0.428,
+    0.8000954971313476
+  ],
+  "bbox_abs_error_m": [
+    0.008000000000000007,
+    0.008000000000000007,
+    0.07990450286865236
+  ],
+  "pass": false
+}

@@ -1,0 +1,52 @@
+{
+  "tsdf_backend": "Open3D ScalableTSDFVolume",
+  "renderer": "PyBullet TinyRenderer",
+  "target": "procedural furniture chair",
+  "resolution": [
+    640,
+    480
+  ],
+  "vertical_fov_deg": 87.0,
+  "intrinsics_px": {
+    "fx": 337.20964008990796,
+    "fy": 252.90723006743096,
+    "cx": 319.5,
+    "cy": 239.5
+  },
+  "near_clip_m": 0.105,
+  "far_clip_m": 2.0,
+  "stereo_baseline_m": 0.05,
+  "views": 40,
+  "rings": 5,
+  "voxel_m": 0.004,
+  "sdf_trunc_m": 0.012,
+  "vertices": 211198,
+  "triangles": 407531,
+  "ground_truth_size_m": [
+    0.42,
+    0.42,
+    0.88
+  ],
+  "reconstructed_bbox_m": [
+    0.44377357684744595,
+    0.43374171866698635,
+    0.8887281810402257
+  ],
+  "reconstructed_bbox_min_m": [
+    -0.22099570029947505,
+    -0.21732210647266623,
+    0.0012718189597743855
+  ],
+  "reconstructed_bbox_max_m": [
+    0.2227778765479709,
+    0.21641961219432013,
+    0.89
+  ],
+  "bbox_abs_error_m": [
+    0.023773576847445965,
+    0.013741718666986369,
+    0.008728181040225658
+  ],
+  "mesh": "tsdf_mesh.ply",
+  "pose_file": "poses.json"
+}

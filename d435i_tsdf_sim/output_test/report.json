@@ -1,0 +1,29 @@
+{
+  "renderer": "PyBullet TinyRenderer",
+  "camera": "Intel RealSense D435i (simulated)",
+  "resolution": [
+    640,
+    480
+  ],
+  "fov_deg": 87.0,
+  "near_clip_m": 0.105,
+  "stereo_baseline_m": 0.05,
+  "views": 24,
+  "voxel_m": 0.004,
+  "ground_truth_size_m": [
+    0.24,
+    0.18,
+    0.2
+  ],
+  "reconstructed_bbox_m": [
+    0.24617947387695313,
+    0.18683735656738282,
+    0.19829852294921874
+  ],
+  "bbox_abs_error_m": [
+    0.00617947387695314,
+    0.006837356567382824,
+    0.0017014770507812749
+  ],
+  "pass": true
+}
