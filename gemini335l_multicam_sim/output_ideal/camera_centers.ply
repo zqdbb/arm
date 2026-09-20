@@ -1,0 +1,16 @@
+ply
+format binary_little_endian 1.0
+comment Created by Open3D
+element vertex 8
+property double x
+property double y
+property double z
+property uchar red
+property uchar green
+property uchar blue
+end_header
+мллллл@мллллл@ ≥≥≥≥≥@Ъsмлллллюмллллл@ ≥≥≥≥≥@Ъsмлллллюмлллллю ≥≥≥≥≥@Ъsмллллл@млллллю ≥≥≥≥≥@Ъsмллллл@мллллл@=
+вёp=Й?РYмлллллюмллллл@=
+вёp=Й?РYмлллллюмлллллю=
+вёp=Й?РYмллллл@млллллю=
+вёp=Й?РY

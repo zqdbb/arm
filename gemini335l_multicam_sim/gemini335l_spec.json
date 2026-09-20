@@ -1,0 +1,46 @@
+{
+  "model": "Orbbec Gemini 335L",
+  "parameter_type": "manufacturer_specification_typical_values_not_per_device_calibration",
+  "source_file": "/home/azh/文档/xwechat_files/wxid_tfttzct2ke8122_5342/msg/file/2026-09/Gemini335L精简规格书(1).docx",
+  "depth": {
+    "native_width": 1280,
+    "native_height": 800,
+    "fps": 30,
+    "fx_px": 620.0,
+    "fy_px": 620.0,
+    "cx_px": 640.0,
+    "cy_px": 400.0,
+    "horizontal_fov_deg_typical_at_2m": 90.0,
+    "vertical_fov_deg_typical_at_2m": 65.0,
+    "depth_unit_m": 0.001,
+    "ideal_working_range_m": [0.25, 6.0],
+    "broad_working_range_m": [0.17, 20.0],
+    "accuracy": {
+      "at_2m_fraction": 0.01,
+      "at_4m_fraction": 0.02
+    },
+    "spatial_precision": {
+      "at_2m_fraction": 0.008,
+      "at_4m_fraction": 0.016
+    },
+    "temporal_precision_at_2m_fraction": 0.004,
+    "fill_rate_at_2m_fraction": 0.995
+  },
+  "stereo": {
+    "baseline_m": 0.095
+  },
+  "capture": {
+    "shutter": "global",
+    "multi_camera_sync": true,
+    "simulation_schedule": "sequential_cam01_to_cam08"
+  },
+  "simulation_resolution": {
+    "width": 640,
+    "height": 400,
+    "fx_px": 310.0,
+    "fy_px": 310.0,
+    "cx_px": 320.0,
+    "cy_px": 200.0,
+    "note": "Exact 0.5 scale of the specification's 1280x800 typical intrinsics"
+  }
+}

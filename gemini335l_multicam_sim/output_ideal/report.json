@@ -1,0 +1,434 @@
+{
+  "project": "Gemini 335L eight fixed camera simulation",
+  "test_definition": "exact fixed extrinsics and no sensor noise",
+  "important_scope": "Specification values are typical/limit values, not calibration from eight physical units.",
+  "camera_model": "Orbbec Gemini 335L",
+  "camera_parameter_type": "manufacturer_specification_typical_values_not_per_device_calibration",
+  "camera_parameter_source_file": "/home/azh/\u6587\u6863/xwechat_files/wxid_tfttzct2ke8122_5342/msg/file/2026-09/Gemini335L\u7cbe\u7b80\u89c4\u683c\u4e66(1).docx",
+  "camera_count": 8,
+  "camera_visual_model": {
+    "source": "Orbbec official OrbbecSDK_ROS2 repository",
+    "repository": "https://github.com/orbbec/OrbbecSDK_ROS2",
+    "source_mesh": "/home/azh/\u684c\u9762/arm/gemini335l_multicam_sim/assets/gemini335l_official/base_link.STL",
+    "license": "Apache License 2.0",
+    "official_urdf": "assets/gemini335l_official/gemini_335_L_336_L.urdf.xacro",
+    "mesh_sha256": "9de399ed805ddb004cacdf7656766d728d0e4fb9e9c83c70a3c12950c7db8303",
+    "mesh_extent_m": [
+      0.12401441670954227,
+      0.02903116754896473,
+      0.026995661901310086
+    ],
+    "display_triangle_count_per_camera": 12000,
+    "world_mesh_file": "gemini335l_cameras_world.ply",
+    "enlarged_display_mesh_file": "gemini335l_cameras_world_x4.ply",
+    "enlarged_display_scale": 4.0
+  },
+  "capture_mode": "fixed cameras, static vehicle, sequential capture cam01 to cam08",
+  "infrared_interference_simulated": false,
+  "resolution": [
+    640,
+    400
+  ],
+  "full_resolution": false,
+  "intrinsics_px": {
+    "fx": 310.0,
+    "fy": 310.0,
+    "cx": 320.0,
+    "cy": 200.0
+  },
+  "calculated_fov_deg": {
+    "horizontal": 91.81876089839828,
+    "vertical": 65.65708358282507
+  },
+  "spec_typical_depth_fov_deg": {
+    "horizontal": 90.0,
+    "vertical": 65.0
+  },
+  "stereo_baseline_m": 0.095,
+  "depth_unit_m": 0.001,
+  "depth_model": "ideal",
+  "noise_model": null,
+  "pose_noise": null,
+  "tsdf": {
+    "backend": "Open3D ScalableTSDFVolume",
+    "voxel_m": 0.015,
+    "trunc_m": 0.06
+  },
+  "vehicle": {
+    "type": "downloaded high-detail concept car",
+    "model_name": "Car Concept",
+    "source_repository": "KhronosGroup/glTF-Sample-Assets",
+    "source_url": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/CarConcept",
+    "license": "Creative Commons Attribution 4.0 International",
+    "attribution": "2024 Darmstadt Graphics Group GmbH; Eric Chadwick for model and textures",
+    "asset_file": "/home/azh/\u684c\u9762/arm/gemini335l_multicam_sim/assets/car_concept/CarConcept.glb",
+    "source_bbox_after_axis_mapping": [
+      4.357385993003845,
+      2.542320966720581,
+      1.1488961279392242
+    ],
+    "normalized_bbox_target_m": [
+      4.8,
+      2.05,
+      1.55
+    ],
+    "axis_scale": [
+      1.1015778743739502,
+      0.8063497987999362,
+      1.349121093114167
+    ],
+    "mesh_parts": [
+      "BodyDoorLWindow",
+      "BodyDoorLWindowGasket",
+      "Axles",
+      "InteriorDoorL02",
+      "InteriorDoorL05",
+      "InteriorPedalBrake",
+      "meshes[85]-1",
+      "InteriorDoorL06",
+      "InteriorSeatsColor2",
+      "InteriorSteeringDash",
+      "License Plate",
+      "BodyDoorLMirrorColor2",
+      "BodyTurnsignalsRear",
+      "BodyTaillights",
+      "BodyDoorLMirrorColor1",
+      "BodyHeadlights",
+      "BodyDoorLMirror",
+      "meshes[96]-0",
+      "meshes[96]-1",
+      "WheelRearRBrakePad",
+      "WheelRearRBrakeDisc",
+      "meshes[95]-0",
+      "meshes[95]-1"
+    ],
+    "ground_truth_bbox_m": [
+      4.8,
+      2.05,
+      1.55
+    ],
+    "reconstructed_bbox_m": [
+      4.797138149677592,
+      2.047612002026794,
+      1.542387925468624
+    ],
+    "bbox_absolute_error_m": [
+      0.002861850322408266,
+      0.002387997973205991,
+      0.007612074531376134
+    ]
+  },
+  "per_camera": [
+    {
+      "camera": 1,
+      "name": "cam01_upper_front_left",
+      "layer": "upper",
+      "capture_order": 1,
+      "camera_to_vehicle_center_m": 4.7461168337916,
+      "camera_to_nearest_surface_m": 2.8978021144866943,
+      "valid_pixels": 34693,
+      "valid_pixel_ratio": 0.13551953125,
+      "point_count": 34693,
+      "noise": null,
+      "pose_error": null
+    },
+    {
+      "camera": 2,
+      "name": "cam02_upper_rear_left",
+      "layer": "upper",
+      "capture_order": 2,
+      "camera_to_vehicle_center_m": 4.7461168337916,
+      "camera_to_nearest_surface_m": 2.6589255332946777,
+      "valid_pixels": 35165,
+      "valid_pixel_ratio": 0.13736328125,
+      "point_count": 35165,
+      "noise": null,
+      "pose_error": null
+    },
+    {
+      "camera": 3,
+      "name": "cam03_upper_rear_right",
+      "layer": "upper",
+      "capture_order": 3,
+      "camera_to_vehicle_center_m": 4.7461168337916,
+      "camera_to_nearest_surface_m": 2.659186840057373,
+      "valid_pixels": 35446,
+      "valid_pixel_ratio": 0.1384609375,
+      "point_count": 35446,
+      "noise": null,
+      "pose_error": null
+    },
+    {
+      "camera": 4,
+      "name": "cam04_upper_front_right",
+      "layer": "upper",
+      "capture_order": 4,
+      "camera_to_vehicle_center_m": 4.7461168337916,
+      "camera_to_nearest_surface_m": 2.8980650901794434,
+      "valid_pixels": 34274,
+      "valid_pixel_ratio": 0.1338828125,
+      "point_count": 34274,
+      "noise": null,
+      "pose_error": null
+    },
+    {
+      "camera": 5,
+      "name": "cam05_lower_front_left",
+      "layer": "lower",
+      "capture_order": 5,
+      "camera_to_vehicle_center_m": 4.440948659914906,
+      "camera_to_nearest_surface_m": 2.394188404083252,
+      "valid_pixels": 31547,
+      "valid_pixel_ratio": 0.12323046875,
+      "point_count": 31547,
+      "noise": null,
+      "pose_error": null
+    },
+    {
+      "camera": 6,
+      "name": "cam06_lower_rear_left",
+      "layer": "lower",
+      "capture_order": 6,
+      "camera_to_vehicle_center_m": 4.440948659914906,
+      "camera_to_nearest_surface_m": 2.2058143615722656,
+      "valid_pixels": 35999,
+      "valid_pixel_ratio": 0.14062109375,
+      "point_count": 35999,
+      "noise": null,
+      "pose_error": null
+    },
+    {
+      "camera": 7,
+      "name": "cam07_lower_rear_right",
+      "layer": "lower",
+      "capture_order": 7,
+      "camera_to_vehicle_center_m": 4.440948659914906,
+      "camera_to_nearest_surface_m": 2.206131935119629,
+      "valid_pixels": 36351,
+      "valid_pixel_ratio": 0.14199609375,
+      "point_count": 36351,
+      "noise": null,
+      "pose_error": null
+    },
+    {
+      "camera": 8,
+      "name": "cam08_lower_front_right",
+      "layer": "lower",
+      "capture_order": 8,
+      "camera_to_vehicle_center_m": 4.440948659914906,
+      "camera_to_nearest_surface_m": 2.3945071697235107,
+      "valid_pixels": 31274,
+      "valid_pixel_ratio": 0.1221640625,
+      "point_count": 31274,
+      "noise": null,
+      "pose_error": null
+    }
+  ],
+  "point_cloud": {
+    "raw_total_points_before_merge_downsample": 274749,
+    "merged_points_after_10mm_voxel": 182580,
+    "file": "merged_8cam.ply"
+  },
+  "mesh": {
+    "vertices": 143923,
+    "triangles": 279226,
+    "ply_file": "tsdf_mesh.ply",
+    "obj_file": "tsdf_mesh.obj"
+  },
+  "surface_evaluation": {
+    "reconstruction_to_truth": {
+      "mean_m": 0.0058548771776258945,
+      "median_m": 0.004600345157086849,
+      "p95_m": 0.014083988964557648,
+      "max_m": 0.05197910964488983
+    },
+    "truth_to_reconstruction": {
+      "mean_m": 0.18579153716564178,
+      "median_m": 0.10360578447580338,
+      "p95_m": 0.6471136808395386,
+      "max_m": 0.8800169825553894
+    },
+    "completeness_definition": "camera-visible ground-truth exterior sampled from the eight ideal depth views",
+    "completeness": {
+      "within_10mm": 0.9700499473033038,
+      "within_20mm": 0.982477202951015,
+      "within_50mm": 0.9878935068505705
+    },
+    "full_mesh_completeness_note": "Includes hidden interior, underside and occluded mechanical surfaces.",
+    "full_mesh_completeness": {
+      "within_10mm": 0.2189611111111111,
+      "within_20mm": 0.2875666666666667,
+      "within_50mm": 0.37145555555555554
+    },
+    "reconstructed_surface_accuracy": {
+      "within_10mm": 0.8058666666666666,
+      "within_20mm": 0.9859388888888889,
+      "within_50mm": 0.9999944444444444
+    }
+  },
+  "adjacent_camera_overlap": [
+    {
+      "camera_a": 1,
+      "camera_b": 2,
+      "source_points": 16311,
+      "overlap_points": 9889,
+      "overlap_fraction": 0.6062779719207897,
+      "overlap_distance": {
+        "mean_m": 0.018720456103641276,
+        "median_m": 0.01208254325506038,
+        "p95_m": 0.06017922084140612,
+        "max_m": 0.07999716811076699
+      }
+    },
+    {
+      "camera_a": 2,
+      "camera_b": 3,
+      "source_points": 15035,
+      "overlap_points": 6985,
+      "overlap_fraction": 0.4645826405054872,
+      "overlap_distance": {
+        "mean_m": 0.016043121460602515,
+        "median_m": 0.011980031872713631,
+        "p95_m": 0.049185354258532606,
+        "max_m": 0.07956541732247295
+      }
+    },
+    {
+      "camera_a": 3,
+      "camera_b": 4,
+      "source_points": 15276,
+      "overlap_points": 10637,
+      "overlap_fraction": 0.6963210264467138,
+      "overlap_distance": {
+        "mean_m": 0.017492062266378384,
+        "median_m": 0.012225681348992172,
+        "p95_m": 0.053808887619981455,
+        "max_m": 0.07997453605514103
+      }
+    },
+    {
+      "camera_a": 4,
+      "camera_b": 1,
+      "source_points": 16191,
+      "overlap_points": 8266,
+      "overlap_fraction": 0.5105305416589463,
+      "overlap_distance": {
+        "mean_m": 0.015243622335737545,
+        "median_m": 0.011305494934982572,
+        "p95_m": 0.04976582850038523,
+        "max_m": 0.07990864371903615
+      }
+    },
+    {
+      "camera_a": 5,
+      "camera_b": 6,
+      "source_points": 11552,
+      "overlap_points": 6454,
+      "overlap_fraction": 0.558691135734072,
+      "overlap_distance": {
+        "mean_m": 0.014982239834878256,
+        "median_m": 0.0103930463155567,
+        "p95_m": 0.05539271051084952,
+        "max_m": 0.07987139818767586
+      }
+    },
+    {
+      "camera_a": 6,
+      "camera_b": 7,
+      "source_points": 11476,
+      "overlap_points": 2853,
+      "overlap_fraction": 0.24860578598814917,
+      "overlap_distance": {
+        "mean_m": 0.01487094172229805,
+        "median_m": 0.01033556736682271,
+        "p95_m": 0.051476268082058824,
+        "max_m": 0.07997778435717477
+      }
+    },
+    {
+      "camera_a": 7,
+      "camera_b": 8,
+      "source_points": 11782,
+      "overlap_points": 7839,
+      "overlap_fraction": 0.6653369546766253,
+      "overlap_distance": {
+        "mean_m": 0.015489910477514067,
+        "median_m": 0.011310982428429945,
+        "p95_m": 0.0514560042860436,
+        "max_m": 0.07995727230902915
+      }
+    },
+    {
+      "camera_a": 8,
+      "camera_b": 5,
+      "source_points": 11594,
+      "overlap_points": 2419,
+      "overlap_fraction": 0.20864240124202174,
+      "overlap_distance": {
+        "mean_m": 0.017507881618368644,
+        "median_m": 0.009550157456902112,
+        "p95_m": 0.06323130995366251,
+        "max_m": 0.07999318781160893
+      }
+    },
+    {
+      "camera_a": 1,
+      "camera_b": 5,
+      "source_points": 16311,
+      "overlap_points": 13918,
+      "overlap_fraction": 0.8532891913432653,
+      "overlap_distance": {
+        "mean_m": 0.01657696761791911,
+        "median_m": 0.011656020913662996,
+        "p95_m": 0.05426511714650767,
+        "max_m": 0.07998108761581002
+      }
+    },
+    {
+      "camera_a": 2,
+      "camera_b": 6,
+      "source_points": 15035,
+      "overlap_points": 11955,
+      "overlap_fraction": 0.7951446624542734,
+      "overlap_distance": {
+        "mean_m": 0.010871115004991333,
+        "median_m": 0.007733038898795876,
+        "p95_m": 0.03259321381144062,
+        "max_m": 0.07993423053200202
+      }
+    },
+    {
+      "camera_a": 3,
+      "camera_b": 7,
+      "source_points": 15276,
+      "overlap_points": 12234,
+      "overlap_fraction": 0.8008641005498822,
+      "overlap_distance": {
+        "mean_m": 0.012425206894543355,
+        "median_m": 0.009810309615312533,
+        "p95_m": 0.033731138272710494,
+        "max_m": 0.07990637000269861
+      }
+    },
+    {
+      "camera_a": 4,
+      "camera_b": 8,
+      "source_points": 16191,
+      "overlap_points": 13883,
+      "overlap_fraction": 0.8574516706812426,
+      "overlap_distance": {
+        "mean_m": 0.01589888348638671,
+        "median_m": 0.011764146570935007,
+        "p95_m": 0.04877526474069053,
+        "max_m": 0.07995345544472553
+      }
+    }
+  ],
+  "files": {
+    "ground_truth": "ground_truth_vehicle.ply",
+    "poses": "poses.json",
+    "camera_centers": "camera_centers.ply",
+    "camera_models": "gemini335l_cameras_world.ply",
+    "camera_models_enlarged": "gemini335l_cameras_world_x4.ply"
+  }
+}
