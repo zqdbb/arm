@@ -1,0 +1,169 @@
+!!python/object/new:openpoints.utils.config.EasyConfig
+dictitems:
+  batch_size: 8
+  cfg_basename: pointnext-s
+  ckpt_dir: log/partnet-train-pointnext-s-20260701-111510-2y8MxZ822VDbWVAY9vn9X7/checkpoint
+  code_dir: log/partnet-train-pointnext-s-20260701-111510-2y8MxZ822VDbWVAY9vn9X7/code
+  criterion_args: !!python/object/new:openpoints.utils.config.EasyConfig
+    dictitems:
+      NAME: CrossEntropy
+  dataloader: !!python/object/new:openpoints.utils.config.EasyConfig
+    dictitems:
+      num_workers: 4
+      pin_memory: true
+  dataset: !!python/object/new:openpoints.utils.config.EasyConfig
+    dictitems:
+      common: !!python/object/new:openpoints.utils.config.EasyConfig
+        dictitems:
+          NAME: PartNetStorageFurniture
+          data_root: data/sem_seg_h5/StorageFurniture-3
+          num_points: 2048
+      test: !!python/object/new:openpoints.utils.config.EasyConfig
+        dictitems:
+          split: test
+      train: !!python/object/new:openpoints.utils.config.EasyConfig
+        dictitems:
+          split: train
+      val: !!python/object/new:openpoints.utils.config.EasyConfig
+        dictitems:
+          split: val
+  datatransforms: !!python/object/new:openpoints.utils.config.EasyConfig
+    dictitems:
+      kwargs: !!python/object/new:openpoints.utils.config.EasyConfig
+        dictitems:
+          angle:
+          - 0
+          - 1.0
+          - 0
+          gravity_dim: 1
+          jitter_clip: 0.005
+          jitter_sigma: 0.001
+          scale:
+          - 0.8
+          - 1.2
+      train:
+      - PointsToTensor
+      - PointCloudScaling
+      - PointCloudCenterAndNormalize
+      - PointCloudJitter
+      val:
+      - PointsToTensor
+      - PointCloudCenterAndNormalize
+  decay_epochs:
+  - 100
+  - 130
+  decay_rate: 0.1
+  deterministic: false
+  dist_backend: nccl
+  dist_url: tcp://localhost:8888
+  distributed: false
+  epoch: 0
+  epochs: 150
+  feature_keys: pos
+  finetune: false
+  grad_norm_clip: 10
+  ignore_index: null
+  is_training: true
+  launcher: mp
+  layer_decay: 0
+  load_path: null
+  local_rank: 0
+  log_dir: log/partnet-train-pointnext-s-20260701-111510-2y8MxZ822VDbWVAY9vn9X7
+  log_path: log/partnet-train-pointnext-s-20260701-111510-2y8MxZ822VDbWVAY9vn9X7/partnet-train-pointnext-s-20260701-111510-2y8MxZ822VDbWVAY9vn9X720260708-090234-Afjrh7YLogpDjb3TzCnghQ.log
+  logname: null
+  lr: 0.001
+  min_lr: null
+  mode: resume
+  model: !!python/object/new:openpoints.utils.config.EasyConfig
+    dictitems:
+      NAME: BasePartSeg
+      cls_args: !!python/object/new:openpoints.utils.config.EasyConfig
+        dictitems:
+          NAME: SegHead
+          global_feat: max,avg
+          in_channels: null
+          norm_args: !!python/object/new:openpoints.utils.config.EasyConfig
+            dictitems:
+              norm: bn
+          num_classes: 24
+      decoder_args: !!python/object/new:openpoints.utils.config.EasyConfig
+        dictitems:
+          NAME: PointNextPartDecoder
+      encoder_args: !!python/object/new:openpoints.utils.config.EasyConfig
+        dictitems:
+          NAME: PointNextEncoder
+          act_args: !!python/object/new:openpoints.utils.config.EasyConfig
+            dictitems:
+              act: relu
+          aggr_args: !!python/object/new:openpoints.utils.config.EasyConfig
+            dictitems:
+              feature_type: dp_fj
+          blocks:
+          - 1
+          - 1
+          - 1
+          - 1
+          - 1
+          conv_args: !!python/object/new:openpoints.utils.config.EasyConfig
+            dictitems:
+              order: conv-norm-act
+          expansion: 4
+          group_args: !!python/object/new:openpoints.utils.config.EasyConfig
+            dictitems:
+              NAME: ballquery
+              normalize_dp: true
+          in_channels: 3
+          norm_args: !!python/object/new:openpoints.utils.config.EasyConfig
+            dictitems:
+              norm: bn
+          nsample: 32
+          radius: 0.1
+          radius_scaling: 2.5
+          reduction: max
+          sa_layers: 3
+          sa_use_res: true
+          strides:
+          - 1
+          - 2
+          - 2
+          - 2
+          - 2
+          width: 32
+  mp: false
+  multiprocessing_distributed: false
+  ngpus_per_node: 1
+  num_classes: 24
+  optimizer: !!python/object/new:openpoints.utils.config.EasyConfig
+    dictitems:
+      NAME: adamw
+      weight_decay: 0.0001
+  pretrained_path: log/partnet-train-pointnext-s-20260701-111510-2y8MxZ822VDbWVAY9vn9X7/checkpoint/partnet-train-pointnext-s-20260701-111510-2y8MxZ822VDbWVAY9vn9X7_ckpt_latest.pth
+  print_freq: 50
+  rank: 0
+  resume: false
+  root_dir: log
+  run_dir: log/partnet-train-pointnext-s-20260701-111510-2y8MxZ822VDbWVAY9vn9X7
+  run_name: partnet-train-pointnext-s-20260701-111510-2y8MxZ822VDbWVAY9vn9X7
+  save_freq: 5
+  sched: multistep
+  sched_on_epoch: true
+  seed: 42
+  shape_classes: 1
+  start_epoch: 1
+  step_per_update: 1
+  sync_bn: false
+  task_name: partnet
+  test: false
+  use_amp: false
+  use_gpu: true
+  use_mask: false
+  use_voting: false
+  val_fn: validate
+  val_freq: 5
+  wandb: !!python/object/new:openpoints.utils.config.EasyConfig
+    dictitems:
+      tags:
+      - resume
+      use_wandb: false
+  warmup_epochs: 0
+  world_size: 0

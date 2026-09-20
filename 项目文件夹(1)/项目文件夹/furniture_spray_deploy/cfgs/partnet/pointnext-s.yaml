@@ -1,0 +1,107 @@
+# PartNet StorageFurniture part segmentation config
+# Based on PointNext-S, adapted for single-category 24-class segmentation
+
+model:
+  NAME: BasePartSeg
+  encoder_args:
+    NAME: PointNextEncoder
+    blocks: [ 1, 1, 1, 1, 1 ]
+    strides: [ 1, 2, 2, 2, 2 ]
+    width: 32
+    in_channels: 3          # xyz only
+    sa_layers: 3
+    sa_use_res: True
+    radius: 0.1
+    radius_scaling: 2.5
+    nsample: 32
+    expansion: 4
+    aggr_args:
+      feature_type: 'dp_fj'
+    reduction: 'max'
+    group_args:
+      NAME: 'ballquery'
+      normalize_dp: True
+    conv_args:
+      order: conv-norm-act
+    act_args:
+      act: 'relu'
+    norm_args:
+      norm: 'bn'
+  decoder_args:
+    NAME: PointNextPartDecoder
+  cls_args:
+    NAME: SegHead
+    global_feat: max,avg
+    num_classes: 24
+    in_channels: null
+    norm_args:
+      norm: 'bn'
+
+# ---------------------------------------------------------------------------- #
+# Dataset
+# ---------------------------------------------------------------------------- #
+dataset:
+  common:
+    NAME: PartNetStorageFurniture
+    data_root: data/sem_seg_h5/StorageFurniture-3
+    num_points: 2048
+  train:
+    split: train
+  val:
+    split: val
+  test:
+    split: test
+
+dataloader:
+  num_workers: 4
+  pin_memory: True
+
+# ---------------------------------------------------------------------------- #
+# Training
+# ---------------------------------------------------------------------------- #
+feature_keys: pos           # only xyz, no normals
+num_classes: 24
+shape_classes: 1            # single category
+
+lr: 0.001
+min_lr: null
+optimizer:
+  NAME: adamw
+  weight_decay: 1.0e-4
+
+criterion_args:
+  NAME: CrossEntropy
+
+epochs: 150
+sched: multistep
+decay_epochs: [100, 130]
+decay_rate: 0.1
+warmup_epochs: 0
+val_freq: 5
+save_freq: 5     # save milestone checkpoint every N epochs
+
+batch_size: 8    # CPU-friendly; use 32 for GPU
+start_epoch: 1
+mode: train
+seed: 42
+
+datatransforms:
+  train: [PointsToTensor, PointCloudScaling, PointCloudCenterAndNormalize, PointCloudJitter]
+  val: [PointsToTensor, PointCloudCenterAndNormalize]
+  kwargs:
+    jitter_sigma: 0.001
+    jitter_clip: 0.005
+    scale: [0.8, 1.2]
+    gravity_dim: 1
+    angle: [0, 1.0, 0]
+
+# ---------------------------------------------------------------------------- #
+# Misc
+# ---------------------------------------------------------------------------- #
+root_dir: log
+wandb:
+  use_wandb: False
+distributed: False
+mp: False
+sync_bn: False
+grad_norm_clip: 10

@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家具部件分割 — 雅格美天喷漆机器人</title>
+<style>
+  :root {
+    --bg: #1a1d23;
+    --panel: #21252b;
+    --border: #333842;
+    --text: #abb2bf;
+    --text-bright: #e5e5e5;
+    --accent: #4d9ef8;
+    --accent2: #22c55e;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --radius: 8px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ---- Sidebar ---- */
+  #sidebar {
+    width: 380px;
+    min-width: 380px;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    z-index: 10;
+  }
+
+  #header {
+    padding: 20px 24px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  #header h1 { font-size: 18px; color: var(--text-bright); font-weight: 600; }
+  #header p  { font-size: 12px; color: var(--text); margin-top: 4px; }
+
+  .section {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #666;
+    margin-bottom: 12px;
+  }
+
+  /* ---- Upload Zone ---- */
+  #dropzone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+  }
+  #dropzone:hover, #dropzone.drag-over {
+    border-color: var(--accent);
+    background: rgba(77,158,248,0.06);
+  }
+  #dropzone > * { pointer-events: none; }
+  #photo-dropzone > * { pointer-events: none; }
+  #dropzone .icon { font-size: 32px; margin-bottom: 8px; }
+  #dropzone .hint { font-size: 13px; color: var(--text); }
+  #dropzone .formats { font-size: 11px; color: #666; margin-top: 6px; }
+  #file-input { display: none; }
+
+  /* ---- Status ---- */
+  #status-msg {
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    margin-top: 10px;
+    display: none;
+  }
+  #status-msg.info    { display:block; background: rgba(77,158,248,0.12); color: var(--accent); }
+  #status-msg.success { display:block; background: rgba(34,197,94,0.12); color: var(--accent2); }
+  #status-msg.error   { display:block; background: rgba(239,68,68,0.12); color: var(--danger); }
+
+  .spinner {
+    display: inline-block; width:14px; height:14px;
+    border:2px solid transparent; border-top-color:currentColor;
+    border-radius:50%; animation:spin .6s linear infinite; margin-right:6px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* ---- Classify Result ---- */
+  #classify-card { display: none; }
+  #classify-card .badge {
+    display: inline-block;
+    font-size: 20px; font-weight: 700; color: #fff;
+    background: var(--accent);
+    padding: 4px 16px; border-radius: 20px;
+    margin-right: 10px;
+  }
+  .confidence-bar {
+    height: 6px; background: #333; border-radius: 3px; margin-top: 10px; overflow: hidden;
+  }
+  .confidence-fill {
+    height: 100%; border-radius: 3px;
+    transition: width .4s ease, background .4s;
+  }
+  .meta-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;
+    font-size: 12px;
+  }
+  .meta-item { color: #888; }
+  .meta-item span { color: var(--text-bright); }
+
+  .grav-tab {
+    flex: 1; min-width: 60px; padding: 8px 4px; border: 1px solid var(--border);
+    border-radius: 6px; background: transparent; color: var(--text);
+    font-size: 12px; cursor: pointer; text-align: center;
+    transition: border-color .2s, background .2s;
+  }
+  .grav-tab:hover { border-color: var(--accent); }
+  .grav-tab.active { border-color: var(--accent); background: rgba(77,158,248,0.15); color: #fff; }
+  .grav-tab .g-label { font-size: 14px; font-weight: 700; }
+  .grav-tab .g-summary { font-size: 10px; color: #888; margin-top: 2px; }
+
+  button {
+    width: 100%; padding: 10px; border: none; border-radius: var(--radius);
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    transition: opacity .2s, transform .1s;
+  }
+  button:active { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: #fff; margin-top: 12px; }
+  .btn-override {
+    flex:1; padding: 8px 6px; border: 1px solid var(--border);
+    border-radius: 6px; background: transparent; color: var(--text);
+    font-size: 12px; cursor: pointer; transition: border-color .2s, background .2s;
+  }
+  .btn-override:hover { border-color: var(--warn); background: rgba(245,158,11,0.1); }
+  .btn-override.active { border-color: var(--warn); background: rgba(245,158,11,0.2); color: #fff; }
+  .btn-primary:hover:not(:disabled) { opacity: 0.9; }
+
+  /* ---- Part Legend ---- */
+  #legend { display: none; }
+  .part-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 6px;
+    cursor: pointer; transition: background .15s;
+  }
+  .part-row:hover { background: rgba(255,255,255,0.03); }
+  .part-row.dimmed { opacity: 0.35; }
+  .part-swatch {
+    width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .part-info { flex:1; min-width:0; }
+  .part-name { font-size: 13px; color: var(--text-bright); }
+  .part-meta { font-size: 11px; color: #777; }
+  .part-count { font-size: 11px; color: #666; white-space: nowrap; }
+
+  /* ---- Viewer ---- */
+  #viewer {
+    flex: 1; position: relative;
+    background: radial-gradient(ellipse at center, #1e2130 0%, #12141a 100%);
+  }
+  #viewer canvas { display: block; }
+  #viewer-hint {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    font-size: 12px; color: #555; pointer-events: none;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 800px) {
+    body { flex-direction: column; }
+    #sidebar { width:100%; min-width:0; max-height:45vh; }
+    #viewer { height:55vh; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ Sidebar ============ -->
+<div id="sidebar">
+  <div id="header">
+    <h1>家具部件分割</h1>
+    <p>上传照片 → 识别类型 → 上传点云 → AI 分割 → 3D 可视化</p>
+  </div>
+
+  <!-- Step 1: Upload Photo -->
+  <div class="section" id="photo-section">
+    <div class="section-title">步骤 1 — 上传照片识别类型</div>
+    <div id="photo-dropzone" style="border:2px dashed var(--border);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;">
+      <div class="icon">📷</div>
+      <div class="hint" style="font-size:13px;color:var(--text);">拖拽照片 或 点击上传</div>
+      <div class="formats" style="font-size:11px;color:#666;margin-top:4px;">JPG / PNG / JPEG</div>
+    </div>
+    <input type="file" id="photo-input" accept="image/*" style="display:none;">
+    <div id="photo-status" style="font-size:13px;margin-top:8px;display:none;"></div>
+    <div id="photo-result" style="display:none;margin-top:8px;">
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <img id="photo-thumb" src="" alt="" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid var(--border);display:none;">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;">
+        <span id="photo-badge" style="display:inline-block;font-size:18px;font-weight:700;color:#fff;background:var(--accent);padding:4px 14px;border-radius:20px;">—</span>
+        <span style="font-size:14px;color:#888;">置信度 <b id="photo-conf" style="color:var(--text-bright);">—</b></span>
+      </div>
+      <div class="confidence-bar" style="margin-top:8px;"><div class="confidence-fill" id="photo-conf-bar" style="width:0%;background:var(--accent2);"></div></div>
+      <div id="photo-top3" style="font-size:11px;color:#666;margin-top:6px;"></div>
+      <div id="photo-hint" style="font-size:11px;color:var(--warn);margin-top:6px;display:none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Upload Point Cloud -->
+  <div class="section" id="upload-section">
+    <div class="section-title">步骤 2 — 上传点云分割</div>
+    <div id="dropzone">
+      <div class="icon">☁️</div>
+      <div class="hint">拖拽文件到此处 或 点击选择</div>
+      <div class="formats">点云: .ply .npy .xyz .pcd .pts &nbsp;|&nbsp; 网格: .obj .stl .off .glb .gltf</div>
+    </div>
+    <input type="file" id="file-input" accept=".ply,.npy,.xyz,.pcd,.pts,.obj,.stl,.off,.glb,.gltf">
+    <div id="status-msg"></div>
+  </div>
+
+  <!-- Classification Result (legacy geometric, hidden by default) -->
+  <div class="section" id="classify-card" style="display:none;">
+    <div class="section-title">识别结果</div>
+    <div style="display:flex;align-items:center;">
+      <span class="badge" id="cls-badge">—</span>
+      <div>
+        <div style="font-size:12px;color:#888;">置信度</div>
+        <div style="font-size:18px;font-weight:600;color:var(--text-bright);" id="cls-conf">—</div>
+      </div>
+    </div>
+    <div class="confidence-bar"><div class="confidence-fill" id="conf-bar" style="width:0%"></div></div>
+    <div class="meta-grid" id="cls-meta"></div>
+    <button class="btn-primary" id="btn-segment" disabled onclick="doSegment()">
+      ⚡ 执行部件分割
+    </button>
+    <button class="btn-primary" id="btn-retry" disabled style="margin-top:8px;background:var(--warn);"
+            onclick="retryClassify()">
+      🔄 识别不正确? 重新识别
+    </button>
+    <div id="retry-status" style="margin-top:4px;font-size:11px;color:#666;display:none;"></div>
+  </div>
+
+  <!-- Gravity Selector -->
+  <div class="section" id="gravity-selector" style="display:none;">
+    <div class="section-title">重力方向 <span style="color:#666;font-weight:400;">(选择正确的)</span></div>
+    <div id="gravity-tabs" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+  </div>
+
+  <!-- Part Legend -->
+  <div class="section" id="legend">
+    <div class="section-title">部件图例 <span style="color:#666;font-weight:400;">(点击切换可见性)</span></div>
+    <div id="legend-list"></div>
+    <div id="debug-info" style="margin-top:12px;display:none;">
+      <div style="font-size:11px;color:#666;cursor:pointer;user-select:none;"
+           onclick="document.getElementById('debug-table').style.display=(document.getElementById('debug-table').style.display==='none'?'block':'none')">
+        🔍 调试信息 ▸
+      </div>
+      <div id="debug-table" style="display:none;margin-top:8px;font-size:10px;font-family:monospace;">
+        <div id="debug-gravity" style="color:#888;margin-bottom:6px;"></div>
+        <div id="debug-rows"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 3D Viewer ============ -->
+<div id="viewer">
+  <div id="viewer-hint">上传模型后在此查看 3D 点云</div>
+</div>
+
+<!-- ============ Three.js Import Map ============ -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ========== DOM refs ==========
+const photoDropzone = document.getElementById('photo-dropzone');
+const photoInput    = document.getElementById('photo-input');
+const photoStatus   = document.getElementById('photo-status');
+const photoResult   = document.getElementById('photo-result');
+const photoBadge    = document.getElementById('photo-badge');
+const photoConf     = document.getElementById('photo-conf');
+const photoConfBar  = document.getElementById('photo-conf-bar');
+const photoTop3     = document.getElementById('photo-top3');
+const photoHint     = document.getElementById('photo-hint');
+const dropzone  = document.getElementById('dropzone');
+const fileInput = document.getElementById('file-input');
+const statusMsg = document.getElementById('status-msg');
+const classifyCard = document.getElementById('classify-card');
+const clsBadge   = document.getElementById('cls-badge');
+const clsConf    = document.getElementById('cls-conf');
+const confBar    = document.getElementById('conf-bar');
+const clsMeta    = document.getElementById('cls-meta');
+const btnSegment = document.getElementById('btn-segment');
+const btnRetry   = document.getElementById('btn-retry');
+const retryStatus = document.getElementById('retry-status');
+const legendDiv  = document.getElementById('legend');
+const legendList = document.getElementById('legend-list');
+const viewerHint = document.getElementById('viewer-hint');
+
+let jobId = null;
+let partGroups = [];   // {name, points:THREE.Points, visible:bool}
+let pathLines = [];    // {partIndex, line:THREE.LineSegments, visible:bool}
+let imageCategory = null;  // 步骤1 照片分类结果
+
+// ========== Three.js Setup ==========
+const viewer = document.getElementById('viewer');
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(50, viewer.clientWidth/viewer.clientHeight, 0.01, 20);
+camera.position.set(1.2, 0.8, 1.5);
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+viewer.appendChild(renderer.domElement);
+
+// Orbit controls
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 0.3;
+controls.maxDistance = 6;
+controls.target.set(0, 0, 0);
+
+// Lights (not strictly needed for PointsMaterial but keeps scene consistent)
+scene.add(new THREE.AmbientLight(0x404060, 2));
+
+// Grid
+const grid = new THREE.GridHelper(2.4, 20, 0x333333, 0x222222);
+scene.add(grid);
+
+// Axes
+const axisLen = 0.8;
+const makeAxis = (dir, origin, color) => {
+  const mat = new THREE.LineBasicMaterial({ color, transparent:true, opacity:0.5 });
+  const pts = [origin.clone(), origin.clone().add(dir.clone().multiplyScalar(axisLen))];
+  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  scene.add(new THREE.Line(geo, mat));
+};
+const O = new THREE.Vector3(0,0,0);
+makeAxis(new THREE.Vector3(1,0,0), O, 0xff3333);
+makeAxis(new THREE.Vector3(0,1,0), O, 0x33ff33);
+makeAxis(new THREE.Vector3(0,0,1), O, 0x3388ff);
+
+// Prevent browser from trying to open dragged-in files
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => e.preventDefault());
+
+// ========== Helpers ==========
+function decodeB64Float32(b64) {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Float32Array(bytes.buffer);
+}
+
+function setStatus(text, type) {
+  statusMsg.className = type;
+  statusMsg.innerHTML = text;
+}
+
+let rawPreview = null;  // raw point cloud preview (gray)
+
+function showRawPreview(b64) {
+  // Remove old preview
+  if (rawPreview) {
+    scene.remove(rawPreview);
+    rawPreview.geometry.dispose();
+    rawPreview.material.dispose();
+    rawPreview = null;
+  }
+  const pts = decodeB64Float32(b64);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pts, 3));
+  const mat = new THREE.PointsMaterial({
+    size: 0.008,
+    color: 0x8899aa,
+    sizeAttenuation: true,
+    blending: THREE.NormalBlending,
+    depthWrite: true,
+    depthTest: true,
+  });
+  rawPreview = new THREE.Points(geo, mat);
+  scene.add(rawPreview);
+  fitCameraToPoints(pts);
+}
+
+function fitCameraToPoints(pts) {
+  const box = new THREE.Box3();
+  for (let i = 0; i < pts.length; i += 3) {
+    box.expandByPoint(new THREE.Vector3(pts[i], pts[i+1], pts[i+2]));
+  }
+  if (box.isEmpty()) return;
+  const center = new THREE.Vector3();
+  box.getCenter(center);
+  const size = box.getSize(new THREE.Vector3()).length();
+  controls.target.copy(center);
+  camera.position.set(center.x + size*0.7, center.y + size*0.5, center.z + size*0.9);
+  camera.lookAt(center);
+  controls.update();
+}
+
+function clearViewer() {
+  if (rawPreview) {
+    scene.remove(rawPreview);
+    rawPreview.geometry.dispose();
+    rawPreview.material.dispose();
+    rawPreview = null;
+  }
+  partGroups.forEach(g => {
+    if (g.points) { scene.remove(g.points); g.points.geometry.dispose(); g.points.material.dispose(); }
+  });
+  partGroups = [];
+  pathLines.forEach(pl => {
+    if (pl.line) { scene.remove(pl.line); pl.line.geometry.dispose(); pl.line.material.dispose(); }
+  });
+  pathLines = [];
+  legendList.innerHTML = '';
+  legendDiv.style.display = 'none';
+  viewerHint.style.display = 'block';
+}
+
+// ========== Photo Upload ==========
+photoDropzone.addEventListener('click', () => photoInput.click());
+photoInput.addEventListener('change', () => {
+  if (photoInput.files.length) uploadPhoto(photoInput.files[0]);
+});
+let photoDragCounter = 0;
+photoDropzone.addEventListener('dragenter', e => {
+  e.preventDefault(); e.stopPropagation();
+  photoDragCounter++;
+  photoDropzone.style.borderColor = 'var(--accent)';
+  photoDropzone.style.background = 'rgba(77,158,248,0.06)';
+});
+photoDropzone.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); });
+photoDropzone.addEventListener('dragleave', e => {
+  e.preventDefault(); e.stopPropagation();
+  photoDragCounter--;
+  if (photoDragCounter <= 0) {
+    photoDragCounter = 0;
+    photoDropzone.style.borderColor = 'var(--border)';
+    photoDropzone.style.background = '';
+  }
+});
+photoDropzone.addEventListener('drop', e => {
+  e.preventDefault(); e.stopPropagation();
+  photoDragCounter = 0;
+  photoDropzone.style.borderColor = 'var(--border)';
+  photoDropzone.style.background = '';
+  if (e.dataTransfer.files.length) uploadPhoto(e.dataTransfer.files[0]);
+});
+
+async function uploadPhoto(file) {
+  photoStatus.style.display = 'block';
+  photoStatus.innerHTML = '<span class="spinner"></span> 正在识别照片...';
+  photoStatus.className = '';
+  photoStatus.style.color = 'var(--accent)';
+
+  const fd = new FormData();
+  fd.append('image', file);
+
+  try {
+    const r = await fetch('/api/classify-image', { method:'POST', body:fd });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || data.error);
+
+    imageCategory = data.prediction;
+    const thumb = document.getElementById('photo-thumb');
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      thumb.src = e.target.result;
+      thumb.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+    const catNames = { cabinet:'柜子', chair:'椅子', table:'桌子' };
+    const cnName = catNames[imageCategory] || imageCategory;
+
+    photoBadge.textContent = cnName;
+    photoConf.textContent = `${data.confidence}%`;
+    photoConfBar.style.width = `${data.confidence}%`;
+    photoResult.style.display = 'block';
+    photoStatus.style.display = 'none';
+
+    // Top-3
+    const top3 = data.all.slice(0, 3)
+      .map(x => `${catNames[x.class]||x.class}: ${x.prob}%`).join(' &nbsp;|&nbsp; ');
+    photoTop3.innerHTML = top3;
+
+    // Hint for AI segmentation
+    photoHint.style.display = 'block';
+    if (imageCategory === 'cabinet') {
+      photoHint.innerHTML = '✓ AI 精细分割可用 (PointNeXt, 24 类部件标签)';
+      photoHint.style.color = 'var(--accent2)';
+    } else {
+      photoHint.innerHTML = '✓ AI 分割可用 (PointCNN, 预训练模型)';
+      photoHint.style.color = 'var(--accent2)';
+    }
+  } catch (e) {
+    photoStatus.innerHTML = `✗ ${e.message}`;
+    photoStatus.style.color = 'var(--danger)';
+  }
+}
+
+// ========== Upload Point Cloud ==========
+dropzone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length) uploadFile(fileInput.files[0]);
+});
+
+let pcDragCounter = 0;
+dropzone.addEventListener('dragenter', e => {
+  e.preventDefault(); e.stopPropagation();
+  pcDragCounter++;
+  dropzone.classList.add('drag-over');
+});
+dropzone.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); });
+dropzone.addEventListener('dragleave', e => {
+  e.preventDefault(); e.stopPropagation();
+  pcDragCounter--;
+  if (pcDragCounter <= 0) {
+    pcDragCounter = 0;
+    dropzone.classList.remove('drag-over');
+  }
+});
+dropzone.addEventListener('drop', e => {
+  e.preventDefault(); e.stopPropagation();
+  pcDragCounter = 0;
+  dropzone.classList.remove('drag-over');
+  if (e.dataTransfer.files.length) uploadFile(e.dataTransfer.files[0]);
+});
+
+async function uploadFile(file) {
+  setStatus('<span class="spinner"></span> 上传中...', 'info');
+  classifyCard.style.display = 'none';
+  clearViewer();
+  btnSegment.disabled = true;
+  document.getElementById('gravity-selector').style.display = 'none';
+
+  const fd = new FormData();
+  fd.append('file', file);
+
+  try {
+    const r = await fetch('/api/upload', { method:'POST', body:fd });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || data.error);
+
+    jobId = data.job_id;
+
+    // Show preview point cloud immediately (gray, raw upload)
+    if (data.preview_b64) {
+      showRawPreview(data.preview_b64);
+      viewerHint.style.display = 'none';
+    }
+
+    let msg = `✓ 已加载 ${data.n_points.toLocaleString()} 个点`;
+    if (data.sampled_from_mesh) {
+      msg = `✓ 已加载 — 从网格面片采样至 ${data.n_points.toLocaleString()} 点`;
+    } else if (data.downsampled) {
+      msg = `✓ 已加载 ${data.n_original.toLocaleString()} 点 → 降采样至 ${data.n_points.toLocaleString()} 点`;
+    }
+    setStatus(msg, 'success');
+
+    // 如果有照片分类结果 → 直接 AI 分割; 否则走旧流程
+    if (imageCategory) {
+      await doSegmentAI();
+    } else {
+      await doClassify();
+    }
+  } catch (e) {
+    setStatus(`✗ ${e.message}`, 'error');
+  }
+}
+
+// ========== Classify ==========
+async function doClassify() {
+  if (!jobId) return;
+  setStatus('<span class="spinner"></span> 正在识别家具类型...', 'info');
+
+  try {
+    const r = await fetch('/api/classify', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({job_id: jobId})
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || data.error);
+
+    // Show result
+    const catNames = { chair:'椅子', table:'桌子', cabinet:'柜子' };
+    const catName = catNames[data.category] || data.category;
+    clsBadge.textContent = catName;
+    clsConf.textContent = `${Math.round(data.confidence * 100)}%`;
+    confBar.style.width = `${data.confidence * 100}%`;
+    confBar.style.background = data.confidence >= 0.7 ? 'var(--accent2)'
+                             : data.confidence >= 0.4 ? 'var(--warn)' : 'var(--danger)';
+
+    const gi = data.geometry_class_info || {};
+    clsMeta.innerHTML = `
+      <div class="meta-item">几何大类 <span>${gi.name || '—'}</span></div>
+      <div class="meta-item">难度 <span>${gi.difficulty || '—'}</span></div>
+      <div class="meta-item">策略 <span>${gi.spray_strategy || '—'}</span></div>
+      <div class="meta-item">类型 <span>${gi.description || '—'}</span></div>
+    `;
+
+    classifyCard.style.display = 'block';
+    btnSegment.disabled = false;
+    btnRetry.disabled = false;
+    btnRetry.style.display = '';
+    retryStatus.style.display = 'none';
+    setStatus(`✓ 识别为 ${catName} (置信度 ${Math.round(data.confidence*100)}%)`, 'success');
+  } catch (e) {
+    setStatus(`✗ 识别失败: ${e.message}`, 'error');
+  }
+}
+
+// ========== AI Segment ==========
+async function doSegmentAI() {
+  if (!jobId || !imageCategory) return;
+  setStatus('<span class="spinner"></span> AI 正在分割部件...', 'info');
+  clearViewer();
+
+  try {
+    const r = await fetch('/api/segment-ai', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({job_id: jobId, category: imageCategory})
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || data.error);
+
+    const modelName = data.candidates?.[0]?.detail || 'AI Model';
+    buildParts(data.parts);
+    buildLegend(data.parts);
+    fillDebug(data.parts);
+
+    viewerHint.style.display = 'none';
+    legendDiv.style.display = 'block';
+    document.getElementById('gravity-selector').style.display = 'none';
+    setStatus(`✓ AI 分割完成 — ${modelName} — ${data.n_regions} 个部件`, 'success');
+  } catch (e) {
+    setStatus(`✗ AI 分割失败: ${e.message}`, 'error');
+  }
+}
+
+function fillDebug(parts) {
+  // 清除旧路径线
+  pathLines.forEach(pl => {
+    if (pl.line) { scene.remove(pl.line); pl.line.geometry.dispose(); pl.line.material.dispose(); }
+  });
+  pathLines = [];
+
+  const dbgDiv = document.getElementById('debug-info');
+  const rowsDiv = document.getElementById('debug-rows');
+  dbgDiv.style.display = 'block';
+  document.getElementById('debug-gravity').textContent = 'AI 模型标签 (无需重力轴选择)';
+  let html = '';
+  parts.forEach(p => {
+    const d = p._debug || {};
+    html += `<div style="margin-bottom:4px;border-left:2px solid var(--accent);padding-left:6px;">
+      <span style="color:var(--accent)">[${d.orientation||'ai'}]</span>
+      <span style="color:#ccc"> → <b>${p.name}</b></span>
+      <span style="color:#666"> ${d.n_points||p.n_points}pts ${((d.coverage||p.coverage||0)*100).toFixed(0)}%</span>
+    </div>`;
+  });
+  rowsDiv.innerHTML = html;
+}
+
+// ========== Geometric Segment (legacy) ==========
+async function doSegment() {
+  if (!jobId) return;
+  setStatus('<span class="spinner"></span> 正在分割部件...', 'info');
+  btnSegment.disabled = true;
+  clearViewer();
+
+  try {
+    const r = await fetch('/api/segment', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({job_id: jobId})
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || data.error);
+
+    // Store candidates for switching
+    window._candidates = data.candidates || [];
+    window._defaultAxis = data.default_axis || 'auto';
+
+    // Build gravity tabs
+    buildGravityTabs(data.candidates, data.default_axis);
+
+    // Build 3D scene with default candidate's parts
+    const defaultCandidate = data.candidates.find(c => c.axis === data.default_axis) || data.candidates[0];
+    buildParts(defaultCandidate.parts);
+    buildLegend(defaultCandidate.parts);
+
+    // Set active tab & fill debug info
+    switchGravity(data.default_axis);
+
+    viewerHint.style.display = 'none';
+    legendDiv.style.display = 'block';
+    document.getElementById('gravity-selector').style.display = 'block';
+    setStatus(`✓ 分割完成 — ${data.n_regions} 个部件 — 请选择正确的重力方向`, 'success');
+    btnSegment.disabled = false;
+  } catch (e) {
+    setStatus(`✗ 分割失败: ${e.message}`, 'error');
+    btnSegment.disabled = false;
+  }
+}
+
+function toggleOverride() {
+  // removed — replaced by retryClassify
+}
+
+async function doSegmentOverride(category) {
+  // removed — replaced by retryClassify
+}
+
+async function retryClassify() {
+  if (!jobId) return;
+  btnRetry.disabled = true;
+  retryStatus.style.display = 'block';
+  retryStatus.textContent = '⏳ 正在重新识别...';
+
+  try {
+    const r = await fetch('/api/classify', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({job_id: jobId, retry: true})
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || data.error);
+
+    // Update classification display
+    const catNames = { chair:'椅子', table:'桌子', cabinet:'柜子' };
+    const catName = catNames[data.category] || data.category;
+    clsBadge.textContent = catName;
+    clsBadge.style.background = 'var(--warn)';
+    clsConf.textContent = `${Math.round(data.confidence * 100)}% (重新识别)`;
+    confBar.style.width = `${data.confidence * 100}%`;
+    confBar.style.background = 'var(--warn)';
+
+    const gi = data.geometry_class_info || {};
+    clsMeta.innerHTML = `
+      <div class="meta-item">几何大类 <span>${gi.name || '—'}</span></div>
+      <div class="meta-item">难度 <span>${gi.difficulty || '—'}</span></div>
+      <div class="meta-item">策略 <span>${gi.spray_strategy || '—'}</span></div>
+      <div class="meta-item">类型 <span>${gi.description || '—'}</span></div>
+    `;
+
+    retryStatus.textContent = `✓ 已重新识别为 ${catName}`;
+    btnRetry.disabled = false;
+    setStatus(`✓ 重新识别为 ${catName} (置信度 ${Math.round(data.confidence*100)}%)`, 'success');
+  } catch (e) {
+    retryStatus.textContent = `✗ ${e.message}`;
+    btnRetry.disabled = false;
+    setStatus(`✗ 重新识别失败: ${e.message}`, 'error');
+  }
+}
+
+function buildParts(parts) {
+  try {
+    partGroups = [];
+    parts.forEach((p, i) => {
+      const pts = decodeB64Float32(p.points_b64);
+      if (!pts || pts.length === 0) {
+        console.warn('Part has no points:', p.name);
+        return;
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(pts, 3));
+
+      const color = p.color;
+      const mat = new THREE.PointsMaterial({
+        size: 0.012,
+        color: new THREE.Color(color[0], color[1], color[2]),
+        sizeAttenuation: true,
+        blending: THREE.NormalBlending,
+        depthWrite: true,
+        depthTest: true,
+      });
+
+      const points = new THREE.Points(geo, mat);
+      scene.add(points);
+      partGroups.push({ name: p.name, points, visible: true, meta: p });
+    });
+
+    if (partGroups.length === 0) {
+      setStatus('⚠ 分割完成但所有部件点数为空, 请尝试切换重力方向', 'error');
+      return;
+    }
+
+    // Auto-fit camera
+    fitCamera();
+  } catch (e) {
+    console.error('buildParts error:', e);
+    setStatus(`✗ 3D渲染失败: ${e.message}`, 'error');
+  }
+}
+
+function buildLegend(parts) {
+  legendList.innerHTML = '';
+  parts.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'part-row';
+    const c = p.color;
+    const rgb = `rgb(${Math.round(c[0]*255)},${Math.round(c[1]*255)},${Math.round(c[2]*255)})`;
+    row.innerHTML = `
+      <div class="part-swatch" style="background:${rgb};"></div>
+      <div class="part-info">
+        <div class="part-name">${p.name}</div>
+        <div class="part-meta">${p.type_name} · ${p.spray}</div>
+      </div>
+      <div class="part-count">${(p.coverage*100).toFixed(0)}%</div>
+    `;
+    row.addEventListener('click', () => {
+      togglePart(i, row);
+      generatePath(i);
+    });
+    legendList.appendChild(row);
+  });
+}
+
+function buildGravityTabs(candidates, defaultAxis) {
+  const tabs = document.getElementById('gravity-tabs');
+  tabs.innerHTML = '';
+  candidates.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'grav-tab';
+    btn.innerHTML = `<div class="g-label">${c.axis.toUpperCase()}</div>
+                     <div class="g-summary">${c.summary}</div>`;
+    btn.onclick = () => switchGravity(c.axis);
+    btn.id = `grav-tab-${c.axis}`;
+    tabs.appendChild(btn);
+  });
+}
+
+function switchGravity(axis) {
+  document.querySelectorAll('.grav-tab').forEach(b => b.classList.remove('active'));
+  const tab = document.getElementById(`grav-tab-${axis}`);
+  if (tab) tab.classList.add('active');
+
+  const candidates = window._candidates || [];
+  const c = candidates.find(x => x.axis === axis);
+  if (!c) return;
+
+  // 更新 3D 颜色 + 图例标签 + 部件名
+  const rows = legendList.children;
+  c.parts.forEach((p, i) => {
+    // 更新 3D 点云颜色
+    if (partGroups[i] && partGroups[i].points) {
+      const col = p.color;
+      partGroups[i].points.material.color.setRGB(col[0], col[1], col[2]);
+      partGroups[i].name = p.name;
+      partGroups[i].meta = p;
+    }
+
+    // 更新图例行
+    const row = rows[i];
+    if (!row) return;
+    row.querySelector('.part-name').textContent = p.name;
+    row.querySelector('.part-meta').textContent = `${p.type_name} · ${p.spray}`;
+    row.querySelector('.part-count').textContent = `${(p.coverage*100).toFixed(0)}%`;
+    // 更新色块
+    const swatch = row.querySelector('.part-swatch');
+    if (swatch) {
+      const col = p.color;
+      swatch.style.background = `rgb(${Math.round(col[0]*255)},${Math.round(col[1]*255)},${Math.round(col[2]*255)})`;
+    }
+  });
+
+  // 更新调试面板
+  document.getElementById('debug-gravity').textContent =
+    `重力轴: [${c.gravity.map(x=>x.toFixed(3)).join(', ')}]`;
+  const debugRows = document.getElementById('debug-rows');
+  let html = '';
+  c.parts.forEach(p => {
+    const d = p._debug || {};
+    const dotClr = d.orientation === 'skeleton' ? '#4d9ef8'
+                 : d.orientation === 'horizontal' ? '#22c55e'
+                 : d.orientation && d.orientation.startsWith('oblique') ? '#f59e0b' : '#ef4444';
+    html += `<div style="margin-bottom:4px;border-left:2px solid ${dotClr};padding-left:6px;">
+      <span style="color:${dotClr}">[${d.orientation||'?'}]</span>
+      <span style="color:#aaa"> n=(${(d.normal||[]).join(',')}) dot_g=${d.dot_gravity||0}</span>
+      <span style="color:#ccc"> → <b>${p.name}</b></span>
+      <span style="color:#666"> ${d.n_points||0}pts</span>
+    </div>`;
+  });
+  debugRows.innerHTML = html;
+}
+
+function showDebug(data) {
+  const dbgDiv = document.getElementById('debug-info');
+  const gravDiv = document.getElementById('debug-gravity');
+  const rowsDiv = document.getElementById('debug-rows');
+  dbgDiv.style.display = 'block';
+
+  const g = data.gravity_axis || [];
+  gravDiv.textContent = `重力轴: [${g.map(x=>x.toFixed(3)).join(', ')}] | 命名规则: 水平面(dot>0.7)→座面, 垂直面(dot<0.35)→靠背, skeleton→腿`;
+
+  let html = '';
+  data.parts.forEach((p, i) => {
+    const d = p._debug;
+    if (!d) return;
+    const dotClr = d.orientation === 'skeleton' ? '#4d9ef8'
+                 : d.orientation === 'horizontal' ? '#22c55e'
+                 : d.orientation.startsWith('oblique') ? '#f59e0b' : '#ef4444';
+    html += `<div style="margin-bottom:4px;border-left:2px solid ${dotClr};padding-left:6px;">
+      <span style="color:${dotClr}">[${d.orientation}]</span>
+      <span style="color:#aaa"> n=(${d.normal.join(',')}) dot_g=${d.dot_gravity}</span>
+      <span style="color:#ccc"> → <b>${p.name}</b></span>
+      <span style="color:#666"> ${d.n_points}pts ${(d.coverage*100).toFixed(0)}%</span>
+    </div>`;
+  });
+  rowsDiv.innerHTML = html;
+}
+
+function togglePart(i, row) {
+  const g = partGroups[i];
+  if (!g) return;
+  g.visible = !g.visible;
+  g.points.visible = g.visible;
+  row.classList.toggle('dimmed', !g.visible);
+
+  // 同时切换对应路径线
+  const pl = pathLines.find(p => p.partIndex === i);
+  if (pl && pl.line) {
+    pl.visible = g.visible;
+    pl.line.visible = g.visible;
+  }
+}
+
+async function generatePath(partIndex) {
+  // 检查是否已生成
+  if (pathLines.find(p => p.partIndex === partIndex)) return;
+
+  const row = legendList.children[partIndex];
+  if (row) {
+    const metaEl = row.querySelector('.part-meta');
+    if (metaEl) metaEl.textContent += ' · 路径生成中...';
+  }
+
+  try {
+    const r = await fetch('/api/generate-path', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({job_id: jobId, part_index: partIndex})
+    });
+    const data = await r.json();
+    if (!r.ok || data.empty) {
+      if (row) {
+        const metaEl = row.querySelector('.part-meta');
+        if (metaEl) metaEl.textContent = metaEl.textContent.replace(' · 路径生成中...', '');
+      }
+      return;
+    }
+
+    // 解码路径点
+    const wp = decodeB64Float32(data.waypoints_b64);
+    const segs = data.segments;
+
+    if (!wp || wp.length === 0 || !segs || segs.length === 0) return;
+
+    // 构建线段几何体
+    const positions = [];
+    for (const seg of segs) {
+      const i0 = seg[0] * 3, i1 = seg[1] * 3;
+      positions.push(wp[i0], wp[i0+1], wp[i0+2]);
+      positions.push(wp[i1], wp[i1+1], wp[i1+2]);
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+
+    const mat = new THREE.LineBasicMaterial({
+      color: 0xffdd00,
+      linewidth: 1,
+      transparent: true,
+      opacity: 0.9,
+      depthTest: true,
+    });
+
+    const line = new THREE.LineSegments(geo, mat);
+    line.renderOrder = 1;
+    line.material.depthTest = true;
+    line.material.depthWrite = true;
+    scene.add(line);
+
+    pathLines.push({ partIndex, line, visible: true });
+
+    if (row) {
+      const metaEl = row.querySelector('.part-meta');
+      if (metaEl) {
+        metaEl.textContent = metaEl.textContent.replace(' · 路径生成中...', '');
+        metaEl.textContent += ` · 🛤 ${data.n_waypoints}路径点`;
+      }
+    }
+  } catch (e) {
+    console.error('Path generation failed:', e);
+    if (row) {
+      const metaEl = row.querySelector('.part-meta');
+      if (metaEl) metaEl.textContent = metaEl.textContent.replace(' · 路径生成中...', '');
+    }
+  }
+}
+
+function fitCamera() {
+  const box = new THREE.Box3();
+  partGroups.forEach(g => {
+    if (g.points) box.expandByObject(g.points);
+  });
+  if (box.isEmpty()) return;
+
+  const center = new THREE.Vector3();
+  box.getCenter(center);
+  const size = box.getSize(new THREE.Vector3()).length();
+
+  controls.target.copy(center);
+  camera.position.set(center.x + size*0.7, center.y + size*0.5, center.z + size*0.9);
+  camera.lookAt(center);
+  controls.update();
+}
+
+// ========== Resize ==========
+window.addEventListener('resize', () => {
+  camera.aspect = viewer.clientWidth / viewer.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+});
+
+// ========== Render Loop ==========
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+// Expose to global scope for onclick in HTML
+window.doClassify = doClassify;
+window.doSegment = doSegment;
+window.retryClassify = retryClassify;
+</script>
+</body>
+</html>

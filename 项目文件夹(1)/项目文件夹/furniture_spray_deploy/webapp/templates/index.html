@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家具识别 & 部件分割 — 雅格美天</title>
+<style>
+:root{--bg:#0f1119;--panel:#161822;--border:#252836;--text:#c8cddc;--dim:#6b7199;--accent:#5b8def;--green:#4caf93;--orange:#e8905e;--red:#e0556a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI','PingFang SC',sans-serif;height:100vh;display:flex;overflow:hidden}
+#sidebar{width:380px;min-width:380px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;padding:14px;gap:10px}
+#viewer{flex:1;position:relative}
+#canvas3d{width:100%;height:100%;display:block}
+.step{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:14px;transition:border-color .2s}
+.step.active{border-color:var(--accent)}
+.step.done{border-color:var(--green)}
+.step-num{display:inline-block;width:22px;height:22px;border-radius:50%;text-align:center;line-height:22px;font-size:12px;font-weight:700;margin-right:6px;background:var(--border);color:var(--dim)}
+.step.active .step-num{background:var(--accent);color:#fff}
+.step.done .step-num{background:var(--green);color:#fff}
+.step h3{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center}
+.btn{padding:7px 14px;border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:12px;background:rgba(255,255,255,0.05);color:var(--text);transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:rgba(255,255,255,0.12);border-color:var(--accent)}
+.btn:disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
+.btn.go{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.go:hover{background:#6ba5ff}
+input[type=file]{display:none}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--dim);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--border);padding:10px 22px;border-radius:20px;font-size:12px;z-index:100;opacity:0;transition:opacity .25s;pointer-events:none}
+#toast.on{opacity:1}
+#overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--dim);font-size:13px;pointer-events:none;text-align:center;line-height:1.8}
+.photo-thumb{max-width:100%;max-height:100px;border-radius:6px;margin-top:6px;display:none}
+.cls-badge{display:inline-block;padding:3px 14px;border-radius:12px;font-size:15px;font-weight:700}
+.cls-badge.chair{background:rgba(232,144,94,0.2);color:var(--orange)}
+.cls-badge.table{background:rgba(91,141,239,0.2);color:var(--accent)}
+.cls-badge.cabinet{background:rgba(76,175,147,0.2);color:var(--green)}
+.part-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;margin-bottom:4px;font-size:12px}
+.part-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.part-name{font-size:12px;color:var(--text)}
+.part-meta{font-size:10px;color:var(--dim)}
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+
+  <div style="display:flex;align-items:center;gap:10px;padding:4px 0 2px">
+    <span style="font-size:17px;font-weight:700;color:#fff">家具识别 & 部件分割</span>
+    <span style="font-size:10px;color:var(--green)" id="statusDot">● 就绪</span>
+  </div>
+  <div style="font-size:10px;color:var(--dim);margin-bottom:4px">ResNet-18 图像识别 + PointNeXt/PointCNN 部件分割</div>
+
+  <!-- Step 1: 上传照片 -->
+  <div class="step active" id="step1">
+    <h3><span class="step-num">1</span> 上传照片 — 图像识别</h3>
+    <button class="btn go" onclick="document.getElementById('fimg').click()">选择照片</button>
+    <input type="file" id="fimg" accept="image/*" onchange="upimg(this)">
+    <img class="photo-thumb" id="photoPreview" alt="">
+    <div id="clsResult" style="margin-top:6px"></div>
+  </div>
+
+  <!-- Step 2: 上传3D -->
+  <div class="step" id="step2">
+    <h3><span class="step-num">2</span> 上传 3D 模型</h3>
+    <button class="btn go" onclick="document.getElementById('f3d').click()">选择 3D 文件</button>
+    <input type="file" id="f3d" accept=".ply,.obj,.stl,.npy,.xyz,.pcd,.pts,.off,.glb,.gltf" onchange="up3d(this)">
+    <div id="upInfo" style="margin-top:4px;font-size:10px;color:var(--dim)"></div>
+  </div>
+
+  <!-- Step 3: AI 分割 -->
+  <div class="step" id="step3">
+    <h3><span class="step-num">3</span> AI 部件分割</h3>
+    <button class="btn go" id="btnSeg" onclick="doSeg()" disabled>PointNeXt / PointCNN 分割</button>
+    <span id="modelHint" style="font-size:10px;color:var(--dim);margin-left:6px"></span>
+    <div id="segStatus" style="margin-top:4px;font-size:11px;color:var(--dim)"></div>
+  </div>
+
+  <!-- Step 4: 部件列表 -->
+  <div class="step" id="step4">
+    <h3><span class="step-num">4</span> 部件列表</h3>
+    <div id="partsBox" style="max-height:260px;overflow-y:auto"></div>
+  </div>
+</div>
+
+<div id="viewer">
+  <canvas id="canvas3d"></canvas>
+  <div id="overlay">上传照片和 3D 模型开始</div>
+</div>
+<div id="toast"></div>
+
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0f1119);
+
+const cam = new THREE.PerspectiveCamera(50, 1, 0.0001, 10);
+cam.position.set(0.4, 0.2, 1);
+
+const rdr = new THREE.WebGLRenderer({antialias: true, canvas: document.getElementById('canvas3d')});
+rdr.setPixelRatio(Math.min(devicePixelRatio, 2));
+
+const ctrl = new OrbitControls(cam, rdr.domElement);
+ctrl.enableDamping = true;
+ctrl.dampingFactor = 0.08;
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+scene.add(new THREE.GridHelper(2, 20, 0x222244, 0x151525));
+
+let ptMesh = null;
+
+function rs() {
+  const v = document.getElementById('viewer');
+  const w = v.clientWidth, h = v.clientHeight;
+  rdr.setSize(w, h);
+  cam.aspect = w / Math.max(h, 1);
+  cam.updateProjectionMatrix();
+}
+window.addEventListener('resize', rs);
+rs();
+
+function clrPts() {
+  if (ptMesh) { ptMesh.geometry.dispose(); ptMesh.material.dispose(); scene.remove(ptMesh); ptMesh = null; }
+}
+
+function showPts(pos, col) {
+  clrPts();
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  if (col) g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  const m = new THREE.PointsMaterial({
+    size: 0.003, vertexColors: !!col, sizeAttenuation: true, depthWrite: true
+  });
+  if (!col) m.color.set(0x7799bb);
+  ptMesh = new THREE.Points(g, m);
+  scene.add(ptMesh);
+  fitCam(pos);
+}
+
+function fitCam(pos) {
+  let cx = 0, cy = 0, cz = 0, md = 0;
+  const n = pos.length / 3;
+  for (let i = 0; i < pos.length; i += 3) { cx += pos[i]; cy += pos[i + 1]; cz += pos[i + 2]; }
+  cx /= n; cy /= n; cz /= n;
+  for (let i = 0; i < pos.length; i += 3) {
+    const d = Math.sqrt((pos[i] - cx) ** 2 + (pos[i + 1] - cy) ** 2 + (pos[i + 2] - cz) ** 2);
+    if (d > md) md = d;
+  }
+  ctrl.target.set(cx, cy, cz);
+  cam.position.set(cx + md * 2, cy + md * 1.5, cz + md * 3);
+  ctrl.update();
+}
+
+function anim() {
+  requestAnimationFrame(anim);
+  ctrl.update();
+  rdr.render(scene, cam);
+}
+anim();
+
+let pathLines = [];
+function clearPaths() {
+  pathLines.forEach(l => { scene.remove(l); l.geometry.dispose(); l.material.dispose(); });
+  pathLines = [];
+}
+function drawPath(positions) {
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+  const mat = new THREE.LineBasicMaterial({ color: 0xffdd00, transparent: true, opacity: 0.9, depthTest: true, depthWrite: true });
+  const line = new THREE.LineSegments(geo, mat);
+  line.renderOrder = 1;
+  scene.add(line);
+  pathLines.push(line);
+  return line;
+}
+window._3d = { showPts, clrPts, fitCam, clearPaths, drawPath };
+</script>
+
+<script>
+let S = { jid: null, cat: null, curPts: null, parts: [] };
+
+function T(m) {
+  const e = document.getElementById('toast');
+  e.textContent = m;
+  e.classList.add('on');
+  clearTimeout(e._t);
+  e._t = setTimeout(() => e.classList.remove('on'), 2500);
+}
+
+async function api(method, path, body) {
+  const opts = { method, headers: {} };
+  if (body instanceof FormData) {
+    opts.body = body;
+  } else if (body) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  }
+  const r = await fetch(path, opts);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.detail || data.error || r.statusText);
+  return data;
+}
+
+function stepDone(id) {
+  document.getElementById(id).classList.add('done');
+  document.getElementById(id).classList.remove('active');
+}
+function stepActive(id) {
+  document.getElementById(id).classList.add('active');
+}
+
+// ── Step 1: 上传照片识别 ──
+window.upimg = async function(inp) {
+  const f = inp.files[0];
+  if (!f) return;
+
+  const url = URL.createObjectURL(f);
+  const img = document.getElementById('photoPreview');
+  img.src = url;
+  img.style.display = 'block';
+
+  const clsDiv = document.getElementById('clsResult');
+  clsDiv.innerHTML = '<span class="spinner"></span> <span style="font-size:12px">ResNet-18 识别中...</span>';
+
+  try {
+    const fd = new FormData();
+    fd.append('image', f);
+    const d = await api('POST', '/api/classify-image', fd);
+
+    const tops = d.all.slice(0, 3).map(x => `${x.class} ${x.prob}%`).join(' &nbsp;|&nbsp; ');
+    clsDiv.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+        <span class="cls-badge ${d.prediction}">${d.prediction}</span>
+        <span style="font-size:20px;font-weight:700;color:#fff">${d.confidence}%</span>
+      </div>
+      <div style="font-size:10px;color:var(--dim);margin-top:3px">${tops}</div>
+    `;
+
+    S.cat = d.prediction;
+    stepDone('step1');
+    stepActive('step2');
+
+    updateSegBtn();
+    document.getElementById('modelHint').textContent =
+      S.cat === 'cabinet' ? '→ 几何分解 (柜体8面)' : '→ PointCNN';
+    document.getElementById('segStatus').textContent =
+      `类别: ${d.prediction} — 上传 3D 模型后即可分割`;
+
+    T(`识别: ${d.prediction} (${d.confidence}%)`);
+  } catch (e) {
+    clsDiv.innerHTML = `<span style="color:var(--red);font-size:12px">识别失败: ${e.message}</span>`;
+    T('识别失败');
+  }
+};
+
+// ── Step 2: 上传 3D 文件 ──
+window.up3d = async function(inp) {
+  const f = inp.files[0];
+  if (!f) return;
+
+  const info = document.getElementById('upInfo');
+  info.innerHTML = '<span class="spinner"></span> 上传处理中...';
+
+  try {
+    const fd = new FormData();
+    fd.append('file', f);
+    const d = await api('POST', '/api/upload', fd);
+
+    S.jid = d.job_id;
+    S.parts = [];
+    window._3d.clearPaths();
+
+    const ext = d.file_ext;
+    const kind = ['.ply','.npy','.xyz','.pcd','.pts'].includes(ext) ? '点云' : '网格→点云';
+    info.innerHTML = `<b>${d.n_points.toLocaleString()}</b> 点 &nbsp;·&nbsp; ${kind} &nbsp;·&nbsp; ${ext}`;
+
+    if (d.preview_b64) {
+      const buf = Uint8Array.from(atob(d.preview_b64), c => c.charCodeAt(0));
+      S.curPts = new Float32Array(buf.buffer);
+      window._3d.showPts(S.curPts, null);
+      document.getElementById('overlay').style.display = 'none';
+    }
+
+    stepDone('step2');
+    stepActive('step3');
+    updateSegBtn();
+
+    if (S.cat) {
+      document.getElementById('segStatus').textContent =
+        `类别: ${S.cat} — 点云已加载，点击分割按钮`;
+    }
+    T(`加载: ${d.n_points.toLocaleString()} 点`);
+  } catch (e) {
+    info.innerHTML = `<span style="color:var(--red)">错误: ${e.message}</span>`;
+    T('上传失败');
+  }
+};
+
+function updateSegBtn() {
+  const btn = document.getElementById('btnSeg');
+  btn.disabled = !(S.jid && S.cat);
+}
+
+// ── Step 3: AI 分割 ──
+window.doSeg = async function() {
+  if (!S.jid) { T('请先上传 3D 模型'); return; }
+  if (!S.cat) { T('请先上传照片识别类别'); return; }
+
+  const btn = document.getElementById('btnSeg');
+  const st = document.getElementById('segStatus');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> 推理中...';
+  st.innerHTML = '<span class="spinner"></span> AI 模型推理中... (约5-30秒)';
+
+  try {
+    const d = await api('POST', '/api/segment-ai', { job_id: S.jid, category: S.cat });
+    S.parts = d.parts || [];
+    window._3d.clearPaths();
+
+    // Color the point cloud by parts
+    if (S.curPts && S.parts.length) {
+      const col = new Float32Array(S.curPts.length).fill(0.35);
+      for (const p of S.parts) {
+        if (!p.points_b64) continue;
+        const buf = Uint8Array.from(atob(p.points_b64), c => c.charCodeAt(0));
+        const pp = new Float32Array(buf.buffer);
+        const c = p.color || [0.5, 0.5, 0.5];
+        for (let j = 0; j < pp.length; j += 3) {
+          const px = pp[j], py = pp[j + 1], pz = pp[j + 2];
+          let best = -1, bd = 1e-6;
+          for (let k = 0; k < S.curPts.length / 3; k++) {
+            const dx = S.curPts[k * 3] - px, dy = S.curPts[k * 3 + 1] - py, dz = S.curPts[k * 3 + 2] - pz;
+            const dd = dx * dx + dy * dy + dz * dz;
+            if (dd < bd) { bd = dd; best = k; }
+          }
+          if (best >= 0) {
+            col[best * 3] = c[0];
+            col[best * 3 + 1] = c[1];
+            col[best * 3 + 2] = c[2];
+          }
+        }
+      }
+      window._3d.showPts(S.curPts, col);
+    }
+
+    st.innerHTML = `完成: ${d.n_regions} 个部件 &nbsp;·&nbsp; ${S.cat === 'cabinet' ? '几何分解 (柜体8面)' : 'PointCNN'}`;
+    stepDone('step3');
+    stepActive('step4');
+    renderParts();
+    T(`分割: ${d.n_regions} 部件`);
+  } catch (e) {
+    st.innerHTML = `<span style="color:var(--red)">失败: ${e.message}</span>`;
+    T('分割失败');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'PointNeXt / PointCNN 分割';
+  }
+};
+
+// ── Step 4: 部件列表 ──
+function renderParts() {
+  const box = document.getElementById('partsBox');
+  box.innerHTML = S.parts.map((p, i) => `
+    <div class="part-item" style="cursor:pointer" title="点击生成喷涂路径">
+      <span class="part-dot" style="background:rgb(${(p.color||[0.5,0.5,0.5]).map(c=>Math.round(c*255)).join(',')})"></span>
+      <span class="part-name">${p.name || '部件' + (i + 1)}</span>
+      <span class="part-meta">${p.type_name || '?'} · ${(p.coverage * 100).toFixed(0)}% · ${(p.n_points||0).toLocaleString()}点</span>
+    </div>
+  `).join('');
+
+  if (S.parts.length === 0) {
+    box.innerHTML = '<div style="font-size:11px;color:var(--dim)">无部件数据</div>';
+    return;
+  }
+
+  [...box.children].forEach((el, i) => {
+    el.addEventListener('click', () => generatePath(i));
+  });
+}
+
+function decodeB64Float32(b64) {
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Float32Array(bytes.buffer);
+}
+
+async function generatePath(partIndex) {
+  const row = document.getElementById('partsBox').children[partIndex];
+  try {
+    const data = await api('POST', '/api/generate-path', { job_id: S.jid, part_index: partIndex });
+    if (data.empty || !data.waypoints_b64 || !data.segments || !data.segments.length) {
+      if (row) { const m = row.querySelector('.part-meta'); if (m) m.textContent += ' · 无法生成路径'; }
+      return;
+    }
+    const wp = decodeB64Float32(data.waypoints_b64);
+    const segs = data.segments;
+    const positions = [];
+    for (const seg of segs) {
+      const i0 = seg[0] * 3, i1 = seg[1] * 3;
+      positions.push(wp[i0], wp[i0 + 1], wp[i0 + 2]);
+      positions.push(wp[i1], wp[i1 + 1], wp[i1 + 2]);
+    }
+    window._3d.drawPath(positions);
+    if (row) { const m = row.querySelector('.part-meta'); if (m) m.textContent += ` · 🛤 ${data.n_waypoints}路径点`; }
+  } catch (e) {
+    console.error('路径生成失败:', e);
+  }
+}
+
+// ── 拖放支持 ──
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => {
+  e.preventDefault();
+  const f = e.dataTransfer.files[0];
+  if (!f) return;
+  const ext = f.name.split('.').pop().toLowerCase();
+  if (['jpg','jpeg','png','webp','bmp'].includes(ext)) {
+    const dt = new DataTransfer(); dt.items.add(f);
+    document.getElementById('fimg').files = dt.files;
+    upimg(document.getElementById('fimg'));
+  } else {
+    const dt = new DataTransfer(); dt.items.add(f);
+    document.getElementById('f3d').files = dt.files;
+    up3d(document.getElementById('f3d'));
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+torch>=1.10
+torchvision
+tensorflow>=2.0,<2.16
+numpy<2
+scipy
+scikit-learn
+open3d
+flask
+h5py
+PyYAML
