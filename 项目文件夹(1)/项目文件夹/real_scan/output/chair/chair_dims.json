@@ -1,0 +1,14 @@
+{
+  "width_m": 0.04941311478614807,
+  "depth_m": 0.04586227983236313,
+  "height_m": 0.0795,
+  "n_points": 5956,
+  "percentiles": [
+    2.0,
+    98.0
+  ],
+  "dimension_method": "robust_xy_min_area_rect",
+  "xy_anisotropy": 1.1873338096200436,
+  "xy_yaw_deg": 0.0,
+  "source": "/home/xie/项目文件夹/real_scan/output/v12/chair/chair_stitched.ply"
+}

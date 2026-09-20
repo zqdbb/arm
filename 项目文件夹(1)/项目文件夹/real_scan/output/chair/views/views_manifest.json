@@ -1,0 +1,35 @@
+[
+  {
+    "index": 6,
+    "degree": 30.0,
+    "confidence": 0.5773006677627563,
+    "area_ratio": 0.049116,
+    "border_ratio": 0.0,
+    "path": "/home/xie/项目文件夹/real_scan/output/chair/views/view_006.png",
+    "has_mask": true,
+    "model": "/home/xie/项目文件夹/real_scan/yolov8n-seg.pt",
+    "target_class": "chair"
+  },
+  {
+    "index": 12,
+    "degree": 60.0,
+    "confidence": 0.3436738848686218,
+    "area_ratio": 0.063924,
+    "border_ratio": 0.0,
+    "path": "/home/xie/项目文件夹/real_scan/output/chair/views/view_012.png",
+    "has_mask": true,
+    "model": "/home/xie/项目文件夹/real_scan/yolov8n-seg.pt",
+    "target_class": "chair"
+  },
+  {
+    "index": 18,
+    "degree": 90.0,
+    "confidence": 0.5125325918197632,
+    "area_ratio": 0.063124,
+    "border_ratio": 0.0,
+    "path": "/home/xie/项目文件夹/real_scan/output/chair/views/view_018.png",
+    "has_mask": true,
+    "model": "/home/xie/项目文件夹/real_scan/yolov8n-seg.pt",
+    "target_class": "chair"
+  }
+]
