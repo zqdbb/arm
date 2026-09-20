@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<robot name="d435i_sim">
+  <!-- D435i approximate production envelope: 90 x 25 x 25 mm. Optical axis +X. -->
+  <material name="realsense_red"><color rgba="0.72 0.10 0.05 1"/></material>
+  <material name="front_black"><color rgba="0.015 0.018 0.022 1"/></material>
+  <material name="lens_glass"><color rgba="0.03 0.12 0.16 1"/></material>
+  <material name="imu_gray"><color rgba="0.25 0.27 0.30 1"/></material>
+  <link name="d435i_link">
+    <visual><geometry><mesh filename="meshes/d435.dae" scale="1 1 1"/></geometry></visual>
+    <collision><geometry><box size="0.025 0.090 0.025"/></geometry></collision>
+  </link>
+  <link name="front_panel"><visual><geometry><box size="0.003 0.082 0.019"/></geometry><material name="front_black"/></visual></link>
+  <joint name="front_panel_joint" type="fixed"><parent link="d435i_link"/><child link="front_panel"/><origin xyz="0.014 0 0"/></joint>
+  <!-- Two stereo IR cameras, 50 mm baseline, and central RGB camera -->
+  <link name="left_ir"><visual><geometry><cylinder radius="0.0065" length="0.004"/></geometry><material name="lens_glass"/></visual></link>
+  <joint name="left_ir_joint" type="fixed"><parent link="d435i_link"/><child link="left_ir"/><origin xyz="0.016 -0.025 0" rpy="0 1.5708 0"/></joint>
+  <link name="rgb"><visual><geometry><cylinder radius="0.006" length="0.004"/></geometry><material name="lens_glass"/></visual></link>
+  <joint name="rgb_joint" type="fixed"><parent link="d435i_link"/><child link="rgb"/><origin xyz="0.016 0 0" rpy="0 1.5708 0"/></joint>
+  <link name="right_ir"><visual><geometry><cylinder radius="0.0065" length="0.004"/></geometry><material name="lens_glass"/></visual></link>
+  <joint name="right_ir_joint" type="fixed"><parent link="d435i_link"/><child link="right_ir"/><origin xyz="0.016 0.025 0" rpy="0 1.5708 0"/></joint>
+  <link name="imu"><visual><geometry><box size="0.012 0.018 0.004"/></geometry><material name="imu_gray"/></visual></link>
+  <joint name="imu_joint" type="fixed"><parent link="d435i_link"/><child link="imu"/><origin xyz="-0.004 0 0.014"/></joint>
+  <link name="depth_optical_frame"/>
+  <joint name="depth_optical_joint" type="fixed"><parent link="d435i_link"/><child link="depth_optical_frame"/><origin xyz="0.018 -0.025 0" rpy="0 -1.5708 0"/></joint>
+</robot>

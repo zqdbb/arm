@@ -1,0 +1,8 @@
+<!doctype html><meta charset="utf-8"><title>D435i TSDF 仿真结果</title>
+<style>body{margin:0;background:#111;color:#eee;font:16px sans-serif}#info{position:fixed;z-index:2;padding:12px}canvas{display:block}</style>
+<div id="info">真机D435i参数 + 深度噪声 + 位姿误差 · 15视角 · 2 mm体素</div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three'; import {PLYLoader} from 'three/addons/loaders/PLYLoader.js'; import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const s=new THREE.Scene();s.background=new THREE.Color(0x111111);const c=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.01,10);c.position.set(1.35,1.1,1.25);const r=new THREE.WebGLRenderer({antialias:true});r.setSize(innerWidth,innerHeight);document.body.appendChild(r.domElement);const controls=new OrbitControls(c,r.domElement);s.add(new THREE.HemisphereLight(0xffffff,0x333333,2));new PLYLoader().load('output_complex_desk_realcam_noisy_pose_15v/viewer_mesh.ply',g=>{g.computeVertexNormals();const m=new THREE.MeshStandardMaterial({color:0x55aaff,roughness:.7,side:THREE.DoubleSide});const o=new THREE.Mesh(g,m);o.rotation.x=-Math.PI/2;s.add(o);g.computeBoundingSphere();o.updateMatrixWorld();const center=o.localToWorld(g.boundingSphere.center.clone());controls.target.copy(center);c.lookAt(center);controls.update()});addEventListener('resize',()=>{c.aspect=innerWidth/innerHeight;c.updateProjectionMatrix();r.setSize(innerWidth,innerHeight)});(function a(){requestAnimationFrame(a);r.render(s,c)})();
+</script>

@@ -1,0 +1,23 @@
+<!doctype html><meta charset="utf-8"><title>D435i TSDF 仿真世界</title>
+<style>body{margin:0;background:#10131a;color:#eee;font:15px sans-serif}#info{position:fixed;z-index:2;padding:14px;background:#10131acc;line-height:1.5}canvas{display:block}</style>
+<div id="info"><b>D435i复杂家具仿真（15视角）</b><br>棕色：双抽屉书桌/书架　红/黑：D435i　绿线：5层×3方位扫描轨迹<br>模型、相机位姿与TSDF脚本使用同一份Z-up坐标；鼠标拖动旋转、滚轮缩放</div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as T from 'three'; import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const scene=new T.Scene();scene.background=new T.Color(0x10131a);const camera=new T.PerspectiveCamera(50,innerWidth/innerHeight,.01,10);camera.position.set(1.8,1.45,1.65);const renderer=new T.WebGLRenderer({antialias:true});renderer.setPixelRatio(devicePixelRatio);renderer.setSize(innerWidth,innerHeight);document.body.appendChild(renderer.domElement);const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,.56,0);camera.lookAt(0,.56,0);scene.add(new T.HemisphereLight(0xffffff,0x303746,2));
+// PyBullet is Z-up. The complete scene below is written in exactly that frame;
+// this root is the sole conversion from PyBullet (x,y,z) to Three (x,z,-y).
+const pb=new T.Group();pb.rotation.x=-Math.PI/2;scene.add(pb);
+const wood=new T.MeshStandardMaterial({color:0x8b552f,roughness:.82}),dark=new T.MeshStandardMaterial({color:0x582814,roughness:.85}),metal=new T.MeshStandardMaterial({color:0x343941,metalness:.65,roughness:.35});function box(size,pos,mat=wood){const m=new T.Mesh(new T.BoxGeometry(...size),mat);m.position.set(...pos);pb.add(m);return m}
+const ground=new T.MeshStandardMaterial({color:0x3d424b,roughness:1});box([1.5,1.5,.03],[0,0,-.025],ground);
+// Exact same Z-up complex desk geometry as desk_boxes().
+box([.76,.50,.045],[0,0,.78]);box([.65,.045,.14],[0,-.205,.69],dark);box([.65,.045,.14],[0,.205,.69],dark);box([.045,.36,.14],[-.335,0,.69],dark);box([.045,.36,.14],[.335,0,.69],dark);box([.62,.36,.035],[0,0,.25]);for(const x of[-.33,.33])for(const y of[-.20,.20])box([.055,.055,.76],[x,y,.38]);box([.29,.40,.17],[-.17,-.005,.68],dark);box([.29,.40,.17],[.17,-.005,.68],dark);box([.30,.035,.18],[-.17,-.225,.68]);box([.30,.035,.18],[.17,-.225,.68]);box([.11,.025,.020],[-.17,-.245,.68],metal);box([.11,.025,.020],[.17,-.245,.68],metal);box([.70,.035,.30],[0,.215,.952],dark);box([.04,.30,.30],[-.33,.08,.952]);box([.04,.30,.30],[.33,.08,.952]);box([.70,.30,.030],[0,.08,.94]);box([.70,.30,.035],[0,.08,1.105]);box([.035,.30,.165],[0,.08,1.0225],dark);
+const grid=new T.GridHelper(1.2,12,0x606873,0x303741);grid.rotation.x=Math.PI/2;grid.position.z=.002;pb.add(grid);
+const target=new T.Vector3(0,0,.56), bodyMat=new T.MeshStandardMaterial({color:0xb52216}), lensMat=new T.MeshStandardMaterial({color:0x050b0f});
+function d435i(p){const g=new T.Group();g.position.copy(p);const front=target.clone().sub(p).normalize();g.quaternion.setFromUnitVectors(new T.Vector3(0,0,-1),front);const body=new T.Mesh(new T.BoxGeometry(.09,.025,.025),bodyMat);g.add(body);const panel=new T.Mesh(new T.BoxGeometry(.082,.019,.003),new T.MeshStandardMaterial({color:0x08090c}));panel.position.z=-.014;g.add(panel);for(const x of[-.025,0,.025]){const lens=new T.Mesh(new T.CylinderGeometry(x===0?.006:.0065,x===0?.006:.0065,.004,16),lensMat);lens.rotation.x=Math.PI/2;lens.position.set(x,0,-.018);g.add(lens)}g.scale.setScalar(.55);pb.add(g)}
+// Recommended reduced scan: radius .78 m; five heights; three azimuths per
+// ring. Odd rings are offset by half an azimuth step, matching the script.
+const heights=[.05,.36,.68,1.05,1.45], colors=[0x2a7752,0x35a36e,0x43c585,0x68d69f,0x8ce8ba];for(let k=0;k<heights.length;k++){const ring=[];for(let i=0;i<3;i++){const a=2*Math.PI*(i+.5*(k%2))/3,p=new T.Vector3(1.15*Math.cos(a),1.15*Math.sin(a),heights[k]);ring.push(p);d435i(p)}ring.push(ring[0]);pb.add(new T.Line(new T.BufferGeometry().setFromPoints(ring),new T.LineBasicMaterial({color:colors[k],transparent:true,opacity:.55})))}
+const mark=new T.Mesh(new T.SphereGeometry(.018,12,8),new T.MeshBasicMaterial({color:0xffdd44}));mark.position.copy(target);pb.add(mark);
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});(function loop(){requestAnimationFrame(loop);renderer.render(scene,camera)})();
+</script>

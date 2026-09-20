@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "parameter_type": "derived_from_saved_live_device_calibration",
+  "source": "/home/azh/桌面/arm/项目文件夹(1)/项目文件夹/real_scan/output/v12/chair/calibrate.json",
+  "derivation": "The saved 500x500 values were produced by center-cropping the live 640x480 stream to 480x480 and scaling by 500/480. These values invert that exact transform.",
+  "color": {
+    "width": 640,
+    "height": 480,
+    "format": "bgr8",
+    "fps_profile_tested": 30,
+    "usb3_fallback_fps_profile": 6
+  },
+  "intrinsics": {
+    "fx": 605.210327148438,
+    "fy": 603.803466796875,
+    "ppx": 324.331939697266,
+    "ppy": 236.719329833984,
+    "distortion_model": "inverse_brown_conrady",
+    "coeffs": [0.0, 0.0, 0.0, 0.0, 0.0]
+  },
+  "depth": {
+    "width": 640,
+    "height": 480,
+    "format": "z16",
+    "fps_profile_tested": 30,
+    "intrinsics": {
+      "fx": 382.0475769042969,
+      "fy": 382.0475769042969,
+      "ppx": 320.4019470214844,
+      "ppy": 235.05996704101562,
+      "distortion_model": "brown_conrady",
+      "coeffs": [0.0, 0.0, 0.0, 0.0, 0.0]
+    }
+  },
+  "depth_scale_m_per_unit": 0.0010000000474974513,
+  "device": {
+    "name": "RealSense D435I",
+    "serial": "134322070236",
+    "firmware": "5.13.0.55",
+    "product_line": "D400",
+    "usb_type": "3.2",
+    "vendor_id": "8086",
+    "product_id": "0b3a"
+  },
+  "stereo": {
+    "ir1_to_ir2_translation_m": [-0.0499815121, 0.0, 0.0],
+    "baseline_m": 0.0499815121
+  },
+  "depth_to_color_extrinsics": {
+    "translation_m": [0.01507185958, -0.00021631035, 0.00011197597],
+    "rotation_row_major": [
+      0.9997836351, -0.0206623487, -0.0023965342,
+      0.0206567310, 0.9997838736, -0.0023454339,
+      0.0024444785, 0.0022954219, 0.9999943972
+    ]
+  },
+  "notes": [
+    "Parameters were read from a live D435i through pyrealsense2.",
+    "Current live enumeration is USB 3.2 and 640x480 depth+color at 30 FPS passed a 180-frame test.",
+    "If the camera falls back to USB2, use the 640x480 depth+color profile at 6 FPS."
+  ]
+}

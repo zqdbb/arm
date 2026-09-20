@@ -1,0 +1,106 @@
+{
+  "pass": true,
+  "created": "2026-09-20T11:06:02",
+  "calibration_file": "/home/hongzt/Desktop/arm/real_scan_new/output/calibrate.json",
+  "run_dir": "/home/hongzt/Desktop/arm/real_scan_new/output/calibration_20260920_110531",
+  "plane_camera": [
+    0.1448658667800982,
+    0.5633977083200759,
+    0.813386072478339,
+    -0.3968807502602449
+  ],
+  "plane_inliers": 33661,
+  "plane_candidates": 68199,
+  "axis_origin_camera_m": [
+    0.022037736031756135,
+    0.031012935728449598,
+    0.4625301936436415
+  ],
+  "axis_origin_spread_m": 0.0018808779069019413,
+  "axis_center_pixel": [
+    353,
+    277
+  ],
+  "axis_center_camera_m": [
+    0.02203773603175614,
+    0.031012935728449625,
+    0.4625301936436417
+  ],
+  "accepted_pairs": 2,
+  "pairs": [
+    {
+      "commanded_deg": 20.0,
+      "estimated_angle_deg": 19.96748222838273,
+      "axis_plane_error_deg": 1.0232938591118936,
+      "feature_pairs": 229,
+      "inliers": 193,
+      "inlier_ratio": 0.8427947598253275,
+      "rmse_m": 0.001328076060167845,
+      "axis_camera": [
+        -0.12971766115538078,
+        -0.5721597048734285,
+        -0.8098188689475746
+      ],
+      "origin_camera_m": [
+        0.021168731757560674,
+        0.03245265557367577,
+        0.461687732938704
+      ]
+    },
+    {
+      "commanded_deg": -20.0,
+      "estimated_angle_deg": 19.633977344983695,
+      "axis_plane_error_deg": 2.4771790670505673,
+      "feature_pairs": 258,
+      "inliers": 227,
+      "inlier_ratio": 0.8798449612403101,
+      "rmse_m": 0.001243194723819712,
+      "axis_camera": [
+        0.15972298366367066,
+        0.5283457586762222,
+        0.8338700904687864
+      ],
+      "origin_camera_m": [
+        0.0229067403059516,
+        0.029573215883223425,
+        0.463372654348579
+      ]
+    }
+  ],
+  "failures": [],
+  "calibration": {
+    "R": [
+      [
+        0.9884271089998681,
+        -0.045008119669830315,
+        -0.1448658667800982
+      ],
+      [
+        -0.045008119669830315,
+        0.824958963478471,
+        -0.5633977083200759
+      ],
+      [
+        0.1448658667800982,
+        0.5633977083200759,
+        0.813386072478339
+      ]
+    ],
+    "t": [
+      0.04661797562196067,
+      0.23599592887527174,
+      -0.3968807502602449
+    ],
+    "plate_z": 0.0,
+    "rotation_center": [
+      0.0,
+      0.0
+    ],
+    "radius_m": 0.1,
+    "camera_serial": "134322070236",
+    "camera_usb": "3.2",
+    "depth_scale_m_per_unit": 0.0010000000474974513,
+    "motor_angle_sign_in_world": -1,
+    "motor_positive_rotation": "negative world Z"
+  }
+}
