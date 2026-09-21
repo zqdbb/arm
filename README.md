@@ -9,6 +9,7 @@
 如果目标是验证“8 台 Gemini 335L 固定相机拍摄车辆并通过 TSDF 拼接”的当前方案，请从这里开始：
 
 - [Gemini 335L 八相机仿真](gemini335l_multicam_sim/README.md)
+- [8 台 Gemini 335L ChArUco 实机标定方法](gemini335l_multicam_sim/CHARUCO_CALIBRATION.md)
 - 一键运行：`./gemini335l_multicam_sim/run_validation.sh`
 - 网页查看：`gemini335l_multicam_sim/viewer.html`
 
