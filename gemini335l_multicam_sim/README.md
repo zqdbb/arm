@@ -167,10 +167,10 @@ python3 -m venv .venv
 ./gemini335l_multicam_sim/run_validation.sh
 ```
 
-脚本依次生成：
+脚本依次在 `gemini335l_multicam_sim/` 目录下生成：
 
-1. `output_ideal`：精确外参、无传感器噪声。
-2. `output_spec_noise`：精确外参、规格书推导深度噪声。
+1. `gemini335l_multicam_sim/output_ideal`：精确外参、无传感器噪声。
+2. `gemini335l_multicam_sim/output_spec_noise`：精确外参、规格书推导深度噪声。
 
 默认对照组没有加入相机定位误差。
 
@@ -178,7 +178,7 @@ python3 -m venv .venv
 
 ```bash
 ./.venv/bin/python gemini335l_multicam_sim/simulate_8cam_reconstruction.py \
-  --output output_ideal \
+  --output gemini335l_multicam_sim/output_ideal \
   --depth-model ideal
 ```
 
@@ -186,7 +186,7 @@ python3 -m venv .venv
 
 ```bash
 ./.venv/bin/python gemini335l_multicam_sim/simulate_8cam_reconstruction.py \
-  --output output_spec_noise \
+  --output gemini335l_multicam_sim/output_spec_noise \
   --depth-model spec_noise \
   --noise-seed 335
 ```
@@ -204,7 +204,7 @@ python3 -m venv .venv
 
 ```bash
 ./.venv/bin/python gemini335l_multicam_sim/simulate_8cam_reconstruction.py \
-  --output output_pose_noise \
+  --output gemini335l_multicam_sim/output_pose_noise \
   --depth-model spec_noise \
   --pose-noise \
   --pose-translation-sigma-mm 3.0 \
