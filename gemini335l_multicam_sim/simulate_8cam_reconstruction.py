@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Eight fixed Gemini 335L cameras: RGB-D rendering, point-cloud merge and TSDF."""
+"""Fixed Gemini 335L cameras: RGB-D rendering, point-cloud merge and TSDF."""
 
 from __future__ import annotations
 
@@ -186,6 +186,39 @@ def load_car_concept_asset(path):
     }
 
 
+def load_prius_asset(path):
+    """Load the supplied Gazebo Prius OBJ and convert it to simulation axes.
+
+    The SDF declares a 0.01 mesh scale. Its source axes are width=X,
+    length=Y, height=Z; the simulation uses length=X, width=Y, height=Z,
+    with the Prius front (source -Y) pointing toward +X.
+    """
+    mesh = o3d.io.read_triangle_mesh(str(path), enable_post_processing=True)
+    if len(mesh.vertices) == 0 or len(mesh.triangles) == 0:
+        raise RuntimeError(f"No geometry found in Prius asset: {path}")
+    points = np.asarray(mesh.vertices, dtype=np.float64) * 0.01
+    mapped = np.column_stack((-points[:, 1], points[:, 0], points[:, 2]))
+    minimum = mapped.min(axis=0)
+    maximum = mapped.max(axis=0)
+    center_xy = 0.5 * (minimum[:2] + maximum[:2])
+    mapped[:, :2] -= center_xy
+    mapped[:, 2] -= minimum[2]
+    mesh.vertices = o3d.utility.Vector3dVector(mapped)
+    mesh.compute_vertex_normals()
+    mesh.paint_uniform_color([0.18, 0.34, 0.58])
+    extent = mesh.get_axis_aligned_bounding_box().get_extent()
+    return mesh, [(mesh, [0.18, 0.34, 0.58, 1.0])], {
+        "type": "supplied Gazebo Prius Hybrid mesh",
+        "model_name": "Toyota Prius Hybrid",
+        "source": "models/prius_hybrid/model.sdf + meshes/Hybrid.obj",
+        "asset_file": str(path),
+        "sdf_mesh_scale": 0.01,
+        "source_axes": "X=width, Y=length, Z=height",
+        "simulation_axes": "X=length(front=+X), Y=width, Z=height",
+        "ground_truth_bbox_m": extent.tolist(),
+    }
+
+
 def add_mesh_to_pybullet(mesh, color):
     vertices = np.asarray(mesh.vertices).tolist()
     indices = np.asarray(mesh.triangles, dtype=np.int32).reshape(-1).tolist()
@@ -204,25 +237,55 @@ def add_vehicle_to_pybullet(parts):
         add_mesh_to_pybullet(mesh, color)
 
 
-def camera_layout():
-    """Four upper and four lower fixed corner cameras from the supplied scheme."""
+def camera_layout(layout="six"):
+    """Return the selected fixed-camera layout.
+
+    The default six-camera layout follows the deployment proposal: four upper
+    corner cameras plus two low, side-centred cameras for wheel arches and
+    rocker panels. The previous eight-camera layout remains available as a
+    comparison baseline.
+    """
     cameras = []
-    for layer, height, target_z in (("upper", 2.45, 1.06), ("lower", 0.82, 0.72)):
+    for x_sign, y_sign, corner in (
+        (1.0, 1.0, "front_left"),
+        (-1.0, 1.0, "rear_left"),
+        (-1.0, -1.0, "rear_right"),
+        (1.0, -1.0, "front_right"),
+    ):
+        position = np.array([3.60 * x_sign, 2.60 * y_sign, 2.45])
+        target = np.array([1.05 * x_sign, 0.0, 1.06])
+        cameras.append({
+            "name": f"cam{len(cameras) + 1:02d}_upper_{corner}",
+            "layer": "upper",
+            "position": position,
+            "target": target,
+        })
+    if layout == "six":
+        for y_sign, side in ((1.0, "left"), (-1.0, "right")):
+            cameras.append({
+                "name": f"cam{len(cameras) + 1:02d}_lower_mid_{side}",
+                "layer": "lower_mid",
+                "position": np.array([0.0, 1.35 * y_sign, 0.72]),
+                "target": np.array([0.0, 0.0, 0.82]),
+            })
+        return cameras
+    if layout == "eight":
         for x_sign, y_sign, corner in (
             (1.0, 1.0, "front_left"),
             (-1.0, 1.0, "rear_left"),
             (-1.0, -1.0, "rear_right"),
             (1.0, -1.0, "front_right"),
         ):
-            position = np.array([3.60 * x_sign, 2.60 * y_sign, height])
-            target = np.array([1.05 * x_sign, 0.0, target_z])
+            position = np.array([3.60 * x_sign, 2.60 * y_sign, 0.82])
+            target = np.array([1.05 * x_sign, 0.0, 0.72])
             cameras.append({
-                "name": f"cam{len(cameras) + 1:02d}_{layer}_{corner}",
-                "layer": layer,
+                "name": f"cam{len(cameras) + 1:02d}_lower_{corner}",
+                "layer": "lower",
                 "position": position,
                 "target": target,
             })
-    return cameras
+        return cameras
+    raise ValueError(f"Unsupported camera layout: {layout}")
 
 
 def accuracy_limit_fraction(depth_m):
@@ -303,8 +366,14 @@ def distance_stats(values):
 
 
 def pair_overlap_metrics(point_clouds, max_correspondence=0.08):
-    pairs = [(0, 1), (1, 2), (2, 3), (3, 0), (4, 5), (5, 6), (6, 7), (7, 4),
-             (0, 4), (1, 5), (2, 6), (3, 7)]
+    if len(point_clouds) == 6:
+        pairs = [(0, 1), (1, 2), (2, 3), (3, 0), (0, 4), (1, 4),
+                 (2, 5), (3, 5), (4, 5)]
+    elif len(point_clouds) == 8:
+        pairs = [(0, 1), (1, 2), (2, 3), (3, 0), (4, 5), (5, 6), (6, 7), (7, 4),
+                 (0, 4), (1, 5), (2, 6), (3, 7)]
+    else:
+        pairs = [(a, b) for a in range(len(point_clouds)) for b in range(a + 1, len(point_clouds))]
     reports = []
     for a, b in pairs:
         pa = point_clouds[a].voxel_down_sample(0.025)
@@ -349,7 +418,7 @@ def evaluate_mesh(reconstruction, truth, visible_truth, sample_count=180000):
     return {
         "reconstruction_to_truth": distance_stats(r2t),
         "truth_to_reconstruction": distance_stats(t2r),
-        "completeness_definition": "camera-visible ground-truth exterior sampled from the eight ideal depth views",
+        "completeness_definition": "camera-visible ground-truth exterior sampled from the selected ideal depth views",
         "completeness": {
             f"within_{int(t * 1000)}mm": float(np.mean(visible_t2r <= t)) for t in thresholds
         },
@@ -450,13 +519,17 @@ def main():
     parser.add_argument("--pose-rotation-sigma-deg", type=float, default=0.10)
     parser.add_argument("--pose-seed", type=int, default=336)
     parser.add_argument(
-        "--vehicle-model", choices=["car_concept", "procedural"], default="car_concept"
+        "--vehicle-model", choices=["prius_hybrid", "car_concept", "procedural"], default="prius_hybrid"
     )
     parser.add_argument(
-        "--vehicle-asset", default="assets/car_concept/CarConcept.glb"
+        "--vehicle-asset", default="../models/prius_hybrid/meshes/Hybrid.obj"
     )
     parser.add_argument(
         "--camera-mesh", default="assets/gemini335l_official/base_link.STL"
+    )
+    parser.add_argument(
+        "--camera-layout", choices=("six", "eight"), default="six",
+        help="six cameras: four upper corners plus two low side cameras; eight keeps the old baseline",
     )
     args = parser.parse_args()
 
@@ -481,7 +554,12 @@ def main():
     for folder in (output / "color", output / "depth", output / "pointclouds"):
         folder.mkdir(parents=True, exist_ok=True)
 
-    if args.vehicle_model == "car_concept":
+    if args.vehicle_model == "prius_hybrid":
+        asset_path = Path(args.vehicle_asset)
+        if not asset_path.is_absolute():
+            asset_path = root / asset_path
+        truth, parts, vehicle_metadata = load_prius_asset(asset_path)
+    elif args.vehicle_model == "car_concept":
         asset_path = Path(args.vehicle_asset)
         if not asset_path.is_absolute():
             asset_path = root / asset_path
@@ -509,7 +587,7 @@ def main():
         sdf_trunc=args.trunc,
         color_type=o3d.pipelines.integration.TSDFVolumeColorType.RGB8,
     )
-    cameras = camera_layout()
+    cameras = camera_layout(args.camera_layout)
     depth_rng = np.random.default_rng(args.noise_seed)
     pose_rng = np.random.default_rng(args.pose_seed)
     frame_reports = []
@@ -606,7 +684,8 @@ def main():
     visible_truth = visible_truth.voxel_down_sample(voxel_size=0.008)
     merged_raw_count = len(merged.points)
     merged = merged.voxel_down_sample(voxel_size=0.010)
-    o3d.io.write_point_cloud(str(output / "merged_8cam.ply"), merged, write_ascii=False)
+    merged_filename = f"merged_{len(cameras)}cam.ply"
+    o3d.io.write_point_cloud(str(output / merged_filename), merged, write_ascii=False)
 
     mesh = volume.extract_triangle_mesh()
     mesh.compute_vertex_normals()
@@ -641,7 +720,7 @@ def main():
     hfov = math.degrees(2.0 * math.atan(width / (2.0 * fx)))
     vfov = math.degrees(2.0 * math.atan(height / (2.0 * fy)))
     report = {
-        "project": "Gemini 335L eight fixed camera simulation",
+        "project": f"Gemini 335L {len(cameras)} fixed camera simulation",
         "test_definition": (
             "exact fixed extrinsics and no sensor noise" if args.depth_model == "ideal" and not args.pose_noise
             else "specification-derived synthetic depth noise and/or simulated extrinsic error"
@@ -650,9 +729,10 @@ def main():
         "camera_model": spec["model"],
         "camera_parameter_type": spec["parameter_type"],
         "camera_parameter_source_file": spec["source_file"],
-        "camera_count": 8,
+        "camera_count": len(cameras),
+        "camera_layout": args.camera_layout,
         "camera_visual_model": camera_visual,
-        "capture_mode": "fixed cameras, static vehicle, sequential capture cam01 to cam08",
+        "capture_mode": f"fixed cameras, static vehicle, sequential capture cam01 to cam{len(cameras):02d}",
         "infrared_interference_simulated": False,
         "resolution": [width, height],
         "full_resolution": bool(args.full_resolution),
@@ -685,7 +765,7 @@ def main():
         "point_cloud": {
             "raw_total_points_before_merge_downsample": int(merged_raw_count),
             "merged_points_after_10mm_voxel": int(len(merged.points)),
-            "file": "merged_8cam.ply",
+            "file": merged_filename,
         },
         "mesh": {
             "vertices": int(len(mesh.vertices)),

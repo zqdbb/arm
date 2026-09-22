@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Gemini 335L 八相机仿真验证</title>
+  <title>Gemini 335L 六相机仿真验证</title>
   <style>
     html,body{margin:0;height:100%;overflow:hidden;background:#0b0e13;color:#e8edf5;font:14px system-ui,sans-serif}
     #panel{position:fixed;z-index:3;left:16px;top:16px;width:360px;padding:14px 16px;background:#111722e8;border:1px solid #293448;border-radius:10px;box-shadow:0 8px 30px #0008}
@@ -14,16 +14,17 @@
 </head>
 <body>
 <div id="panel">
-  <h1>Gemini 335L · 8 台固定相机拼接</h1>
+  <h1>Gemini 335L · 6 台固定相机拼接</h1>
   <div>
     <button data-mode="ideal" class="active">无噪声 TSDF</button>
     <button data-mode="noise">规格噪声 TSDF</button>
     <button data-mode="truth">原始高细节车模</button>
-    <button data-mode="points">8 相机合并点云</button>
+    <button data-mode="points">6 相机合并点云</button>
+    <button data-mode="registration">模板配准结果</button>
     <button id="cameraSize">相机显示 ×1</button>
   </div>
   <div id="metrics">加载中…</div>
-  <div class="hint">场景使用奥比中光官方 Gemini 335L/336L STL 外观模型。鼠标左键旋转，滚轮缩放。</div>
+  <div class="hint">场景使用新增 Prius Hybrid 车辆模型和奥比中光官方 Gemini 335L/336L STL 外观模型。鼠标左键旋转，滚轮缩放。</div>
 </div>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script type="module">
@@ -31,6 +32,7 @@ import * as THREE from 'three';
 import {PLYLoader} from 'three/addons/loaders/PLYLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b0e13);
+const assetVersion='?v=prius6';
 const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.02,50); camera.position.set(6,4.3,6);
 const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(devicePixelRatio); renderer.setSize(innerWidth,innerHeight); document.body.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement); controls.target.set(0,.8,0); controls.update();
@@ -43,20 +45,26 @@ function material(mode,g){
   if(mode==='truth' && g.hasAttribute('color')){return new THREE.MeshStandardMaterial({vertexColors:true,roughness:.72,side:THREE.DoubleSide});}
   return new THREE.MeshStandardMaterial({color:mode==='noise'?0xffa640:0x43a7ff,roughness:.68,metalness:.05,side:THREE.DoubleSide});
 }
-const configs={ideal:['output_ideal/tsdf_mesh.ply','output_ideal/report.json'],noise:['output_spec_noise/tsdf_mesh.ply','output_spec_noise/report.json'],truth:['output_ideal/ground_truth_vehicle.ply','output_ideal/report.json'],points:['output_ideal/merged_8cam.ply','output_ideal/report.json']};
+const configs={ideal:['output_ideal/tsdf_mesh.ply','output_ideal/report.json'],noise:['output_spec_noise/tsdf_mesh.ply','output_spec_noise/report.json'],truth:['output_ideal/ground_truth_vehicle.ply','output_ideal/report.json'],points:['output_ideal/merged_6cam.ply','output_ideal/report.json']};
+function loadRegistration(){
+  if(object)scene.remove(object); if(cameraModels)scene.remove(cameraModels);
+  loader.load('output_registration/scene.ply'+assetVersion,g=>{g.computeVertexNormals();const sceneObject=new THREE.Points(g,new THREE.PointsMaterial({size:.012,color:0xffa640}));sceneObject.rotation.x=-Math.PI/2;scene.add(sceneObject);});
+  loader.load('output_registration/template_aligned.ply'+assetVersion,g=>{g.computeVertexNormals();const templateObject=new THREE.Points(g,new THREE.PointsMaterial({size:.016,color:0x43a7ff}));templateObject.rotation.x=-Math.PI/2;scene.add(templateObject);});
+  fetch('output_registration/registration_report.json'+assetVersion).then(x=>x.json()).then(r=>{const q=r.quality||{};const e=r.synthetic_pose_error;document.querySelector('#metrics').textContent=`模板配准：${r.synthetic_pose?'已加入已知模拟车辆位姿':'真实现场点云'}\n模板点数：${q.source_points?.toLocaleString()||'—'}\n内点率：${q.inlier_fraction==null?'—':(q.inlier_fraction*100).toFixed(1)+'%'}\n内点平均距离：${q.mean_inlier_distance_m==null?'—':(q.mean_inlier_distance_m*1000).toFixed(1)+' mm'}\n内点 P95：${q.p95_inlier_distance_m==null?'—':(q.p95_inlier_distance_m*1000).toFixed(1)+' mm'}\n位姿误差：${e?((e.translation_m*1000).toFixed(1)+' mm / '+e.rotation_deg.toFixed(3)+'°'):'未提供真值'}\n橙色：现场点云　蓝色：配准模板`;});
+}
 async function load(mode){
   document.querySelectorAll('button[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
   if(object)scene.remove(object);
   const [file,reportFile]=configs[mode];
-  loader.load(file,g=>{g.computeVertexNormals(); object=mode==='points'?new THREE.Points(g,material(mode,g)):new THREE.Mesh(g,material(mode,g)); object.rotation.x=-Math.PI/2; scene.add(object);});
-  const r=await fetch(reportFile).then(x=>x.json()); const e=r.surface_evaluation; const bb=r.vehicle;
+  loader.load(file+assetVersion,g=>{g.computeVertexNormals(); object=mode==='points'?new THREE.Points(g,material(mode,g)):new THREE.Mesh(g,material(mode,g)); object.rotation.x=-Math.PI/2; scene.add(object);});
+  const r=await fetch(reportFile+assetVersion).then(x=>x.json()); const e=r.surface_evaluation; const bb=r.vehicle;
   const mm=x=>x==null?'—':(x*1000).toFixed(1)+' mm';
   document.querySelector('#metrics').textContent=`模式：${r.test_definition}\n车模：${bb.model_name||bb.type}\n分辨率：${r.resolution.join(' × ')}　相机：${r.camera_count} 台\n车辆真值尺寸：${bb.ground_truth_bbox_m.map(x=>x.toFixed(3)).join(' × ')} m\n重建尺寸：${bb.reconstructed_bbox_m.map(x=>x.toFixed(3)).join(' × ')} m\n重建→真值 平均 / P95：${mm(e.reconstruction_to_truth.mean_m)} / ${mm(e.reconstruction_to_truth.p95_m)}\n可见外表面完整度 20mm / 50mm：${((e.completeness.within_20mm||0)*100).toFixed(1)}% / ${((e.completeness.within_50mm||0)*100).toFixed(1)}%\n网格：${r.mesh.vertices.toLocaleString()} 顶点，${r.mesh.triangles.toLocaleString()} 三角面`;
 }
-function loadCameras(){if(cameraModels)scene.remove(cameraModels);const file=cameraEnlarged?'output_ideal/gemini335l_cameras_world_x4.ply':'output_ideal/gemini335l_cameras_world.ply';loader.load(file,g=>{g.computeVertexNormals();cameraModels=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x8793a3,roughness:.56,metalness:.28,side:THREE.DoubleSide}));cameraModels.rotation.x=-Math.PI/2;scene.add(cameraModels)});document.querySelector('#cameraSize').textContent=cameraEnlarged?'相机显示 ×4（仅便于观察）':'相机显示 ×1';}
+function loadCameras(){if(cameraModels)scene.remove(cameraModels);const file=cameraEnlarged?'output_ideal/gemini335l_cameras_world_x4.ply':'output_ideal/gemini335l_cameras_world.ply';loader.load(file+assetVersion,g=>{g.computeVertexNormals();cameraModels=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x8793a3,roughness:.56,metalness:.28,side:THREE.DoubleSide}));cameraModels.rotation.x=-Math.PI/2;scene.add(cameraModels)});document.querySelector('#cameraSize').textContent=cameraEnlarged?'相机显示 ×4（仅便于观察）':'相机显示 ×1';}
 document.querySelector('#cameraSize').onclick=()=>{cameraEnlarged=!cameraEnlarged;loadCameras()};
 loadCameras();
-document.querySelectorAll('button[data-mode]').forEach(b=>b.onclick=()=>load(b.dataset.mode)); load('ideal');
+document.querySelectorAll('button[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='registration'?loadRegistration():load(b.dataset.mode)); load('ideal');
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 (function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)})();
 </script>

@@ -1,0 +1,109 @@
+<?xml version="1.0" ?>
+<sdf version='1.9'>
+  <!--
+    office_cabinet – hand-written simple furniture model for the spray
+    painting demo. A two-door locker on a short base.
+
+    Painting contract:
+      * The spray plugin raycasts against COLLISION geometry and deposits
+        patches 1.5 mm proud of the hit surface (half the patch thickness).
+      * So the paint target is the collision front face at y = -0.25
+        (model frame). All front-panel detail visuals are placed BEHIND
+        this face (y >= -0.25) so they never occlude paint patches.
+      * Handles are proud (y = -0.262) and occlude paint only on their
+        tiny footprint – acceptable for the demo.
+
+    Dimensions: 1.2 m wide x 0.5 m deep x 1.7 m tall, box centred at
+    z = 0.85 so the model spans z = [0, 1.7]. The front face (-Y) faces
+    the robot (robot sits at -Y of the cabinet).
+  -->
+  <model name='office_cabinet'>
+    <static>true</static>
+
+    <link name='cabinet_body'>
+      <pose>0 0 0.85 0 0 0</pose>
+
+      <!-- Paint target / physics body: full cabinet shell -->
+      <collision name='cabinet_collision'>
+        <geometry>
+          <box><size>1.2 0.5 1.7</size></box>
+        </geometry>
+      </collision>
+
+      <!-- Shell (outer box, visible from every side) -->
+      <visual name='cabinet_visual'>
+        <geometry>
+          <box><size>1.2 0.5 1.7</size></box>
+        </geometry>
+        <material>
+          <ambient>0.30 0.32 0.38 1</ambient>
+          <diffuse>0.46 0.48 0.56 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
+        </material>
+      </visual>
+
+      <!-- Left door panel – inset behind the collision face so paint is never hidden -->
+      <visual name='door_left_visual'>
+        <pose>-0.295 -0.24 0.0 0 0 0</pose>
+        <geometry>
+          <box><size>0.585 0.02 1.55</size></box>
+        </geometry>
+        <material>
+          <ambient>0.22 0.24 0.30 1</ambient>
+          <diffuse>0.35 0.38 0.46 1</diffuse>
+          <specular>0.30 0.30 0.30 1</specular>
+        </material>
+      </visual>
+
+      <!-- Right door panel -->
+      <visual name='door_right_visual'>
+        <pose>0.295 -0.24 0.0 0 0 0</pose>
+        <geometry>
+          <box><size>0.585 0.02 1.55</size></box>
+        </geometry>
+        <material>
+          <ambient>0.22 0.24 0.30 1</ambient>
+          <diffuse>0.35 0.38 0.46 1</diffuse>
+          <specular>0.30 0.30 0.30 1</specular>
+        </material>
+      </visual>
+
+      <!-- Door handles (proud; occlude paint only on their tiny footprint) -->
+      <visual name='handle_left_visual'>
+        <pose>-0.30 -0.262 0.95 0 0 0</pose>
+        <geometry>
+          <cylinder><radius>0.015</radius><length>0.12</length></cylinder>
+        </geometry>
+        <material>
+          <ambient>0.10 0.10 0.10 1</ambient>
+          <diffuse>0.25 0.25 0.25 1</diffuse>
+          <specular>0.60 0.60 0.60 1</specular>
+        </material>
+      </visual>
+      <visual name='handle_right_visual'>
+        <pose>0.30 -0.262 0.95 0 0 0</pose>
+        <geometry>
+          <cylinder><radius>0.015</radius><length>0.12</length></cylinder>
+        </geometry>
+        <material>
+          <ambient>0.10 0.10 0.10 1</ambient>
+          <diffuse>0.25 0.25 0.25 1</diffuse>
+          <specular>0.60 0.60 0.60 1</specular>
+        </material>
+      </visual>
+
+      <!-- Dark base trim (inset, purely cosmetic) -->
+      <visual name='base_trim_visual'>
+        <pose>0.0 -0.235 -0.65 0 0 0</pose>
+        <geometry>
+          <box><size>1.22 0.04 0.12</size></box>
+        </geometry>
+        <material>
+          <ambient>0.08 0.08 0.10 1</ambient>
+          <diffuse>0.16 0.16 0.20 1</diffuse>
+          <specular>0.05 0.05 0.05 1</specular>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>
