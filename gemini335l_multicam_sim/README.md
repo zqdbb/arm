@@ -260,9 +260,12 @@ cd gemini335l_multicam_sim
 | --- | --- |
 | `output_registration/scene.ply` | 施加模拟现场位姿后的场景点云 |
 | `output_registration/template_aligned.ply` | 配准到现场坐标系的模板点云 |
+| `output_registration/template_visible_aligned.ply` | 过滤到现场点云 30 mm 内、用于直观核对的模板可见表面 |
 | `output_registration/registration_report.json` | 粗配准、ICP、内点率和已知位姿误差 |
 
 `--synthetic-pose` 只用于可量化的仿真回归；接入真实扫描时去掉该参数，`--scene` 改成经过六台相机外参变换和背景剔除后的现场点云。
+
+网页的“模板配准结果”默认显示现场点云和 `template_visible_aligned.ply`。完整配准模板仍保存在 `template_aligned.ply`；过滤可见表面是为了区分位姿误差与相机没有观察到的车底、背面等区域。报告同时记录现场点云覆盖率和模板可见表面比例。
 
 配准结果中的 `template_to_scene` 是模板车身坐标到现场世界坐标的变换。模板喷涂路径应按以下关系变换到机器人基座：
 

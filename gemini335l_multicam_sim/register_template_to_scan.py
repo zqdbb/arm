@@ -119,6 +119,7 @@ def registration_quality(source, target, transform, threshold):
         "mean_inlier_distance_m": float(np.mean(values)) if len(values) else None,
         "p95_inlier_distance_m": float(np.quantile(values, 0.95)) if len(values) else None,
         "max_inlier_distance_m": float(np.max(values)) if len(values) else None,
+        "template_to_scene_distances_m": distances,
     }
 
 
@@ -161,9 +162,19 @@ def main():
 
     aligned = o3d.geometry.PointCloud(template)
     aligned.transform(fine.transformation)
+    match_threshold = args.voxel * 1.5
+    template_to_scene_distances = quality.pop("template_to_scene_distances_m")
+    scene_to_template_distances = np.asarray(scene.compute_point_cloud_distance(aligned))
+    visible_template = o3d.geometry.PointCloud(aligned)
+    visible_mask = template_to_scene_distances <= match_threshold
+    visible_template = visible_template.select_by_index(np.flatnonzero(visible_mask).tolist())
     o3d.io.write_point_cloud(str(output / "scene.ply"), scene, write_ascii=False)
     o3d.io.write_point_cloud(str(output / "template_aligned.ply"), aligned, write_ascii=False)
+    o3d.io.write_point_cloud(str(output / "template_visible_aligned.ply"), visible_template, write_ascii=False)
     o3d.io.write_triangle_mesh(str(output / "template.mesh.ply"), template_mesh, write_ascii=False)
+    quality["scene_coverage_within_threshold"] = float(np.mean(scene_to_template_distances <= match_threshold))
+    quality["template_visible_fraction_within_threshold"] = float(np.mean(visible_mask))
+    quality["match_threshold_m"] = float(match_threshold)
 
     report = {
         "template": str(template_path),

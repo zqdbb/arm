@@ -32,7 +32,7 @@ import * as THREE from 'three';
 import {PLYLoader} from 'three/addons/loaders/PLYLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b0e13);
-const assetVersion='?v=prius6';
+const assetVersion='?v=visible-template2';
 const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.02,50); camera.position.set(6,4.3,6);
 const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(devicePixelRatio); renderer.setSize(innerWidth,innerHeight); document.body.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement); controls.target.set(0,.8,0); controls.update();
@@ -57,8 +57,8 @@ function loadRegistration(){
   const request=++displayRequest;
   clearDisplay(); if(cameraModels)scene.remove(cameraModels);
   loader.load('output_registration/scene.ply'+assetVersion,g=>{if(request!==displayRequest)return;g.computeVertexNormals();const sceneObject=new THREE.Points(g,new THREE.PointsMaterial({size:.012,color:0xffa640}));sceneObject.rotation.x=-Math.PI/2;displayObjects.push(sceneObject);scene.add(sceneObject);});
-  loader.load('output_registration/template_aligned.ply'+assetVersion,g=>{if(request!==displayRequest)return;g.computeVertexNormals();const templateObject=new THREE.Points(g,new THREE.PointsMaterial({size:.016,color:0x43a7ff}));templateObject.rotation.x=-Math.PI/2;displayObjects.push(templateObject);scene.add(templateObject);});
-  fetch('output_registration/registration_report.json'+assetVersion).then(x=>x.json()).then(r=>{if(request!==displayRequest)return;const q=r.quality||{};const e=r.synthetic_pose_error;document.querySelector('#metrics').textContent=`模板配准：${r.synthetic_pose?'已加入已知模拟车辆位姿':'真实现场点云'}\n模板点数：${q.source_points?.toLocaleString()||'—'}\n内点率：${q.inlier_fraction==null?'—':(q.inlier_fraction*100).toFixed(1)+'%'}\n内点平均距离：${q.mean_inlier_distance_m==null?'—':(q.mean_inlier_distance_m*1000).toFixed(1)+' mm'}\n内点 P95：${q.p95_inlier_distance_m==null?'—':(q.p95_inlier_distance_m*1000).toFixed(1)+' mm'}\n位姿误差：${e?((e.translation_m*1000).toFixed(1)+' mm / '+e.rotation_deg.toFixed(3)+'°'):'未提供真值'}\n橙色：现场点云　蓝色：配准模板`;});
+  loader.load('output_registration/template_visible_aligned.ply'+assetVersion,g=>{if(request!==displayRequest)return;g.computeVertexNormals();const templateObject=new THREE.Points(g,new THREE.PointsMaterial({size:.016,color:0x43a7ff}));templateObject.rotation.x=-Math.PI/2;displayObjects.push(templateObject);scene.add(templateObject);});
+  fetch('output_registration/registration_report.json'+assetVersion).then(x=>x.json()).then(r=>{if(request!==displayRequest)return;const q=r.quality||{};const e=r.synthetic_pose_error;document.querySelector('#metrics').textContent=`模板配准：${r.synthetic_pose?'已加入已知模拟车辆位姿':'真实现场点云'}\n显示：与现场可见点云重合的模板表面\n现场点云覆盖率：${q.scene_coverage_within_threshold==null?'—':(q.scene_coverage_within_threshold*100).toFixed(1)+'%'}\n模板可见表面比例：${q.template_visible_fraction_within_threshold==null?'—':(q.template_visible_fraction_within_threshold*100).toFixed(1)+'%'}\n匹配阈值：${q.match_threshold_m==null?'—':(q.match_threshold_m*1000).toFixed(1)+' mm'}\n内点平均距离：${q.mean_inlier_distance_m==null?'—':(q.mean_inlier_distance_m*1000).toFixed(1)+' mm'}\n内点 P95：${q.p95_inlier_distance_m==null?'—':(q.p95_inlier_distance_m*1000).toFixed(1)+' mm'}\n位姿误差：${e?((e.translation_m*1000).toFixed(1)+' mm / '+e.rotation_deg.toFixed(3)+'°'):'未提供真值'}\n橙色：现场点云　蓝色：重合模板表面`;});
 }
 async function load(mode){
   const request=++displayRequest;
