@@ -291,6 +291,18 @@ T_base_tool = T_base_world @ T_world_template @ T_template_tool
 
 当前仿真验证结果：32 组共享板观测，最大外参误差约 26.2 mm、0.232°。这一步验证的是“标定外参 → 多相机点云统一坐标系”，随后才进入现场车辆点云与模板模型配准；它不是用 ChArUco 直接重建车辆。
 
+将 ChArUco 标定后的拼接点云继续进行车辆模板位置匹配：
+
+```bash
+../.venv/bin/python register_template_to_scan.py \
+  --template ../models/prius_hybrid/meshes/Hybrid.obj \
+  --scene output_charuco_calibration/merged_charuco_estimated.ply \
+  --output output_registration_charuco \
+  --voxel 0.02 --template-points 100000
+```
+
+网页中的“ChArUco 后模板匹配”按钮显示这一步的结果。当前仿真结果约为：现场点云覆盖率 99.4%，ICP 内点平均距离 8.7 mm，P95 距离 16.0 mm；模板可见比例 38.4% 反映的是固定相机只能看到车身外表面的一部分，不是模板位置没有匹配。
+
 Three.js 模块由 CDN 加载，因此打开查看器时需要网络连接。不要直接双击 `viewer.html`，应启动本地 HTTP 服务。
 
 在仓库根目录执行：
