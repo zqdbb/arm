@@ -278,6 +278,7 @@ T_base_tool = T_base_world @ T_world_template @ T_template_tool
 ## 9. 查看结果
 
 网页增加了“ChArUco 标定场景”视图。它显示六台固定相机和标定板在各个共享观测位置的轨迹，并读取 `output_charuco_calibration/charuco_calibration_report.json` 显示标定误差。
+为避免把多次拍摄误认为多块实体标定板，网页只显示一块黑白 ChArUco 实体板；其余采样位姿用黄色稀疏轨迹点表示。完整图像采集仍保存在 `output_charuco_calibration/captures/`。
 
 运行 ChArUco 仿真：
 

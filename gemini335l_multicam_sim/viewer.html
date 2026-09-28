@@ -33,7 +33,7 @@ import * as THREE from 'three';
 import {PLYLoader} from 'three/addons/loaders/PLYLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b0e13);
-const assetVersion='?v=visible-template2';
+const assetVersion='?v=charuco3';
 const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.02,50); camera.position.set(6,4.3,6);
 const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(devicePixelRatio); renderer.setSize(innerWidth,innerHeight); document.body.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement); controls.target.set(0,.8,0); controls.update();
@@ -63,9 +63,10 @@ function loadRegistration(){
 }
 async function loadCharuco(){
   const request=++displayRequest; clearDisplay(); loadCameras();
-  loader.load('output_charuco_calibration/charuco_board_poses.ply'+assetVersion,g=>{if(request!==displayRequest)return;const board=new THREE.Points(g,new THREE.PointsMaterial({size:.025,vertexColors:true}));board.rotation.x=-Math.PI/2;displayObjects.push(board);scene.add(board);});
+  loader.load('output_charuco_calibration/charuco_board_poses.ply'+assetVersion,g=>{if(request!==displayRequest)return;const board=new THREE.Points(g,new THREE.PointsMaterial({size:.012,vertexColors:true}));board.rotation.x=-Math.PI/2;displayObjects.push(board);scene.add(board);});
+  loader.load('output_charuco_calibration/charuco_board_trajectory.ply'+assetVersion,g=>{if(request!==displayRequest)return;const trail=new THREE.Points(g,new THREE.PointsMaterial({size:.045,vertexColors:true}));trail.rotation.x=-Math.PI/2;displayObjects.push(trail);scene.add(trail);});
   const r=await fetch('output_charuco_calibration/charuco_calibration_report.json'+assetVersion).then(x=>x.json()); if(request!==displayRequest)return;
-  document.querySelector('#metrics').textContent=`ChArUco 六相机外参标定仿真\n字典：${r.board.dictionary}　板型：${r.board.squares_x}×${r.board.squares_y}\n共享观测组：${r.pose_graph.edge_measurements}\n最大平移误差：${r.camera_pose_error_max_translation_mm.toFixed(1)} mm\n最大旋转误差：${r.camera_pose_error_max_rotation_deg.toFixed(3)}°\n黄色：标定板移动轨迹　灰色：六台固定相机\n标定板图案：output_charuco_calibration/charuco_board_5x7.png`;
+  document.querySelector('#metrics').textContent=`ChArUco 六相机外参标定仿真\n字典：${r.board.dictionary}　板型：${r.board.squares_x}×${r.board.squares_y}\n共享观测组：${r.pose_graph.edge_measurements}\n最大平移误差：${r.camera_pose_error_max_translation_mm.toFixed(1)} mm\n最大旋转误差：${r.camera_pose_error_max_rotation_deg.toFixed(3)}°\n白黑：当前标定板　黄色：其他拍摄位置轨迹　灰色：六台固定相机\n标定板图案：output_charuco_calibration/charuco_board_5x7.png`;
 }
 async function load(mode){
   const request=++displayRequest;

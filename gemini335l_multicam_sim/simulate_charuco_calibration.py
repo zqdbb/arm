@@ -299,21 +299,39 @@ def main():
     # Re-express each captured world cloud in camera coordinates, then merge using
     # only ChArUco-estimated transforms (aligned to world by the cam01 datum).
     import open3d as o3d
+    # Keep the viewer readable: the calibration data contains many board poses,
+    # but the 3-D scene should show one physical board and a sparse trajectory.
+    # Previously every sampled pose was rendered as a full black/white board,
+    # which looked like several boards or a severe registration failure.
     board_points = []
     board_colors = []
     board_gray = cv2.resize(board_image, (180, 252), interpolation=cv2.INTER_NEAREST)
-    for item in board_poses_for_display:
-        pose = np.asarray(item["pose"], dtype=np.float64)
-        for row in range(board_gray.shape[0]):
-            for col in range(board_gray.shape[1]):
-                u = 0.90 * col / (board_gray.shape[1] - 1)
-                v = 1.26 * row / (board_gray.shape[0] - 1)
-                board_points.append((pose[:3, :3] @ np.array([u, v, 0.0])) + pose[:3, 3])
-                value = float(board_gray[row, col]) / 255.0
-                board_colors.append((value, value, value))
+    reference_pose = np.asarray(board_poses_for_display[0]["pose"], dtype=np.float64)
+    for row in range(board_gray.shape[0]):
+        for col in range(board_gray.shape[1]):
+            u = 0.90 * col / (board_gray.shape[1] - 1)
+            v = 1.26 * row / (board_gray.shape[0] - 1)
+            board_points.append((reference_pose[:3, :3] @ np.array([u, v, 0.0])) + reference_pose[:3, 3])
+            value = float(board_gray[row, col]) / 255.0
+            board_colors.append((value, value, value))
     board_cloud = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(np.asarray(board_points)))
     board_cloud.colors = o3d.utility.Vector3dVector(np.asarray(board_colors))
     o3d.io.write_point_cloud(str(output / "charuco_board_poses.ply"), board_cloud, write_ascii=False)
+
+    # Four corner markers plus a centre marker per sampled pose are enough to
+    # communicate the motion path without obscuring the actual board.
+    trajectory_points = []
+    trajectory_colors = []
+    for item in board_poses_for_display:
+        pose = np.asarray(item["pose"], dtype=np.float64)
+        local = np.array([[0.45, 0.63, 0.012], [0.45, 0.0, 0.012],
+                          [0.0, 0.63, 0.012], [0.90, 0.63, 0.012],
+                          [0.90, 0.0, 0.012]], dtype=np.float64)
+        trajectory_points.extend(transform_points(pose, local))
+        trajectory_colors.extend([(1.0, 0.72, 0.05)] * len(local))
+    trajectory_cloud = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(np.asarray(trajectory_points)))
+    trajectory_cloud.colors = o3d.utility.Vector3dVector(np.asarray(trajectory_colors))
+    o3d.io.write_point_cloud(str(output / "charuco_board_trajectory.ply"), trajectory_cloud, write_ascii=False)
     ideal_output = root / "output_ideal"
     merged = o3d.geometry.PointCloud()
     for index, estimated in enumerate(estimated_camera_to_world):
@@ -345,6 +363,7 @@ def main():
                                        for i in range(len(cameras))},
         "outputs": {"board": "charuco_board_5x7.png", "captures": "captures/",
                     "board_poses": "charuco_board_poses.ply",
+                    "board_trajectory": "charuco_board_trajectory.ply",
                     "merged_scan": "merged_charuco_estimated.ply",
                     "vehicle_truth": "vehicle_truth_cam01_world.ply"},
     }
