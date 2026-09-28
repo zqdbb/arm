@@ -21,6 +21,7 @@
     <button data-mode="truth">原始高细节车模</button>
     <button data-mode="points">6 相机合并点云</button>
     <button data-mode="registration">模板配准结果</button>
+    <button data-mode="charuco">ChArUco 标定场景</button>
     <button id="cameraSize">相机显示 ×1</button>
   </div>
   <div id="metrics">加载中…</div>
@@ -60,6 +61,12 @@ function loadRegistration(){
   loader.load('output_registration/template_visible_aligned.ply'+assetVersion,g=>{if(request!==displayRequest)return;g.computeVertexNormals();const templateObject=new THREE.Points(g,new THREE.PointsMaterial({size:.016,color:0x43a7ff}));templateObject.rotation.x=-Math.PI/2;displayObjects.push(templateObject);scene.add(templateObject);});
   fetch('output_registration/registration_report.json'+assetVersion).then(x=>x.json()).then(r=>{if(request!==displayRequest)return;const q=r.quality||{};const e=r.synthetic_pose_error;document.querySelector('#metrics').textContent=`模板配准：${r.synthetic_pose?'已加入已知模拟车辆位姿':'真实现场点云'}\n显示：与现场可见点云重合的模板表面\n现场点云覆盖率：${q.scene_coverage_within_threshold==null?'—':(q.scene_coverage_within_threshold*100).toFixed(1)+'%'}\n模板可见表面比例：${q.template_visible_fraction_within_threshold==null?'—':(q.template_visible_fraction_within_threshold*100).toFixed(1)+'%'}\n匹配阈值：${q.match_threshold_m==null?'—':(q.match_threshold_m*1000).toFixed(1)+' mm'}\n内点平均距离：${q.mean_inlier_distance_m==null?'—':(q.mean_inlier_distance_m*1000).toFixed(1)+' mm'}\n内点 P95：${q.p95_inlier_distance_m==null?'—':(q.p95_inlier_distance_m*1000).toFixed(1)+' mm'}\n位姿误差：${e?((e.translation_m*1000).toFixed(1)+' mm / '+e.rotation_deg.toFixed(3)+'°'):'未提供真值'}\n橙色：现场点云　蓝色：重合模板表面`;});
 }
+async function loadCharuco(){
+  const request=++displayRequest; clearDisplay(); loadCameras();
+  loader.load('output_charuco_calibration/charuco_board_poses.ply'+assetVersion,g=>{if(request!==displayRequest)return;const board=new THREE.Points(g,new THREE.PointsMaterial({size:.025,vertexColors:true}));board.rotation.x=-Math.PI/2;displayObjects.push(board);scene.add(board);});
+  const r=await fetch('output_charuco_calibration/charuco_calibration_report.json'+assetVersion).then(x=>x.json()); if(request!==displayRequest)return;
+  document.querySelector('#metrics').textContent=`ChArUco 六相机外参标定仿真\n字典：${r.board.dictionary}　板型：${r.board.squares_x}×${r.board.squares_y}\n共享观测组：${r.pose_graph.edge_measurements}\n最大平移误差：${r.camera_pose_error_max_translation_mm.toFixed(1)} mm\n最大旋转误差：${r.camera_pose_error_max_rotation_deg.toFixed(3)}°\n黄色：标定板移动轨迹　灰色：六台固定相机\n标定板图案：output_charuco_calibration/charuco_board_5x7.png`;
+}
 async function load(mode){
   const request=++displayRequest;
   document.querySelectorAll('button[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
@@ -74,7 +81,7 @@ async function load(mode){
 function loadCameras(){if(cameraModels)scene.remove(cameraModels);const file=cameraEnlarged?'output_ideal/gemini335l_cameras_world_x4.ply':'output_ideal/gemini335l_cameras_world.ply';loader.load(file+assetVersion,g=>{g.computeVertexNormals();cameraModels=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x8793a3,roughness:.56,metalness:.28,side:THREE.DoubleSide}));cameraModels.rotation.x=-Math.PI/2;scene.add(cameraModels)});document.querySelector('#cameraSize').textContent=cameraEnlarged?'相机显示 ×4（仅便于观察）':'相机显示 ×1';}
 document.querySelector('#cameraSize').onclick=()=>{cameraEnlarged=!cameraEnlarged;loadCameras()};
 loadCameras();
-document.querySelectorAll('button[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='registration'?loadRegistration():load(b.dataset.mode)); load('ideal');
+document.querySelectorAll('button[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='registration'?loadRegistration():b.dataset.mode==='charuco'?loadCharuco():load(b.dataset.mode)); load('ideal');
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 (function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)})();
 </script>

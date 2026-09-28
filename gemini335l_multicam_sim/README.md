@@ -277,6 +277,19 @@ T_base_tool = T_base_world @ T_world_template @ T_template_tool
 
 ## 9. 查看结果
 
+网页增加了“ChArUco 标定场景”视图。它显示六台固定相机和标定板在各个共享观测位置的轨迹，并读取 `output_charuco_calibration/charuco_calibration_report.json` 显示标定误差。
+
+运行 ChArUco 仿真：
+
+```bash
+../.venv/bin/python simulate_charuco_calibration.py \
+  --output output_charuco_calibration
+```
+
+脚本按用户提供的 5×7 ChArUco 外观生成标定板，使用 `DICT_5X5_1000`、1280×800 内参，模拟上层环和上下层连接位置的共同观测；然后用 ChArUco 角点 PnP、相机观测图和鲁棒 SE(3) 优化估计 6 台相机外参。仿真中把 `cam01` 对齐到世界坐标只是为了计算误差，真实系统必须用工位基准或固定板安装位姿定义世界坐标。
+
+当前仿真验证结果：32 组共享板观测，最大外参误差约 26.2 mm、0.232°。这一步验证的是“标定外参 → 多相机点云统一坐标系”，随后才进入现场车辆点云与模板模型配准；它不是用 ChArUco 直接重建车辆。
+
 Three.js 模块由 CDN 加载，因此打开查看器时需要网络连接。不要直接双击 `viewer.html`，应启动本地 HTTP 服务。
 
 在仓库根目录执行：
