@@ -301,12 +301,16 @@ def main():
     import open3d as o3d
     board_points = []
     board_colors = []
+    board_gray = cv2.resize(board_image, (180, 252), interpolation=cv2.INTER_NEAREST)
     for item in board_poses_for_display:
         pose = np.asarray(item["pose"], dtype=np.float64)
-        for u in np.linspace(0.0, 0.90, 25):
-            for v in np.linspace(0.0, 1.26, 32):
+        for row in range(board_gray.shape[0]):
+            for col in range(board_gray.shape[1]):
+                u = 0.90 * col / (board_gray.shape[1] - 1)
+                v = 1.26 * row / (board_gray.shape[0] - 1)
                 board_points.append((pose[:3, :3] @ np.array([u, v, 0.0])) + pose[:3, 3])
-                board_colors.append((1.0, 0.78, 0.08))
+                value = float(board_gray[row, col]) / 255.0
+                board_colors.append((value, value, value))
     board_cloud = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(np.asarray(board_points)))
     board_cloud.colors = o3d.utility.Vector3dVector(np.asarray(board_colors))
     o3d.io.write_point_cloud(str(output / "charuco_board_poses.ply"), board_cloud, write_ascii=False)
