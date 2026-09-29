@@ -6,7 +6,7 @@
   <title>Gemini 335L 四相机仿真验证</title>
   <style>
     html,body{margin:0;height:100%;overflow:hidden;background:#0b0e13;color:#e8edf5;font:14px system-ui,sans-serif}
-    #panel{position:fixed;z-index:3;left:16px;top:16px;width:360px;padding:14px 16px;background:#111722e8;border:1px solid #293448;border-radius:10px;box-shadow:0 8px 30px #0008}
+    #panel{position:fixed;z-index:3;left:16px;top:16px;width:390px;padding:14px 16px;background:#111722e8;border:1px solid #293448;border-radius:10px;box-shadow:0 8px 30px #0008}
     h1{font-size:17px;margin:0 0 10px}button{margin:3px;padding:7px 10px;border:1px solid #43506a;border-radius:6px;background:#1e293b;color:#fff;cursor:pointer}button.active{background:#1769aa}
     #metrics{white-space:pre-wrap;line-height:1.5;color:#cbd5e1;margin-top:10px}.hint{color:#92a3b8;font-size:12px;margin-top:8px}
     canvas{display:block}
@@ -34,7 +34,7 @@ import * as THREE from 'three';
 import {PLYLoader} from 'three/addons/loaders/PLYLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b0e13);
-const assetVersion='?v=fourcam1';
+const assetVersion='?v=fourcam2';
 const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.02,50); camera.position.set(6,4.3,6);
 const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(devicePixelRatio); renderer.setSize(innerWidth,innerHeight); document.body.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement); controls.target.set(0,.8,0); controls.update();
@@ -55,12 +55,18 @@ function clearDisplay(){
   displayObjects=[];
   object=null;
 }
+function rotationDegrees(matrix){
+  const r=matrix;
+  const cosine=Math.max(-1,Math.min(1,(r[0][0]+r[1][1]+r[2][2]-1)/2));
+  return Math.acos(cosine)*180/Math.PI;
+}
 function loadRegistration(sceneDir='output_registration', label='模板配准结果'){
   const request=++displayRequest;
   clearDisplay(); if(cameraModels)scene.remove(cameraModels);
   loader.load(sceneDir+'/scene.ply'+assetVersion,g=>{if(request!==displayRequest)return;g.computeVertexNormals();const sceneObject=new THREE.Points(g,new THREE.PointsMaterial({size:.012,color:0xffa640}));sceneObject.rotation.x=-Math.PI/2;displayObjects.push(sceneObject);scene.add(sceneObject);});
+  loader.load(sceneDir+'/template_aligned.ply'+assetVersion,g=>{if(request!==displayRequest)return;g.computeVertexNormals();const fullTemplate=new THREE.Points(g,new THREE.PointsMaterial({size:.009,color:0x9aa6b2,transparent:true,opacity:.24,depthWrite:false}));fullTemplate.rotation.x=-Math.PI/2;displayObjects.push(fullTemplate);scene.add(fullTemplate);});
   loader.load(sceneDir+'/template_visible_aligned.ply'+assetVersion,g=>{if(request!==displayRequest)return;g.computeVertexNormals();const templateObject=new THREE.Points(g,new THREE.PointsMaterial({size:.016,color:0x43a7ff}));templateObject.rotation.x=-Math.PI/2;displayObjects.push(templateObject);scene.add(templateObject);});
-  fetch(sceneDir+'/registration_report.json'+assetVersion).then(x=>x.json()).then(r=>{if(request!==displayRequest)return;const q=r.quality||{};const e=r.synthetic_pose_error;document.querySelector('#metrics').textContent=`${label}\n点云来源：${r.scene}\n显示：与现场可见点云重合的模板表面\n现场点云覆盖率：${q.scene_coverage_within_threshold==null?'—':(q.scene_coverage_within_threshold*100).toFixed(1)+'%'}\n模板可见表面比例：${q.template_visible_fraction_within_threshold==null?'—':(q.template_visible_fraction_within_threshold*100).toFixed(1)+'%'}\n匹配阈值：${q.match_threshold_m==null?'—':(q.match_threshold_m*1000).toFixed(1)+' mm'}\n内点平均距离：${q.mean_inlier_distance_m==null?'—':(q.mean_inlier_distance_m*1000).toFixed(1)+' mm'}\n内点 P95：${q.p95_inlier_distance_m==null?'—':(q.p95_inlier_distance_m*1000).toFixed(1)+' mm'}\n位姿误差：${e?((e.translation_m*1000).toFixed(1)+' mm / '+e.rotation_deg.toFixed(3)+'°'):'未提供真值'}\n橙色：现场点云　蓝色：重合模板表面`;});
+  fetch(sceneDir+'/registration_report.json'+assetVersion).then(x=>x.json()).then(r=>{if(request!==displayRequest)return;const q=r.quality||{};const e=r.synthetic_pose_error;const t=r.template_to_scene||[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];const shift=Math.hypot(t[0][3],t[1][3],t[2][3])*1000;document.querySelector('#metrics').textContent=`${label}\n\n匹配流程：\n1. 输入：${r.scene}\n2. 模板：${r.template}\n3. FPFH/RANSAC 粗配准 + 多尺度 ICP\n4. 输出：template_to_scene 变换\n\n当前叠加结果：\n橙色 = 四相机现场点云\n灰色 = 变换后的完整车辆模板\n蓝色 = 与现场点云相距 ≤ ${(q.match_threshold_m*1000).toFixed(0)} mm 的模板表面\n\n现场点云覆盖率：${q.scene_coverage_within_threshold==null?'—':(q.scene_coverage_within_threshold*100).toFixed(1)+'%'}\n模板可见表面比例：${q.template_visible_fraction_within_threshold==null?'—':(q.template_visible_fraction_within_threshold*100).toFixed(1)+'%'}\n模板平移量：${shift.toFixed(1)} mm\n模板旋转量：${rotationDegrees(t).toFixed(3)}°\nICP 内点平均距离：${q.mean_inlier_distance_m==null?'—':(q.mean_inlier_distance_m*1000).toFixed(1)+' mm'}\nICP 内点 P95：${q.p95_inlier_distance_m==null?'—':(q.p95_inlier_distance_m*1000).toFixed(1)+' mm'}\n${e?'已提供真值误差：'+(e.translation_m*1000).toFixed(1)+' mm / '+e.rotation_deg.toFixed(3)+'°':'仿真未提供模板真值位姿'}\n\n蓝色越贴合橙色，说明匹配越好；灰色车身后方没有对应橙色点，是相机未看到的区域。`;});
 }
 async function loadCharuco(){
   const request=++displayRequest; clearDisplay(); loadCameras();
