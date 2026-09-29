@@ -9,6 +9,7 @@
 如果目标是验证“4 台 Gemini 335L 固定相机扫描车辆，并与已有模板模型配准，再迁移喷涂路径”的当前方案，请从这里开始：
 
 - [Gemini 335L 四相机仿真、模板配准与喷涂路径迁移](gemini335l_multicam_sim/README.md)
+- [Gemini 335L 仿真独立复现说明](GEMINI335L_SIMULATION_README.md)
 - [4 台 Gemini 335L ChArUco 实机标定方法](gemini335l_multicam_sim/CHARUCO_CALIBRATION.md)
 - 一键运行：`./gemini335l_multicam_sim/run_validation.sh`
 - 网页查看：`gemini335l_multicam_sim/viewer.html`
