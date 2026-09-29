@@ -739,6 +739,7 @@
     "board": "charuco_board_5x7.png",
     "captures": "captures/",
     "board_poses": "charuco_board_poses.ply",
+    "board_trajectory": "charuco_board_trajectory.ply",
     "merged_scan": "merged_charuco_estimated.ply",
     "vehicle_truth": "vehicle_truth_cam01_world.ply"
   }

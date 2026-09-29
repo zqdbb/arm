@@ -1,0 +1,81 @@
+{
+  "template": "/home/azh/桌面/arm/gemini335l_multicam_sim/../models/prius_hybrid/meshes/Hybrid.obj",
+  "scene": "/home/azh/桌面/arm/gemini335l_multicam_sim/output_ideal/merged_6cam.ply",
+  "voxel_m": 0.02,
+  "synthetic_pose": true,
+  "global_registration": {
+    "fitness": 0.0,
+    "inlier_rmse_m": 0.0
+  },
+  "icp_registration": {
+    "fitness": 0.36915640250987686,
+    "inlier_rmse_m": 0.007076727822182674
+  },
+  "quality": {
+    "source_points": 120000,
+    "inlier_points": 45450,
+    "inlier_fraction": 0.37875,
+    "mean_inlier_distance_m": 0.006822670449160029,
+    "p95_inlier_distance_m": 0.014016148432606436,
+    "max_inlier_distance_m": 0.02998286645594369,
+    "scene_coverage_within_threshold": 0.9982630638897537,
+    "template_visible_fraction_within_threshold": 0.37875,
+    "match_threshold_m": 0.03
+  },
+  "template_to_scene": [
+    [
+      0.9945226389750742,
+      -0.10452122737555891,
+      0.00018328654895768533,
+      0.24039350657504485
+    ],
+    [
+      0.10452121168003048,
+      0.9945226531429363,
+      9.324416085754095e-05,
+      -0.1600195159889116
+    ],
+    [
+      -0.00019202861909325256,
+      -7.357609674334867e-05,
+      0.9999999788557836,
+      0.08996120864792395
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "known_scene_transform": [
+    [
+      0.9945218953682733,
+      -0.10452846326765347,
+      0.0,
+      0.24
+    ],
+    [
+      0.10452846326765347,
+      0.9945218953682733,
+      0.0,
+      -0.16
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.08
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "synthetic_pose_error": {
+    "translation_m": 0.009968997242747218,
+    "rotation_deg": 0.011789777087997168
+  }
+}
