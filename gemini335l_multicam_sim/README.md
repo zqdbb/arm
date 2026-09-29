@@ -260,7 +260,7 @@ cd gemini335l_multicam_sim
 | `output_registration/template_visible_aligned.ply` | 过滤到现场点云 30 mm 内、用于直观核对的模板可见表面 |
 | `output_registration/registration_report.json` | 粗配准、ICP、内点率和已知位姿误差 |
 
-`--synthetic-pose` 只用于可量化的仿真回归；接入真实扫描时去掉该参数，`--scene` 改成经过六台相机外参变换和背景剔除后的现场点云。
+`--synthetic-pose` 只用于可量化的仿真回归；接入真实扫描时去掉该参数，`--scene` 改成经过四台相机外参变换和背景剔除后的现场点云。脚本仍兼容六、八相机输出，但那两种布局只用于覆盖率对照。
 
 网页的“模板配准结果”默认显示现场点云和 `template_visible_aligned.ply`。完整配准模板仍保存在 `template_aligned.ply`；过滤可见表面是为了区分位姿误差与相机没有观察到的车底、背面等区域。报告同时记录现场点云覆盖率和模板可见表面比例。
 
@@ -394,7 +394,7 @@ http://127.0.0.1:8877/viewer.html
 | `ground_truth_vehicle.ply` | 归一化到米制尺寸的原始车辆真值 |
 | `poses.json` | 每台相机位置、注视点、真实和积分外参 |
 | `report.json` | 参数、噪声、尺寸、网格和误差评估报告 |
-| `camera_centers.ply` | 6 个相机中心点 |
+| `camera_centers.ply` | 当前布局的相机中心点（默认 4 个；六/八相机运行时按实际布局生成） |
 | `gemini335l_cameras_world.ply` | 世界坐标中的官方相机模型 |
 | `gemini335l_cameras_world_x4.ply` | 仅用于显示的 4 倍相机模型 |
 

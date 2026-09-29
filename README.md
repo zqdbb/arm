@@ -1,15 +1,15 @@
 # RGB-D 三维重建与机器人喷涂工作区
 
-本仓库汇总了项目从 Intel RealSense D435/D435i 单相机验证、真实转台扫描、ROS 2 工业 TSDF 重建，到 Orbbec Gemini 335L 六固定相机车辆扫描/模板配准和家具喷涂处理的完整实验过程。
+本仓库汇总了项目从 Intel RealSense D435/D435i 单相机验证、真实转台扫描、ROS 2 工业 TSDF 重建，到 Orbbec Gemini 335L 固定相机车辆扫描/模板配准和家具喷涂处理的完整实验过程。当前车辆定位主线是四台固定相机；六、八相机脚本仍作为覆盖率对照保留。
 
 仓库不是一个单独可执行程序，而是由多个相互关联的子项目、验证工具和第三方参考代码组成。新使用者应先根据目标选择对应目录，不要直接从仓库根目录批量运行所有脚本。
 
 ## 当前推荐入口
 
-如果目标是验证“6 台 Gemini 335L 固定相机扫描车辆，并与已有模板模型配准”的当前方案，请从这里开始：
+如果目标是验证“4 台 Gemini 335L 固定相机扫描车辆，并与已有模板模型配准，再迁移喷涂路径”的当前方案，请从这里开始：
 
-- [Gemini 335L 六相机仿真与模板配准](gemini335l_multicam_sim/README.md)
-- [6 台 Gemini 335L ChArUco 实机标定方法](gemini335l_multicam_sim/CHARUCO_CALIBRATION.md)
+- [Gemini 335L 四相机仿真、模板配准与喷涂路径迁移](gemini335l_multicam_sim/README.md)
+- [4 台 Gemini 335L ChArUco 实机标定方法](gemini335l_multicam_sim/CHARUCO_CALIBRATION.md)
 - 一键运行：`./gemini335l_multicam_sim/run_validation.sh`
 - 网页查看：`gemini335l_multicam_sim/viewer.html`
 
@@ -22,7 +22,7 @@ flowchart LR
     A[D435i 理想/物理近似仿真] --> B[D435i 真机 + 转台扫描]
     B --> C[ROS 2 Industrial Reconstruction]
     C --> D[点云清理、Mesh 与尺寸分析]
-    A --> E[Gemini 335L 六固定相机扫描与模板配准]
+    A --> E[Gemini 335L 四固定相机扫描与模板配准]
     B --> F[家具识别、部件分割与喷涂路径]
     D --> F
     C --> G[SNP 机器人抛光/加工仿真]
@@ -33,7 +33,7 @@ flowchart LR
 1. `d435i_tsdf_sim` 验证相机几何、视角数量、TSDF 参数和理论上限。
 2. `real_scan` 验证 D435i、机械臂与转台上的真实采集、分割和重建。
 3. `industrial_reconstruction-main` 将实时 RGB-D 和 TF 位姿接入 ROS 2 TSDF。
-4. `gemini335l_multicam_sim` 验证 6 台 Gemini 335L 固定相机扫描、TSDF 对照和车辆模板配准。
+4. `gemini335l_multicam_sim` 验证 4 台 Gemini 335L 固定相机扫描、TSDF 对照、车辆模板配准和喷涂路径迁移。
 5. `furniture_spray_deploy` 对家具进行分类、部件分割和喷涂路径规划。
 6. `snp-automate-2023-polishing-simulation-main` 验证重建 Mesh 到机器人加工轨迹的仿真流程。
 
@@ -41,7 +41,7 @@ flowchart LR
 
 | 路径 | 类型 | 主要内容 | 建议用途 |
 | --- | --- | --- | --- |
-| [`gemini335l_multicam_sim/`](gemini335l_multicam_sim/README.md) | 当前主线 | 6 台固定 Gemini 335L、Prius 模型、RGB-D、模板配准、TSDF 对照和网页查看器 | 验证当前车辆定位方案 |
+| [`gemini335l_multicam_sim/`](gemini335l_multicam_sim/README.md) | 当前主线 | 4 台固定 Gemini 335L、Prius 模型、RGB-D、模板配准、TSDF 对照、喷涂路径迁移和网页查看器 | 验证当前车辆定位方案 |
 | [`d435i_tsdf_sim/`](d435i_tsdf_sim/README.md) | 仿真与实验基线 | D435i URDF、PyBullet/Open3D TSDF、椅子和复杂书桌、多视角数量及噪声实验 | 分析 D435 理论上限与 TSDF 参数 |
 | [`industrial_reconstruction-main/`](industrial_reconstruction-main/README.md) | ROS 2 工程 | 实时 RGB-D + TF → Open3D TSDF；本仓库版本包含真机话题、RViz 和帧队列调整 | 接入真实相机和机械臂 |
 | [`项目文件夹(1)/项目文件夹/real_scan/`](项目文件夹%281%29/项目文件夹/real_scan/README.md) | 真机实验档案 | D435i + ECO65-B + Y200RA60 转台；包含 V1–V22 多轮方案、YOLO/SAM、COLMAP、Visual Hull、TSDF | 复现实机转台扫描和查看历史迭代 |
@@ -55,17 +55,17 @@ flowchart LR
 
 ## 当前 Gemini 335L 方案摘要
 
-当前主线采用 6 台固定 Gemini 335L：上层 4 台高位四角、下层 2 台低位中侧，围绕静止车辆顺序采集。默认车辆是 `models/prius_hybrid`，主任务是将现场点云与已有模板模型配准；TSDF 作为重建对照和可视化输出保留。默认快速仿真分辨率为 640×400，采用规格书 1280×800 内参的 0.5 倍缩放。
+当前主线采用 4 台固定 Gemini 335L，布置在车辆四角高位，围绕静止车辆顺序采集。默认车辆是 `models/prius_hybrid`，主任务是将系统保存的标准车辆点云与现场融合点云配准，再把模板坐标系中的喷涂 TCP 路径迁移到现场和机器人基座；TSDF 作为重建对照和可视化输出保留。默认快速仿真分辨率为 640×400，采用规格书 1280×800 内参的 0.5 倍缩放。
 
 ```text
-8 路 RGB-D
+4 路 RGB-D
   → 按固定外参转换到世界坐标
   → Open3D ScalableTSDFVolume
   → PLY / OBJ Mesh
   → 与米制真值模型比较尺寸、表面误差和完整度
 ```
 
-当前已提交的理想数据结果中，重建到真值表面的平均距离约 5.85 mm，P95 约 14.08 mm；规格书推导噪声下平均距离约 6.54 mm，P95 约 15.96 mm。完整定义和结果边界见其独立 README。
+当前已提交的四相机 Prius 基线中，理想深度重建到真值表面的平均距离约 6.02 mm、P95 约 13.20 mm；规格书推导噪声下平均距离约 7.99 mm、P95 约 18.63 mm。端到端模板配准回归的车辆位姿误差约 7.0 mm / 0.316°，路径迁移平均误差约 14.2 mm、P95 约 18.8 mm。完整定义和结果边界见其独立 README。
 
 ## D435/D435i 仿真内容
 
