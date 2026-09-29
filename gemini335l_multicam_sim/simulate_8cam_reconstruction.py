@@ -237,13 +237,11 @@ def add_vehicle_to_pybullet(parts):
         add_mesh_to_pybullet(mesh, color)
 
 
-def camera_layout(layout="six"):
+def camera_layout(layout="four"):
     """Return the selected fixed-camera layout.
 
-    The default six-camera layout follows the deployment proposal: four upper
-    corner cameras plus two low, side-centred cameras for wheel arches and
-    rocker panels. The previous eight-camera layout remains available as a
-    comparison baseline.
+    The default four-camera layout uses one high camera at each vehicle corner.
+    Six- and eight-camera layouts remain available for coverage comparisons.
     """
     cameras = []
     for x_sign, y_sign, corner in (
@@ -260,6 +258,8 @@ def camera_layout(layout="six"):
             "position": position,
             "target": target,
         })
+    if layout == "four":
+        return cameras
     if layout == "six":
         for y_sign, side in ((1.0, "left"), (-1.0, "right")):
             cameras.append({
@@ -528,8 +528,8 @@ def main():
         "--camera-mesh", default="assets/gemini335l_official/base_link.STL"
     )
     parser.add_argument(
-        "--camera-layout", choices=("six", "eight"), default="six",
-        help="six cameras: four upper corners plus two low side cameras; eight keeps the old baseline",
+        "--camera-layout", choices=("four", "six", "eight"), default="four",
+        help="four cameras: upper vehicle corners; six adds two low side cameras; eight is the historical baseline",
     )
     args = parser.parse_args()
 

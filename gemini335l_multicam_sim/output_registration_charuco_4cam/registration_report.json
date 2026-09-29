@@ -1,0 +1,52 @@
+{
+  "template": "/home/azh/\u684c\u9762/arm/gemini335l_multicam_sim/../models/prius_hybrid/meshes/Hybrid.obj",
+  "scene": "/home/azh/\u684c\u9762/arm/gemini335l_multicam_sim/output_charuco_calibration_4cam/merged_charuco_estimated.ply",
+  "voxel_m": 0.02,
+  "synthetic_pose": false,
+  "global_registration": {
+    "fitness": 0.0,
+    "inlier_rmse_m": 0.0
+  },
+  "icp_registration": {
+    "fitness": 0.3693322972869447,
+    "inlier_rmse_m": 0.008635740750106357
+  },
+  "quality": {
+    "source_points": 100000,
+    "inlier_points": 38112,
+    "inlier_fraction": 0.38112,
+    "mean_inlier_distance_m": 0.00846839501225997,
+    "p95_inlier_distance_m": 0.016623377279493323,
+    "max_inlier_distance_m": 0.029982933601937867,
+    "scene_coverage_within_threshold": 0.9934265239316995,
+    "template_visible_fraction_within_threshold": 0.38112,
+    "match_threshold_m": 0.03
+  },
+  "template_to_scene": [
+    [
+      0.9999845581380246,
+      -0.0023661391034082405,
+      0.005028406431810112,
+      0.006244304034548217
+    ],
+    [
+      0.0023590735823180485,
+      0.9999962224990481,
+      0.0014105883409215897,
+      -0.0005731246046981165
+    ],
+    [
+      -0.005031725085232296,
+      -0.0013987041780366848,
+      0.9999863625916552,
+      0.01177849762361194
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "known_scene_transform": null
+}

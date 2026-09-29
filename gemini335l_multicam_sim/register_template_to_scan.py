@@ -127,8 +127,8 @@ def main():
     root = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--template", default="../models/prius_hybrid/meshes/Hybrid.obj")
-    parser.add_argument("--scene", default="output_ideal/merged_6cam.ply")
-    parser.add_argument("--output", default="output_registration")
+    parser.add_argument("--scene", default="output_4cam/merged_4cam.ply")
+    parser.add_argument("--output", default="output_registration_4cam")
     parser.add_argument("--voxel", type=float, default=0.02)
     parser.add_argument("--template-points", type=int, default=120000)
     parser.add_argument("--synthetic-pose", action="store_true")

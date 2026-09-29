@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simulate six-camera ChArUco extrinsic calibration and verify template alignment.
+"""Simulate four-camera ChArUco extrinsic calibration and verify template alignment.
 
 The vehicle is removed during calibration. A virtual 5x7 ChArUco board is moved
 between pair-overlap stations so the camera observation graph is connected.
@@ -27,10 +27,6 @@ def camera_layout():
         cameras.append({"name": f"cam{len(cameras)+1:02d}_upper_{corner}",
                         "position": np.array([3.60*sx, 2.60*sy, 2.45]),
                         "target": np.array([1.05*sx, 0.0, 1.06])})
-    for sy, side in ((1, "left"), (-1, "right")):
-        cameras.append({"name": f"cam{len(cameras)+1:02d}_lower_mid_{side}",
-                        "position": np.array([0.0, 1.35*sy, 0.72]),
-                        "target": np.array([0.0, 0.0, 0.82])})
     return cameras
 
 
@@ -203,6 +199,8 @@ def main():
     parser.add_argument("--output", default="output_charuco_calibration")
     parser.add_argument("--image", default="/tmp/codex-clipboard-UXxleg.png",
                         help="User-provided board reference image; generated board uses matching 5x7 layout")
+    parser.add_argument("--vehicle-output", default="output_4cam",
+                        help="vehicle point-cloud output used for calibrated merge")
     args = parser.parse_args()
     output = Path(args.output)
     if not output.is_absolute():
@@ -227,9 +225,14 @@ def main():
     cameras = camera_layout()
     truth_world_to_camera = [look_at(c["position"], c["target"]) for c in cameras]
     detector = cv2.aruco.CharucoDetector(board)
-    edges = [(0, 1), (1, 2), (2, 3), (3, 0), (0, 4), (1, 4), (2, 5), (3, 5)]
-    stations = [(0,0,0), (0.018,0.008,0.006), (-0.014,-0.012,-0.004),
-                (0.008,-0.016,0.010), (-0.010,0.014,-0.008), (0.004,0.004,0.0)]
+    # Four corner cameras form a connected observation cycle. A shared board
+    # pose is sufficient to estimate every relative camera transform.
+    edges = [(0, 1), (1, 2), (2, 3), (3, 0)]
+    # Use visibly different board poses so the rig is not calibrated from
+    # nearly identical views. Real calibration should cover translation,
+    # distance and tilt across the common field of view.
+    stations = [(0, 0, 0), (0.24, 0.08, 0.08), (-0.22, -0.10, -0.06),
+                (0.15, -0.18, 0.12), (-0.12, 0.14, -0.10), (0.05, 0.20, 0.0)]
     measurements = defaultdict(list)
     capture_report = []
     board_poses_for_display = []
@@ -237,14 +240,13 @@ def main():
         # These are chosen from the cameras' actual frustum intersections.
         # The upper/lower links lie outside the vehicle footprint because the
         # vehicle itself is absent during calibration.
-        if (i, j) == (0, 4): base_center = (2.0, -1.45, 1.84)
-        elif (i, j) == (1, 4): base_center = (-2.50, -1.75, 2.10)
-        elif (i, j) == (2, 5): base_center = (-2.0, 1.45, 1.84)
-        elif (i, j) == (3, 5): base_center = (2.50, 1.75, 2.10)
-        else: base_center = (0.0, 0.0, 1.05)
+        if (i, j) == (0, 1): base_center = (0.0, -1.75, 1.85)
+        elif (i, j) == (1, 2): base_center = (-2.20, 0.0, 1.90)
+        elif (i, j) == (2, 3): base_center = (0.0, 1.75, 1.85)
+        else: base_center = (2.20, 0.0, 1.90)
         detections = {}
         accepted = []
-        for repeat, station in enumerate(stations[:4]):
+        for repeat, station in enumerate(stations[:6]):
             board_pose = board_capture_pose(cameras, i, j, 0.90, 1.26, station, base_center)
             board_poses_for_display.append({"edge": [cameras[i]["name"], cameras[j]["name"]],
                                              "pose": board_pose.tolist()})
@@ -332,7 +334,9 @@ def main():
     trajectory_cloud = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(np.asarray(trajectory_points)))
     trajectory_cloud.colors = o3d.utility.Vector3dVector(np.asarray(trajectory_colors))
     o3d.io.write_point_cloud(str(output / "charuco_board_trajectory.ply"), trajectory_cloud, write_ascii=False)
-    ideal_output = root / "output_ideal"
+    ideal_output = Path(args.vehicle_output)
+    if not ideal_output.is_absolute():
+        ideal_output = root / ideal_output
     merged = o3d.geometry.PointCloud()
     for index, estimated in enumerate(estimated_camera_to_world):
         cloud = o3d.io.read_point_cloud(str(ideal_output / "pointclouds" / f"cam{index+1:02d}_world.ply"))
@@ -352,6 +356,7 @@ def main():
                   "marker_length_m": 0.135, "dictionary": "DICT_5X5_1000",
                   "provided_reference_image": str(args.image)},
         "intrinsics_px": {"width": width, "height": height, "fx": 620, "fy": 620, "cx": 640, "cy": 400},
+        "camera_count": len(cameras),
         "world_frame": "cam01 optical frame aligned to simulator world (validation gauge only)",
         "observation_edges": capture_report,
         "pose_graph": {"edge_measurements": int(sum(len(v) for v in measurements.values())),

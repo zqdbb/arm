@@ -1,0 +1,530 @@
+{
+  "board": {
+    "squares_x": 5,
+    "squares_y": 7,
+    "square_length_m": 0.18,
+    "marker_length_m": 0.135,
+    "dictionary": "DICT_5X5_1000",
+    "provided_reference_image": "/tmp/codex-clipboard-UXxleg.png"
+  },
+  "intrinsics_px": {
+    "width": 1280,
+    "height": 800,
+    "fx": 620,
+    "fy": 620,
+    "cx": 640,
+    "cy": 400
+  },
+  "camera_count": 4,
+  "world_frame": "cam01 optical frame aligned to simulator world (validation gauge only)",
+  "observation_edges": [
+    {
+      "edge": [
+        "cam01_upper_front_left",
+        "cam02_upper_rear_left"
+      ],
+      "shared_board_poses": 6,
+      "detections": [
+        {
+          "camera": "cam01_upper_front_left",
+          "charuco_corners": 20,
+          "reprojection_rmse_px": 0.5184109927939449,
+          "markers": 15,
+          "image": "captures/group_00_00/cam01.png"
+        },
+        {
+          "camera": "cam02_upper_rear_left",
+          "charuco_corners": 16,
+          "reprojection_rmse_px": 0.5120591508882982,
+          "markers": 14,
+          "image": "captures/group_00_00/cam02.png"
+        },
+        {
+          "camera": "cam01_upper_front_left",
+          "charuco_corners": 20,
+          "reprojection_rmse_px": 0.4369905245025892,
+          "markers": 16,
+          "image": "captures/group_00_01/cam01.png"
+        },
+        {
+          "camera": "cam02_upper_rear_left",
+          "charuco_corners": 15,
+          "reprojection_rmse_px": 0.44836494602855576,
+          "markers": 14,
+          "image": "captures/group_00_01/cam02.png"
+        },
+        {
+          "camera": "cam01_upper_front_left",
+          "charuco_corners": 11,
+          "reprojection_rmse_px": 0.5207072852970137,
+          "markers": 12,
+          "image": "captures/group_00_02/cam01.png"
+        },
+        {
+          "camera": "cam02_upper_rear_left",
+          "charuco_corners": 20,
+          "reprojection_rmse_px": 0.6737466145315403,
+          "markers": 15,
+          "image": "captures/group_00_02/cam02.png"
+        },
+        {
+          "camera": "cam01_upper_front_left",
+          "charuco_corners": 17,
+          "reprojection_rmse_px": 0.42263442025130976,
+          "markers": 14,
+          "image": "captures/group_00_03/cam01.png"
+        },
+        {
+          "camera": "cam02_upper_rear_left",
+          "charuco_corners": 15,
+          "reprojection_rmse_px": 0.598667430205193,
+          "markers": 13,
+          "image": "captures/group_00_03/cam02.png"
+        },
+        {
+          "camera": "cam01_upper_front_left",
+          "charuco_corners": 8,
+          "reprojection_rmse_px": 0.49789596491763566,
+          "markers": 10,
+          "image": "captures/group_00_04/cam01.png"
+        },
+        {
+          "camera": "cam02_upper_rear_left",
+          "charuco_corners": 16,
+          "reprojection_rmse_px": 0.5433881786766608,
+          "markers": 14,
+          "image": "captures/group_00_04/cam02.png"
+        },
+        {
+          "camera": "cam01_upper_front_left",
+          "charuco_corners": 16,
+          "reprojection_rmse_px": 0.5455491221295944,
+          "markers": 14,
+          "image": "captures/group_00_05/cam01.png"
+        },
+        {
+          "camera": "cam02_upper_rear_left",
+          "charuco_corners": 22,
+          "reprojection_rmse_px": 0.4404043351235791,
+          "markers": 16,
+          "image": "captures/group_00_05/cam02.png"
+        }
+      ]
+    },
+    {
+      "edge": [
+        "cam02_upper_rear_left",
+        "cam03_upper_rear_right"
+      ],
+      "shared_board_poses": 6,
+      "detections": [
+        {
+          "camera": "cam02_upper_rear_left",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.2595925071006735,
+          "markers": 17,
+          "image": "captures/group_01_00/cam02.png"
+        },
+        {
+          "camera": "cam03_upper_rear_right",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.24834852219631756,
+          "markers": 17,
+          "image": "captures/group_01_00/cam03.png"
+        },
+        {
+          "camera": "cam02_upper_rear_left",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.27618249554796115,
+          "markers": 17,
+          "image": "captures/group_01_01/cam02.png"
+        },
+        {
+          "camera": "cam03_upper_rear_right",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.2727731682427678,
+          "markers": 17,
+          "image": "captures/group_01_01/cam03.png"
+        },
+        {
+          "camera": "cam02_upper_rear_left",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.23407793013143136,
+          "markers": 17,
+          "image": "captures/group_01_02/cam02.png"
+        },
+        {
+          "camera": "cam03_upper_rear_right",
+          "charuco_corners": 16,
+          "reprojection_rmse_px": 0.13398398062517522,
+          "markers": 15,
+          "image": "captures/group_01_02/cam03.png"
+        },
+        {
+          "camera": "cam02_upper_rear_left",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.33460323445254,
+          "markers": 17,
+          "image": "captures/group_01_03/cam02.png"
+        },
+        {
+          "camera": "cam03_upper_rear_right",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.3735556610488471,
+          "markers": 17,
+          "image": "captures/group_01_03/cam03.png"
+        },
+        {
+          "camera": "cam02_upper_rear_left",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.18716521373946737,
+          "markers": 17,
+          "image": "captures/group_01_04/cam02.png"
+        },
+        {
+          "camera": "cam03_upper_rear_right",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.1683573964133399,
+          "markers": 17,
+          "image": "captures/group_01_04/cam03.png"
+        },
+        {
+          "camera": "cam02_upper_rear_left",
+          "charuco_corners": 22,
+          "reprojection_rmse_px": 0.2422482343828234,
+          "markers": 16,
+          "image": "captures/group_01_05/cam02.png"
+        },
+        {
+          "camera": "cam03_upper_rear_right",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.18405974171453146,
+          "markers": 17,
+          "image": "captures/group_01_05/cam03.png"
+        }
+      ]
+    },
+    {
+      "edge": [
+        "cam03_upper_rear_right",
+        "cam04_upper_front_right"
+      ],
+      "shared_board_poses": 5,
+      "detections": [
+        {
+          "camera": "cam03_upper_rear_right",
+          "charuco_corners": 20,
+          "reprojection_rmse_px": 0.5184109927939449,
+          "markers": 15,
+          "image": "captures/group_02_00/cam03.png"
+        },
+        {
+          "camera": "cam04_upper_front_right",
+          "charuco_corners": 16,
+          "reprojection_rmse_px": 0.5120591508882982,
+          "markers": 14,
+          "image": "captures/group_02_00/cam04.png"
+        },
+        {
+          "camera": "cam03_upper_rear_right",
+          "charuco_corners": 20,
+          "reprojection_rmse_px": 0.3307838574411578,
+          "markers": 16,
+          "image": "captures/group_02_01/cam03.png"
+        },
+        {
+          "camera": "cam04_upper_front_right",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.5280829551750119,
+          "markers": 17,
+          "image": "captures/group_02_01/cam04.png"
+        },
+        {
+          "camera": "cam03_upper_rear_right",
+          "charuco_corners": 11,
+          "reprojection_rmse_px": 0.4531366628893552,
+          "markers": 12,
+          "image": "captures/group_02_02/cam03.png"
+        },
+        {
+          "camera": "cam04_upper_front_right",
+          "charuco_corners": 9,
+          "reprojection_rmse_px": 0.48994084107898783,
+          "markers": 11,
+          "image": "captures/group_02_02/cam04.png"
+        },
+        {
+          "camera": "cam03_upper_rear_right",
+          "charuco_corners": 16,
+          "reprojection_rmse_px": 0.4281588395958451,
+          "markers": 15,
+          "image": "captures/group_02_03/cam03.png"
+        },
+        {
+          "camera": "cam04_upper_front_right",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.43798364481780655,
+          "markers": 17,
+          "image": "captures/group_02_03/cam04.png"
+        },
+        {
+          "camera": "cam03_upper_rear_right",
+          "charuco_corners": 22,
+          "reprojection_rmse_px": 0.40094102444773405,
+          "markers": 16,
+          "image": "captures/group_02_04/cam03.png"
+        },
+        {
+          "camera": "cam04_upper_front_right",
+          "charuco_corners": 22,
+          "reprojection_rmse_px": 0.5697777104403781,
+          "markers": 16,
+          "image": "captures/group_02_04/cam04.png"
+        },
+        {
+          "camera": "cam04_upper_front_right",
+          "charuco_corners": 22,
+          "reprojection_rmse_px": 0.5626681329918203,
+          "markers": 16,
+          "image": "captures/group_02_05/cam04.png"
+        }
+      ]
+    },
+    {
+      "edge": [
+        "cam04_upper_front_right",
+        "cam01_upper_front_left"
+      ],
+      "shared_board_poses": 6,
+      "detections": [
+        {
+          "camera": "cam04_upper_front_right",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.2595925071006735,
+          "markers": 17,
+          "image": "captures/group_03_00/cam04.png"
+        },
+        {
+          "camera": "cam01_upper_front_left",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.24834852219631756,
+          "markers": 17,
+          "image": "captures/group_03_00/cam01.png"
+        },
+        {
+          "camera": "cam04_upper_front_right",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.2623624201850964,
+          "markers": 17,
+          "image": "captures/group_03_01/cam04.png"
+        },
+        {
+          "camera": "cam01_upper_front_left",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.25022361502335067,
+          "markers": 17,
+          "image": "captures/group_03_01/cam01.png"
+        },
+        {
+          "camera": "cam04_upper_front_right",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.2550164806328241,
+          "markers": 17,
+          "image": "captures/group_03_02/cam04.png"
+        },
+        {
+          "camera": "cam01_upper_front_left",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.22789434235890266,
+          "markers": 17,
+          "image": "captures/group_03_02/cam01.png"
+        },
+        {
+          "camera": "cam04_upper_front_right",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.2353220668743173,
+          "markers": 17,
+          "image": "captures/group_03_03/cam04.png"
+        },
+        {
+          "camera": "cam01_upper_front_left",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.20829727135835818,
+          "markers": 17,
+          "image": "captures/group_03_03/cam01.png"
+        },
+        {
+          "camera": "cam04_upper_front_right",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.21902420917091103,
+          "markers": 17,
+          "image": "captures/group_03_04/cam04.png"
+        },
+        {
+          "camera": "cam01_upper_front_left",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.29829940757268525,
+          "markers": 17,
+          "image": "captures/group_03_04/cam01.png"
+        },
+        {
+          "camera": "cam04_upper_front_right",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.3396121237514848,
+          "markers": 17,
+          "image": "captures/group_03_05/cam04.png"
+        },
+        {
+          "camera": "cam01_upper_front_left",
+          "charuco_corners": 24,
+          "reprojection_rmse_px": 0.23676729764531315,
+          "markers": 17,
+          "image": "captures/group_03_05/cam01.png"
+        }
+      ]
+    }
+  ],
+  "pose_graph": {
+    "edge_measurements": 23,
+    "optimizer_cost": 0.01446945624213924,
+    "optimizer_success": true
+  },
+  "camera_pose_error_vs_sim_truth": [
+    {
+      "camera": "cam01_upper_front_left",
+      "translation_error_mm": 3.510833468576701e-13,
+      "rotation_error_deg": 0.0
+    },
+    {
+      "camera": "cam02_upper_rear_left",
+      "translation_error_mm": 16.417807388154376,
+      "rotation_error_deg": 0.2687243002936919
+    },
+    {
+      "camera": "cam03_upper_rear_right",
+      "translation_error_mm": 41.06365970704223,
+      "rotation_error_deg": 0.34950190078704857
+    },
+    {
+      "camera": "cam04_upper_front_right",
+      "translation_error_mm": 2.8283274631495403,
+      "rotation_error_deg": 0.016656266250341733
+    }
+  ],
+  "camera_pose_error_max_translation_mm": 41.06365970704223,
+  "camera_pose_error_max_rotation_deg": 0.34950190078704857,
+  "estimated_world_to_camera": {
+    "cam01_upper_front_left": [
+      [
+        -0.7139382485962433,
+        0.7002086668924692,
+        -3.8876717517519715e-17,
+        0.749635161026056
+      ],
+      [
+        0.24968798603659567,
+        0.2545838289000584,
+        -0.9342606615348706,
+        0.7281439158885373
+      ],
+      [
+        -0.6541774123434083,
+        -0.6670044204285732,
+        -0.3565908247675834,
+        4.96289769823114
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "cam02_upper_rear_left": [
+      [
+        -0.7107984005152083,
+        -0.7033947245805238,
+        0.0012228071433839386,
+        -0.740406505042095
+      ],
+      [
+        -0.2511771631729438,
+        0.25219637762829783,
+        -0.93450897256878,
+        0.7415886316312162
+      ],
+      [
+        0.6570202938459461,
+        -0.6645546241983822,
+        -0.35593747334487374,
+        4.956701691760379
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "cam03_upper_rear_right": [
+      [
+        0.7180559125418687,
+        -0.6959849115688667,
+        0.0008422185827113623,
+        0.739937759651964
+      ],
+      [
+        -0.24846759770353133,
+        -0.25747696895134276,
+        -0.933793051672085,
+        0.7458488542892201
+      ],
+      [
+        0.6501227263794893,
+        0.6703063578156678,
+        -0.3578125589142917,
+        4.950662593348924
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "cam04_upper_front_right": [
+      [
+        0.713830036462088,
+        0.7003189455765716,
+        0.0002313245619524977,
+        -0.7507769044199837
+      ],
+      [
+        0.24993683356262353,
+        -0.25445021825387365,
+        -0.9342305206207113,
+        0.7278108686383696
+      ],
+      [
+        -0.6542004725412719,
+        0.6669396231272174,
+        -0.35666970831527245,
+        4.960485576845696
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "outputs": {
+    "board": "charuco_board_5x7.png",
+    "captures": "captures/",
+    "board_poses": "charuco_board_poses.ply",
+    "board_trajectory": "charuco_board_trajectory.ply",
+    "merged_scan": "merged_charuco_estimated.ply",
+    "vehicle_truth": "vehicle_truth_cam01_world.ply"
+  }
+}

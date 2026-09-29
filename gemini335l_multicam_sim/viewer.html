@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Gemini 335L 六相机仿真验证</title>
+  <title>Gemini 335L 四相机仿真验证</title>
   <style>
     html,body{margin:0;height:100%;overflow:hidden;background:#0b0e13;color:#e8edf5;font:14px system-ui,sans-serif}
     #panel{position:fixed;z-index:3;left:16px;top:16px;width:360px;padding:14px 16px;background:#111722e8;border:1px solid #293448;border-radius:10px;box-shadow:0 8px 30px #0008}
@@ -14,14 +14,14 @@
 </head>
 <body>
 <div id="panel">
-  <h1>Gemini 335L · 6 台固定相机拼接</h1>
+  <h1>Gemini 335L · 4 台固定相机拼接</h1>
   <div>
     <button data-mode="ideal" class="active">无噪声 TSDF</button>
     <button data-mode="noise">规格噪声 TSDF</button>
     <button data-mode="truth">原始高细节车模</button>
-    <button data-mode="points">6 相机合并点云</button>
+    <button data-mode="points">4 相机合并点云</button>
     <button data-mode="registration">模板配准结果</button>
-    <button data-mode="registration_charuco">ChArUco 后模板匹配</button>
+    <button data-mode="registration_charuco">4 相机 ChArUco 后匹配</button>
     <button data-mode="charuco">ChArUco 标定场景</button>
     <button id="cameraSize">相机显示 ×1</button>
   </div>
@@ -34,7 +34,7 @@ import * as THREE from 'three';
 import {PLYLoader} from 'three/addons/loaders/PLYLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b0e13);
-const assetVersion='?v=charuco4';
+const assetVersion='?v=fourcam1';
 const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.02,50); camera.position.set(6,4.3,6);
 const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(devicePixelRatio); renderer.setSize(innerWidth,innerHeight); document.body.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement); controls.target.set(0,.8,0); controls.update();
@@ -49,7 +49,7 @@ function material(mode,g){
   if(mode==='truth' && g.hasAttribute('color')){return new THREE.MeshStandardMaterial({vertexColors:true,roughness:.72,side:THREE.DoubleSide});}
   return new THREE.MeshStandardMaterial({color:mode==='noise'?0xffa640:0x43a7ff,roughness:.68,metalness:.05,side:THREE.DoubleSide});
 }
-const configs={ideal:['output_ideal/tsdf_mesh.ply','output_ideal/report.json'],noise:['output_spec_noise/tsdf_mesh.ply','output_spec_noise/report.json'],truth:['output_ideal/ground_truth_vehicle.ply','output_ideal/report.json'],points:['output_ideal/merged_6cam.ply','output_ideal/report.json']};
+const configs={ideal:['output_4cam/tsdf_mesh.ply','output_4cam/report.json'],noise:['output_4cam_spec_noise/tsdf_mesh.ply','output_4cam_spec_noise/report.json'],truth:['output_4cam/ground_truth_vehicle.ply','output_4cam/report.json'],points:['output_4cam/merged_4cam.ply','output_4cam/report.json']};
 function clearDisplay(){
   for(const item of displayObjects) scene.remove(item);
   displayObjects=[];
@@ -64,10 +64,10 @@ function loadRegistration(sceneDir='output_registration', label='模板配准结
 }
 async function loadCharuco(){
   const request=++displayRequest; clearDisplay(); loadCameras();
-  loader.load('output_charuco_calibration/charuco_board_poses.ply'+assetVersion,g=>{if(request!==displayRequest)return;const board=new THREE.Points(g,new THREE.PointsMaterial({size:.012,vertexColors:true}));board.rotation.x=-Math.PI/2;displayObjects.push(board);scene.add(board);});
-  loader.load('output_charuco_calibration/charuco_board_trajectory.ply'+assetVersion,g=>{if(request!==displayRequest)return;const trail=new THREE.Points(g,new THREE.PointsMaterial({size:.045,vertexColors:true}));trail.rotation.x=-Math.PI/2;displayObjects.push(trail);scene.add(trail);});
-  const r=await fetch('output_charuco_calibration/charuco_calibration_report.json'+assetVersion).then(x=>x.json()); if(request!==displayRequest)return;
-  document.querySelector('#metrics').textContent=`ChArUco 六相机外参标定仿真\n字典：${r.board.dictionary}　板型：${r.board.squares_x}×${r.board.squares_y}\n共享观测组：${r.pose_graph.edge_measurements}\n最大平移误差：${r.camera_pose_error_max_translation_mm.toFixed(1)} mm\n最大旋转误差：${r.camera_pose_error_max_rotation_deg.toFixed(3)}°\n白黑：当前标定板　黄色：其他拍摄位置轨迹　灰色：六台固定相机\n标定板图案：output_charuco_calibration/charuco_board_5x7.png`;
+  loader.load('output_charuco_calibration_4cam/charuco_board_poses.ply'+assetVersion,g=>{if(request!==displayRequest)return;const board=new THREE.Points(g,new THREE.PointsMaterial({size:.012,vertexColors:true}));board.rotation.x=-Math.PI/2;displayObjects.push(board);scene.add(board);});
+  loader.load('output_charuco_calibration_4cam/charuco_board_trajectory.ply'+assetVersion,g=>{if(request!==displayRequest)return;const trail=new THREE.Points(g,new THREE.PointsMaterial({size:.045,vertexColors:true}));trail.rotation.x=-Math.PI/2;displayObjects.push(trail);scene.add(trail);});
+  const r=await fetch('output_charuco_calibration_4cam/charuco_calibration_report.json'+assetVersion).then(x=>x.json()); if(request!==displayRequest)return;
+  document.querySelector('#metrics').textContent=`ChArUco 四相机外参标定仿真\n字典：${r.board.dictionary}　板型：${r.board.squares_x}×${r.board.squares_y}\n共享观测组：${r.pose_graph.edge_measurements}\n最大平移误差：${r.camera_pose_error_max_translation_mm.toFixed(1)} mm\n最大旋转误差：${r.camera_pose_error_max_rotation_deg.toFixed(3)}°\n白黑：当前标定板　黄色：其他拍摄位置轨迹　灰色：四台固定相机\n标定板图案：output_charuco_calibration_4cam/charuco_board_5x7.png`;
 }
 async function load(mode){
   const request=++displayRequest;
@@ -80,10 +80,10 @@ async function load(mode){
   const mm=x=>x==null?'—':(x*1000).toFixed(1)+' mm';
   document.querySelector('#metrics').textContent=`模式：${r.test_definition}\n车模：${bb.model_name||bb.type}\n分辨率：${r.resolution.join(' × ')}　相机：${r.camera_count} 台\n车辆真值尺寸：${bb.ground_truth_bbox_m.map(x=>x.toFixed(3)).join(' × ')} m\n重建尺寸：${bb.reconstructed_bbox_m.map(x=>x.toFixed(3)).join(' × ')} m\n重建→真值 平均 / P95：${mm(e.reconstruction_to_truth.mean_m)} / ${mm(e.reconstruction_to_truth.p95_m)}\n可见外表面完整度 20mm / 50mm：${((e.completeness.within_20mm||0)*100).toFixed(1)}% / ${((e.completeness.within_50mm||0)*100).toFixed(1)}%\n网格：${r.mesh.vertices.toLocaleString()} 顶点，${r.mesh.triangles.toLocaleString()} 三角面`;
 }
-function loadCameras(){if(cameraModels)scene.remove(cameraModels);const file=cameraEnlarged?'output_ideal/gemini335l_cameras_world_x4.ply':'output_ideal/gemini335l_cameras_world.ply';loader.load(file+assetVersion,g=>{g.computeVertexNormals();cameraModels=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x8793a3,roughness:.56,metalness:.28,side:THREE.DoubleSide}));cameraModels.rotation.x=-Math.PI/2;scene.add(cameraModels)});document.querySelector('#cameraSize').textContent=cameraEnlarged?'相机显示 ×4（仅便于观察）':'相机显示 ×1';}
+function loadCameras(){if(cameraModels)scene.remove(cameraModels);const file=cameraEnlarged?'output_4cam/gemini335l_cameras_world_x4.ply':'output_4cam/gemini335l_cameras_world.ply';loader.load(file+assetVersion,g=>{g.computeVertexNormals();cameraModels=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x8793a3,roughness:.56,metalness:.28,side:THREE.DoubleSide}));cameraModels.rotation.x=-Math.PI/2;scene.add(cameraModels)});document.querySelector('#cameraSize').textContent=cameraEnlarged?'相机显示 ×4（仅便于观察）':'相机显示 ×1';}
 document.querySelector('#cameraSize').onclick=()=>{cameraEnlarged=!cameraEnlarged;loadCameras()};
 loadCameras();
-document.querySelectorAll('button[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='registration'?loadRegistration():b.dataset.mode==='registration_charuco'?loadRegistration('output_registration_charuco','ChArUco 标定后模板匹配'):b.dataset.mode==='charuco'?loadCharuco():load(b.dataset.mode)); load('ideal');
+document.querySelectorAll('button[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='registration'?loadRegistration():b.dataset.mode==='registration_charuco'?loadRegistration('output_registration_charuco_4cam','4 相机 ChArUco 标定后模板匹配'):b.dataset.mode==='charuco'?loadCharuco():load(b.dataset.mode)); load('ideal');
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 (function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)})();
 </script>
