@@ -9,7 +9,7 @@
     #panel{position:fixed;z-index:3;left:16px;top:16px;width:390px;padding:14px 16px;background:#111722e8;border:1px solid #293448;border-radius:10px;box-shadow:0 8px 30px #0008}
     h1{font-size:17px;margin:0 0 10px}button{margin:3px;padding:7px 10px;border:1px solid #43506a;border-radius:6px;background:#1e293b;color:#fff;cursor:pointer}button.active{background:#1769aa}
     #metrics{white-space:pre-wrap;line-height:1.5;color:#cbd5e1;margin-top:10px}.hint{color:#92a3b8;font-size:12px;margin-top:8px}
-    #registrationControls{display:none;margin-top:10px;padding-top:8px;border-top:1px solid #334155}#registrationControls button{font-size:13px}#demoStatus{margin-top:6px;color:#f8c15a;font-weight:600}
+    #registrationControls,#workflowControls{display:none;margin-top:10px;padding-top:8px;border-top:1px solid #334155}#registrationControls button,#workflowControls button{font-size:13px}#demoStatus,#workflowStatus{margin-top:6px;color:#f8c15a;font-weight:600}
     canvas{display:block}
   </style>
 </head>
@@ -23,6 +23,7 @@
     <button data-mode="points">4 相机合并点云</button>
     <button data-mode="registration">模板配准结果</button>
     <button data-mode="registration_charuco">4 相机 ChArUco 后匹配</button>
+    <button data-mode="paint_transfer">喷涂路径迁移仿真</button>
     <button data-mode="charuco">ChArUco 标定场景</button>
     <button id="cameraSize">相机显示 ×1</button>
   </div>
@@ -31,6 +32,13 @@
     <button id="playMatch">② 播放对齐动画</button>
     <button id="showAfter">③ 匹配后</button>
     <div id="demoStatus"></div>
+  </div>
+  <div id="workflowControls">
+    <button id="showSavedSystem">① 系统保存</button>
+    <button id="showLiveScan">② 现场扫描</button>
+    <button id="showPathTransfer">③ 匹配并迁移</button>
+    <button id="playSpray">④ 播放喷涂</button>
+    <div id="workflowStatus"></div>
   </div>
   <div id="metrics">加载中…</div>
   <div class="hint">场景使用新增 Prius Hybrid 车辆模型和奥比中光官方 Gemini 335L/336L STL 外观模型。鼠标左键旋转，滚轮缩放。</div>
@@ -41,7 +49,7 @@ import * as THREE from 'three';
 import {PLYLoader} from 'three/addons/loaders/PLYLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b0e13);
-const assetVersion='?v=fourcam3';
+const assetVersion='?v=paintflow1';
 const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.02,50); camera.position.set(6,4.3,6);
 const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(devicePixelRatio); renderer.setSize(innerWidth,innerHeight); document.body.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement); controls.target.set(0,.8,0); controls.update();
@@ -51,6 +59,7 @@ let object=null, cameraModels=null, cameraEnlarged=false;
 let displayObjects=[];
 let displayRequest=0;
 let registrationDemo=null;
+let paintDemo=null;
 const loader=new PLYLoader();
 function material(mode,g){
   if(mode==='points'){return new THREE.PointsMaterial({size:.018,vertexColors:true});}
@@ -61,10 +70,30 @@ const configs={ideal:['output_4cam/tsdf_mesh.ply','output_4cam/report.json'],noi
 function clearDisplay(){
   if(registrationDemo) registrationDemo.cancelled=true;
   registrationDemo=null;
+  if(paintDemo)paintDemo.cancelled=true;
+  paintDemo=null;
   document.querySelector('#registrationControls').style.display='none';
+  document.querySelector('#workflowControls').style.display='none';
   for(const item of displayObjects) scene.remove(item);
   displayObjects=[];
   object=null;
+}
+function worldVector(values){return new THREE.Vector3(values[0],values[2],-values[1]);}
+function createPathGroup(path,color,opacity=1){
+  const group=new THREE.Group();
+  for(const segment of path.segments){
+    const points=segment.poses.map(p=>worldVector(p.position_m));
+    if(points.length<2)continue;
+    const geometry=new THREE.BufferGeometry().setFromPoints(points);
+    group.add(new THREE.Line(geometry,new THREE.LineBasicMaterial({color,transparent:opacity<1,opacity})));
+  }
+  return group;
+}
+function loadPointObject(file,color,size=.012,opacity=1){
+  return new Promise((resolve,reject)=>loader.load(file+assetVersion,g=>{
+    const object=new THREE.Points(g,new THREE.PointsMaterial({size,color,transparent:opacity<1,opacity,depthWrite:opacity>=1}));
+    object.rotation.x=-Math.PI/2; resolve(object);
+  },undefined,reject));
 }
 function rotationDegrees(matrix){
   const r=matrix;
@@ -109,6 +138,66 @@ function loadRegistration(sceneDir='output_registration', label='模板配准结
   loader.load(sceneDir+'/template_visible_aligned.ply'+assetVersion,g=>{if(request!==displayRequest)return;g.computeVertexNormals();visibleTemplate=new THREE.Points(g,new THREE.PointsMaterial({size:.017,color:0x36a9ff}));visibleTemplate.rotation.x=-Math.PI/2;displayObjects.push(visibleTemplate);scene.add(visibleTemplate);setupDemo();});
   fetch(sceneDir+'/registration_report.json'+assetVersion).then(x=>x.json()).then(r=>{if(request!==displayRequest)return;const q=r.quality||{};const e=r.synthetic_pose_error;const t=r.template_to_scene||[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];const shift=Math.hypot(t[0][3],t[1][3],t[2][3])*1000;document.querySelector('#metrics').textContent=`${label}\n\n用上方三个按钮观察前后差异。\n红色 = 教学演示的匹配前模板（人为偏移 1.4 m / 18°）\n橙色 = 四相机现场点云\n灰色 = 匹配后的完整模板\n蓝色 = 匹配后与现场相距 ≤ ${(q.match_threshold_m*1000).toFixed(0)} mm 的模板表面\n\n实际算法：FPFH/RANSAC 粗配准 → 多尺度 ICP 精配准\n实际输出：template_to_scene 4×4 位姿矩阵\n\n现场点云覆盖率：${q.scene_coverage_within_threshold==null?'—':(q.scene_coverage_within_threshold*100).toFixed(1)+'%'}\n模板可见表面比例：${q.template_visible_fraction_within_threshold==null?'—':(q.template_visible_fraction_within_threshold*100).toFixed(1)+'%'}\n本次实际求得平移：${shift.toFixed(1)} mm\n本次实际求得旋转：${rotationDegrees(t).toFixed(3)}°\nICP 平均距离：${q.mean_inlier_distance_m==null?'—':(q.mean_inlier_distance_m*1000).toFixed(1)+' mm'}\nICP P95：${q.p95_inlier_distance_m==null?'—':(q.p95_inlier_distance_m*1000).toFixed(1)+' mm'}\n${e?'已提供真值误差：'+(e.translation_m*1000).toFixed(1)+' mm / '+e.rotation_deg.toFixed(3)+'°':'当前场景没有独立真值误差，只报告点云残差'}\n\n重要：红色大偏移和动画只用于讲解“模板变换到现场坐标”的概念，不是本次算法实际初始位姿或误差。`;});
 }
+function setPaintStage(stage){
+  if(!paintDemo)return;
+  paintDemo.cancelled=true;
+  const d=paintDemo;
+  d.reference.visible=stage==='saved';
+  d.templatePath.visible=stage==='saved'||stage==='transfer';
+  d.live.visible=stage!=='saved';
+  d.aligned.visible=stage==='transfer'||stage==='spray';
+  d.livePath.visible=stage==='transfer'||stage==='spray';
+  d.robot.visible=stage==='spray'; d.nozzle.visible=stage==='spray'; d.arm.visible=stage==='spray';
+  const messages={saved:'系统保存：灰色标准车辆点云 + 绿色模板喷涂路径',live:'现场采集：橙色为四相机融合点云，车辆已发生平移和旋转',transfer:'匹配完成：蓝色模板对齐现场，紫色为迁移后的喷涂路径',spray:'喷涂仿真：虚拟喷枪沿迁移后的世界坐标轨迹运行'};
+  document.querySelector('#workflowStatus').textContent=messages[stage];
+}
+function updateVirtualArm(position){
+  if(!paintDemo)return;
+  const base=paintDemo.basePosition;
+  const elbow=base.clone().lerp(position,.48); elbow.y+=1.15;
+  const array=paintDemo.arm.geometry.attributes.position.array;
+  array.set([base.x,base.y,base.z,elbow.x,elbow.y,elbow.z,position.x,position.y,position.z]);
+  paintDemo.arm.geometry.attributes.position.needsUpdate=true;
+  paintDemo.nozzle.position.copy(position);
+}
+function playPaintSimulation(){
+  if(!paintDemo)return;
+  setPaintStage('spray'); const demo=paintDemo; demo.cancelled=false;
+  const points=demo.livePathPoints, start=performance.now(), duration=15000;
+  function frame(now){
+    if(demo.cancelled||paintDemo!==demo)return;
+    const progress=Math.min(1,(now-start)/duration); const index=Math.min(points.length-1,Math.floor(progress*(points.length-1)));
+    updateVirtualArm(points[index]);
+    document.querySelector('#workflowStatus').textContent=`喷涂仿真：TCP ${index+1} / ${points.length}（仅轨迹与坐标变换演示）`;
+    if(progress<1)requestAnimationFrame(frame);else document.querySelector('#workflowStatus').textContent='喷涂仿真完成：所有迁移后 TCP 位姿已依次访问';
+  }
+  requestAnimationFrame(frame);
+}
+async function loadPaintTransfer(){
+  const request=++displayRequest; clearDisplay(); if(cameraModels)scene.remove(cameraModels);
+  document.querySelectorAll('button[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode==='paint_transfer'));
+  const base='output_paint_path_transfer/';
+  const [report,templatePath,livePath,reference,live,aligned]=await Promise.all([
+    fetch(base+'paint_path_transfer_report.json'+assetVersion).then(x=>x.json()),
+    fetch(base+'paint_path_template.json'+assetVersion).then(x=>x.json()),
+    fetch(base+'paint_path_live_world.json'+assetVersion).then(x=>x.json()),
+    loadPointObject(base+'reference_saved.ply',0xaeb8c4,.010,.48),
+    loadPointObject(base+'live_fused.ply',0xff9f32,.012,.82),
+    loadPointObject(base+'reference_aligned.ply',0x3ba7ff,.010,.48),
+  ]); if(request!==displayRequest)return;
+  const templatePathObject=createPathGroup(templatePath,0x38e66b,.95);
+  const livePathObject=createPathGroup(livePath,0xff32d2,1);
+  const basePosition=worldVector(report.robot_frame.virtual_base_position_world_m);
+  const robot=new THREE.Group(); const pedestal=new THREE.Mesh(new THREE.CylinderGeometry(.28,.34,.35,24),new THREE.MeshStandardMaterial({color:0x8793a3,metalness:.4,roughness:.5}));pedestal.position.copy(basePosition);pedestal.position.y+=.175;robot.add(pedestal);const axes=new THREE.AxesHelper(.65);axes.position.copy(basePosition);robot.add(axes);
+  const nozzle=new THREE.Mesh(new THREE.SphereGeometry(.07,18,12),new THREE.MeshStandardMaterial({color:0xffe14a,emissive:0x554000}));
+  const armGeometry=new THREE.BufferGeometry();armGeometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array(9),3));const arm=new THREE.Line(armGeometry,new THREE.LineBasicMaterial({color:0xffe14a}));
+  for(const item of [reference,live,aligned,templatePathObject,livePathObject,robot,nozzle,arm]){displayObjects.push(item);scene.add(item);}
+  const livePathPoints=livePath.segments.flatMap(s=>s.poses.map(p=>worldVector(p.position_m)));
+  paintDemo={reference,live,aligned,templatePath:templatePathObject,livePath:livePathObject,robot,nozzle,arm,basePosition,livePathPoints,cancelled:false};
+  updateVirtualArm(livePathPoints[0]); document.querySelector('#workflowControls').style.display='block'; setPaintStage('saved');
+  const pe=report.pose_error,pp=report.paint_path,reg=report.registration;
+  document.querySelector('#metrics').textContent=`端到端车辆定位与喷涂路径迁移\n\n业务数据：\n系统保存：标准车辆点云 + ${pp.poses} 个 TCP 位姿\n现场输入：4 相机 ChArUco 外参融合点云\n车辆模拟位移：0.55 m / -0.32 m / 0.04 m，偏航 8°\n\n处理链：\n标准点云 → PCA 多假设粗定位 → 多尺度 ICP\n→ template_to_world → 喷涂路径刚体变换\n→ workcell_world → robot_base\n\n定位误差：${(pe.translation_m*1000).toFixed(1)} mm / ${pe.rotation_deg.toFixed(3)}°\n点云 ICP RMSE：${(reg.icp_inlier_rmse_m*1000).toFixed(1)} mm\n路径平均迁移误差：${(pp.mean_transfer_error_m*1000).toFixed(1)} mm\n路径 P95 / 最大误差：${(pp.p95_transfer_error_m*1000).toFixed(1)} / ${(pp.max_transfer_error_m*1000).toFixed(1)} mm\n路径姿态误差：${pp.mean_orientation_error_deg.toFixed(3)}°\n喷枪离车身：${(pp.standoff_mean_m*1000).toFixed(1)} mm\n轨迹：${pp.segments} 段 / ${pp.poses} 位姿\n机器人轨迹输出：paint_path_robot_base.json / .csv\n\n颜色：灰=系统模板，绿=保存路径，橙=现场点云，蓝=匹配模板，紫=迁移后路径，黄=虚拟喷枪/机械臂\n\n安全范围：当前只验证刚体配准和路径坐标迁移；未做真实机械臂 IK、碰撞、速度规划或喷漆执行。`;
+}
 async function loadCharuco(){
   const request=++displayRequest; clearDisplay(); loadCameras();
   loader.load('output_charuco_calibration_4cam/charuco_board_poses.ply'+assetVersion,g=>{if(request!==displayRequest)return;const board=new THREE.Points(g,new THREE.PointsMaterial({size:.012,vertexColors:true}));board.rotation.x=-Math.PI/2;displayObjects.push(board);scene.add(board);});
@@ -132,8 +221,12 @@ document.querySelector('#cameraSize').onclick=()=>{cameraEnlarged=!cameraEnlarge
 document.querySelector('#showBefore').onclick=()=>setMatchStage('before');
 document.querySelector('#playMatch').onclick=()=>playMatchDemo();
 document.querySelector('#showAfter').onclick=()=>setMatchStage('after');
+document.querySelector('#showSavedSystem').onclick=()=>setPaintStage('saved');
+document.querySelector('#showLiveScan').onclick=()=>setPaintStage('live');
+document.querySelector('#showPathTransfer').onclick=()=>setPaintStage('transfer');
+document.querySelector('#playSpray').onclick=()=>playPaintSimulation();
 loadCameras();
-document.querySelectorAll('button[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='registration'?loadRegistration():b.dataset.mode==='registration_charuco'?loadRegistration('output_registration_charuco_4cam','4 相机 ChArUco 标定后模板匹配'):b.dataset.mode==='charuco'?loadCharuco():load(b.dataset.mode)); load('ideal');
+document.querySelectorAll('button[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='registration'?loadRegistration():b.dataset.mode==='registration_charuco'?loadRegistration('output_registration_charuco_4cam','4 相机 ChArUco 标定后模板匹配'):b.dataset.mode==='paint_transfer'?loadPaintTransfer():b.dataset.mode==='charuco'?loadCharuco():load(b.dataset.mode)); load('ideal');
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 (function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)})();
 </script>

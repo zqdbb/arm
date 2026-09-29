@@ -1,0 +1,171 @@
+{
+  "purpose": "saved vehicle point cloud + saved paint path -> live fused cloud localization -> path transfer",
+  "reference_cloud": "/home/azh/\u684c\u9762/arm/gemini335l_multicam_sim/output_4cam/merged_4cam.ply",
+  "live_cloud_source": "/home/azh/\u684c\u9762/arm/gemini335l_multicam_sim/output_charuco_calibration_4cam/merged_charuco_estimated.ply",
+  "true_template_to_world": [
+    [
+      0.9902680687415703,
+      -0.13917310096006544,
+      0.0,
+      0.55
+    ],
+    [
+      0.13917310096006544,
+      0.9902680687415703,
+      0.0,
+      -0.32
+    ],
+    [
+      0.0,
+      0.0,
+      0.9999999999999999,
+      0.04
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "estimated_template_to_world": [
+    [
+      0.9899123047548377,
+      -0.14161284482154693,
+      0.0044080694769905076,
+      0.5567283867395906
+    ],
+    [
+      0.14160415420866784,
+      0.989920858697924,
+      0.0022264378751704855,
+      -0.3192830769526629
+    ],
+    [
+      -0.004678932123183886,
+      -0.001579777298421193,
+      0.9999878058745885,
+      0.041824025906330574
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "coarse_initial_transform": [
+    [
+      0.9893383489723666,
+      -0.1456352678873891,
+      -0.0,
+      0.5422796717060405
+    ],
+    [
+      0.1456352678873891,
+      0.9893383489723666,
+      0.0,
+      -0.3296097028536411
+    ],
+    [
+      0.0,
+      -0.0,
+      1.0,
+      0.04740022848106351
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "registration": {
+    "method": "XY PCA two-hypothesis coarse alignment + multi-scale point-to-plane ICP",
+    "icp_fitness": 1.0,
+    "icp_inlier_rmse_m": 0.009477072130603406,
+    "source_coverage": 1.0,
+    "target_coverage": 1.0,
+    "mean_source_distance_m": 0.00686782446101101,
+    "p95_source_distance_m": 0.011706612786785716,
+    "score": 1.0,
+    "candidate_summary": [
+      {
+        "score": 1.0,
+        "fitness": 1.0,
+        "rmse_m": 0.009477072130603406
+      },
+      {
+        "score": 0.7021998134545175,
+        "fitness": 0.7829050969760998,
+        "rmse_m": 0.018594469284983314
+      }
+    ]
+  },
+  "pose_error": {
+    "translation_m": 0.007008012363021761,
+    "rotation_deg": 0.31613047008981576
+  },
+  "paint_path": {
+    "segments": 30,
+    "poses": 1566,
+    "standoff_m": 0.28,
+    "mean_transfer_error_m": 0.01417770042947979,
+    "p95_transfer_error_m": 0.018845326293741818,
+    "max_transfer_error_m": 0.020627080867182946,
+    "mean_orientation_error_deg": 0.31613047008929496,
+    "p95_orientation_error_deg": 0.31613047008930123,
+    "standoff_mean_m": 0.28000000248376095,
+    "standoff_max_deviation_m": 1.0020269092247958e-07
+  },
+  "robot_frame": {
+    "world_to_robot_base": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        3.2
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "virtual_base_position_world_m": [
+      0.0,
+      -3.2,
+      0.0
+    ]
+  },
+  "safety_scope": {
+    "rigid_path_transfer_validated": true,
+    "robot_ik_validated": false,
+    "collision_check_validated": false,
+    "paint_process_validated": false,
+    "execution_enabled": false,
+    "note": "Simulation output must not be sent directly to a real robot."
+  },
+  "outputs": {
+    "reference": "reference_saved.ply",
+    "live": "live_fused.ply",
+    "aligned_reference": "reference_aligned.ply",
+    "template_path": "paint_path_template.json",
+    "world_path": "paint_path_live_world.json",
+    "robot_path": "paint_path_robot_base.json",
+    "robot_path_csv": "paint_path_robot_base.csv"
+  }
+}

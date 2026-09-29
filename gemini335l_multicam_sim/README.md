@@ -278,6 +278,50 @@ T_base_tool = T_base_world @ T_world_template @ T_template_tool
 
 ## 9. 查看结果
 
+### 9.1 端到端车辆定位与喷涂路径迁移仿真
+
+`simulate_paint_path_transfer.py` 对应实际业务流程：系统保存标准车辆点云和模板坐标系中的喷涂 TCP 路径；现场四相机融合得到车辆点云；点云配准求得 `template_to_world`；最后把全部 TCP 位姿转换到工位世界坐标和机器人基座坐标。
+
+```bash
+cd gemini335l_multicam_sim
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 \
+../.venv/bin/python simulate_paint_path_transfer.py \
+  --output output_paint_path_transfer
+```
+
+默认仿真令现场车辆相对标准模板平移 `(0.55, -0.32, 0.04) m` 并绕竖直轴旋转 `8°`。配准采用 XY 主方向双假设粗定位和多尺度点到面 ICP，随后按以下关系迁移路径：
+
+```text
+T_world_tcp[i] = T_world_template × T_template_tcp[i]
+T_base_tcp[i]  = T_base_world × T_world_tcp[i]
+```
+
+当前回归结果为：车辆位姿误差约 `7.0 mm / 0.316°`，点云 ICP RMSE 约 `9.5 mm`；1566 个 TCP 位姿的迁移误差平均约 `14.2 mm`、P95 约 `18.8 mm`，喷枪离车身距离保持为 `280 mm`。
+
+网页点击“喷涂路径迁移仿真”，按顺序查看：
+
+1. “系统保存”：标准车辆点云和绿色原始喷涂路径。
+2. “现场扫描”：发生平移/旋转后的橙色四相机融合点云。
+3. “匹配并迁移”：蓝色匹配模板和紫色现场喷涂路径。
+4. “播放喷涂”：虚拟喷枪依次访问迁移后的 TCP 位姿。
+
+主要输出：
+
+| 文件 | 含义 |
+| --- | --- |
+| `output_paint_path_transfer/reference_saved.ply` | 系统保存的标准车辆点云 |
+| `output_paint_path_transfer/live_fused.ply` | 模拟现场四相机融合点云 |
+| `output_paint_path_transfer/reference_aligned.ply` | 匹配到现场后的标准点云 |
+| `paint_path_template.json` | 标准车辆坐标系中的保存路径 |
+| `paint_path_live_world.json` | 迁移到现场世界坐标的路径 |
+| `paint_path_robot_base.json` | 转换到机器人基座坐标的完整位姿 |
+| `paint_path_robot_base.csv` | 供下游控制程序读取的轨迹表 |
+| `paint_path_transfer_report.json` | 配准、路径误差、坐标矩阵和安全范围报告 |
+
+此仿真只证明刚体车辆定位和路径坐标迁移成立。真实执行前仍必须接入机械臂型号对应的 IK、关节限位、碰撞检测、轨迹平滑、恒速控制、喷枪开关时序和急停联锁；当前输出禁止直接发送给真实机械臂。
+
+### 9.2 其他重建和标定结果
+
 网页增加了“ChArUco 标定场景”视图。它显示四台固定相机和标定板在各个共享观测位置的轨迹，并读取 `output_charuco_calibration_4cam/charuco_calibration_report.json` 显示标定误差。
 为避免把多次拍摄误认为多块实体标定板，网页只显示一块黑白 ChArUco 实体板；其余采样位姿用黄色稀疏轨迹点表示。完整图像采集仍保存在 `output_charuco_calibration_4cam/captures/`。
 
