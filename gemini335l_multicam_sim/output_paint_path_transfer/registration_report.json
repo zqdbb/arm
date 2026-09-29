@@ -1,0 +1,105 @@
+{
+  "template": "/home/azh/\u684c\u9762/arm/gemini335l_multicam_sim/output_4cam/merged_4cam.ply",
+  "scene": "/home/azh/\u684c\u9762/arm/gemini335l_multicam_sim/output_paint_path_transfer/live_fused.ply",
+  "synthetic_pose": true,
+  "global_registration": {
+    "method": "XY PCA two-hypothesis coarse alignment + multi-scale point-to-plane ICP",
+    "initial_transform": [
+      [
+        0.9893383489723666,
+        -0.1456352678873891,
+        -0.0,
+        0.5422796717060405
+      ],
+      [
+        0.1456352678873891,
+        0.9893383489723666,
+        0.0,
+        -0.3296097028536411
+      ],
+      [
+        0.0,
+        -0.0,
+        1.0,
+        0.04740022848106351
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "icp_registration": {
+    "fitness": 1.0,
+    "inlier_rmse_m": 0.009477072130603406
+  },
+  "quality": {
+    "source_points": 108933,
+    "inlier_points": 108933,
+    "inlier_fraction": 1.0,
+    "mean_inlier_distance_m": 0.00686782446101101,
+    "p95_inlier_distance_m": 0.011706612786785716,
+    "scene_coverage_within_threshold": 1.0,
+    "template_visible_fraction_within_threshold": 1.0,
+    "match_threshold_m": 0.03
+  },
+  "template_to_scene": [
+    [
+      0.9899123047548377,
+      -0.14161284482154693,
+      0.0044080694769905076,
+      0.5567283867395906
+    ],
+    [
+      0.14160415420866784,
+      0.989920858697924,
+      0.0022264378751704855,
+      -0.3192830769526629
+    ],
+    [
+      -0.004678932123183886,
+      -0.001579777298421193,
+      0.9999878058745885,
+      0.041824025906330574
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "known_scene_transform": [
+    [
+      0.9902680687415703,
+      -0.13917310096006544,
+      0.0,
+      0.55
+    ],
+    [
+      0.13917310096006544,
+      0.9902680687415703,
+      0.0,
+      -0.32
+    ],
+    [
+      0.0,
+      0.0,
+      0.9999999999999999,
+      0.04
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "synthetic_pose_error": {
+    "translation_m": 0.007008012363021761,
+    "rotation_deg": 0.31613047008981576
+  },
+  "shared_with_paint_transfer": true
+}

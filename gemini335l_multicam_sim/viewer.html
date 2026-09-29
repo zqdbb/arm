@@ -22,7 +22,7 @@
     <button data-mode="truth">原始高细节车模</button>
     <button data-mode="points">4 相机合并点云</button>
     <button data-mode="registration">模板配准结果</button>
-    <button data-mode="registration_charuco">4 相机 ChArUco 后匹配</button>
+    <button data-mode="registration_charuco">4 相机现场车辆模板匹配</button>
     <button data-mode="paint_transfer">喷涂路径迁移仿真</button>
     <button data-mode="charuco">ChArUco 标定场景</button>
     <button id="cameraSize">相机显示 ×1</button>
@@ -49,7 +49,7 @@ import * as THREE from 'three';
 import {PLYLoader} from 'three/addons/loaders/PLYLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b0e13);
-const assetVersion='?v=paintflow1';
+const assetVersion='?v=pose-unified1';
 const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.02,50); camera.position.set(6,4.3,6);
 const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(devicePixelRatio); renderer.setSize(innerWidth,innerHeight); document.body.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement); controls.target.set(0,.8,0); controls.update();
@@ -100,14 +100,26 @@ function rotationDegrees(matrix){
   const cosine=Math.max(-1,Math.min(1,(r[0][0]+r[1][1]+r[2][2]-1)/2));
   return Math.acos(cosine)*180/Math.PI;
 }
+function displayTransform(matrix){
+  const dataMatrix=new THREE.Matrix4().set(
+    matrix[0][0],matrix[0][1],matrix[0][2],matrix[0][3],
+    matrix[1][0],matrix[1][1],matrix[1][2],matrix[1][3],
+    matrix[2][0],matrix[2][1],matrix[2][2],matrix[2][3],
+    matrix[3][0],matrix[3][1],matrix[3][2],matrix[3][3]);
+  const axes=new THREE.Matrix4().makeRotationX(-Math.PI/2);
+  const converted=axes.clone().multiply(dataMatrix).multiply(axes.clone().invert());
+  const position=new THREE.Vector3(),quaternion=new THREE.Quaternion(),scale=new THREE.Vector3();
+  converted.decompose(position,quaternion,scale);
+  return {position,quaternion};
+}
 function setMatchStage(stage){
   if(!registrationDemo)return;
   registrationDemo.cancelled=true;
   const {moving,full,visible}=registrationDemo;
   if(stage==='before'){
     moving.visible=true; full.visible=false; visible.visible=false;
-    moving.position.set(1.40,.45,.55); moving.rotation.y=THREE.MathUtils.degToRad(18);
-    document.querySelector('#demoStatus').textContent='匹配前演示：红色模板故意大幅偏离现场车辆';
+    moving.position.set(0,0,0); moving.quaternion.identity();
+    document.querySelector('#demoStatus').textContent='匹配前：红色为系统保存的标准车辆原始位姿，橙色为现场车辆';
   }else{
     moving.visible=false; full.visible=true; visible.visible=true;
     document.querySelector('#demoStatus').textContent='匹配后：蓝色模板表面已贴合橙色现场点云';
@@ -118,12 +130,13 @@ function playMatchDemo(){
   setMatchStage('before');
   const demo=registrationDemo; demo.cancelled=false;
   const start=performance.now(), duration=2800;
-  document.querySelector('#demoStatus').textContent='对齐动画：把模板移动到已求得的 template_to_scene 位姿…';
+  const origin=new THREE.Vector3(),identity=new THREE.Quaternion();
+  document.querySelector('#demoStatus').textContent='对齐动画：按本次实际 template_to_world 矩阵移动标准车辆…';
   function frame(now){
     if(demo.cancelled||registrationDemo!==demo)return;
     const raw=Math.min(1,(now-start)/duration); const t=1-Math.pow(1-raw,3);
-    demo.moving.position.set(1.40*(1-t),.45*(1-t),.55*(1-t));
-    demo.moving.rotation.y=THREE.MathUtils.degToRad(18)*(1-t);
+    demo.moving.position.lerpVectors(origin,demo.targetPosition,t);
+    demo.moving.quaternion.slerpQuaternions(identity,demo.targetQuaternion,t);
     if(raw<1)requestAnimationFrame(frame);else setMatchStage('after');
   }
   requestAnimationFrame(frame);
@@ -132,11 +145,13 @@ function loadRegistration(sceneDir='output_registration', label='模板配准结
   const request=++displayRequest;
   clearDisplay(); if(cameraModels)scene.remove(cameraModels);
   loader.load(sceneDir+'/scene.ply'+assetVersion,g=>{if(request!==displayRequest)return;g.computeVertexNormals();const sceneObject=new THREE.Points(g,new THREE.PointsMaterial({size:.012,color:0xffa640}));sceneObject.rotation.x=-Math.PI/2;displayObjects.push(sceneObject);scene.add(sceneObject);});
-  let fullTemplate=null,movingTemplate=null,visibleTemplate=null;
-  const setupDemo=()=>{if(request!==displayRequest||!fullTemplate||!movingTemplate||!visibleTemplate)return;registrationDemo={moving:movingTemplate,full:fullTemplate,visible:visibleTemplate,cancelled:false};document.querySelector('#registrationControls').style.display='block';setMatchStage('before');};
-  loader.load(sceneDir+'/template_aligned.ply'+assetVersion,g=>{if(request!==displayRequest)return;g.computeVertexNormals();fullTemplate=new THREE.Points(g,new THREE.PointsMaterial({size:.009,color:0x9aa6b2,transparent:true,opacity:.28,depthWrite:false}));fullTemplate.rotation.x=-Math.PI/2;displayObjects.push(fullTemplate);scene.add(fullTemplate);movingTemplate=new THREE.Group();const redTemplate=new THREE.Points(g,new THREE.PointsMaterial({size:.014,color:0xff4058,transparent:true,opacity:.88}));redTemplate.rotation.x=-Math.PI/2;movingTemplate.add(redTemplate);displayObjects.push(movingTemplate);scene.add(movingTemplate);setupDemo();});
+  let fullTemplate=null,movingTemplate=null,visibleTemplate=null,matchReport=null;
+  const setupDemo=()=>{if(request!==displayRequest||!fullTemplate||!movingTemplate||!visibleTemplate||!matchReport)return;const target=displayTransform(matchReport.template_to_scene);registrationDemo={moving:movingTemplate,full:fullTemplate,visible:visibleTemplate,targetPosition:target.position,targetQuaternion:target.quaternion,cancelled:false};document.querySelector('#registrationControls').style.display='block';setMatchStage('before');};
+  loader.load(sceneDir+'/template_aligned.ply'+assetVersion,g=>{if(request!==displayRequest)return;g.computeVertexNormals();fullTemplate=new THREE.Points(g,new THREE.PointsMaterial({size:.009,color:0x9aa6b2,transparent:true,opacity:.28,depthWrite:false}));fullTemplate.rotation.x=-Math.PI/2;displayObjects.push(fullTemplate);scene.add(fullTemplate);setupDemo();});
+  const loadInitial=(filename,fallback)=>loader.load(sceneDir+'/'+filename+assetVersion,g=>{if(request!==displayRequest)return;movingTemplate=new THREE.Group();const redTemplate=new THREE.Points(g,new THREE.PointsMaterial({size:.014,color:0xff4058,transparent:true,opacity:.88}));redTemplate.rotation.x=-Math.PI/2;movingTemplate.add(redTemplate);displayObjects.push(movingTemplate);scene.add(movingTemplate);setupDemo();},undefined,()=>{if(fallback)loadInitial(fallback,null);});
+  loadInitial('template_initial.ply','template.mesh.ply');
   loader.load(sceneDir+'/template_visible_aligned.ply'+assetVersion,g=>{if(request!==displayRequest)return;g.computeVertexNormals();visibleTemplate=new THREE.Points(g,new THREE.PointsMaterial({size:.017,color:0x36a9ff}));visibleTemplate.rotation.x=-Math.PI/2;displayObjects.push(visibleTemplate);scene.add(visibleTemplate);setupDemo();});
-  fetch(sceneDir+'/registration_report.json'+assetVersion).then(x=>x.json()).then(r=>{if(request!==displayRequest)return;const q=r.quality||{};const e=r.synthetic_pose_error;const t=r.template_to_scene||[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];const shift=Math.hypot(t[0][3],t[1][3],t[2][3])*1000;document.querySelector('#metrics').textContent=`${label}\n\n用上方三个按钮观察前后差异。\n红色 = 教学演示的匹配前模板（人为偏移 1.4 m / 18°）\n橙色 = 四相机现场点云\n灰色 = 匹配后的完整模板\n蓝色 = 匹配后与现场相距 ≤ ${(q.match_threshold_m*1000).toFixed(0)} mm 的模板表面\n\n实际算法：FPFH/RANSAC 粗配准 → 多尺度 ICP 精配准\n实际输出：template_to_scene 4×4 位姿矩阵\n\n现场点云覆盖率：${q.scene_coverage_within_threshold==null?'—':(q.scene_coverage_within_threshold*100).toFixed(1)+'%'}\n模板可见表面比例：${q.template_visible_fraction_within_threshold==null?'—':(q.template_visible_fraction_within_threshold*100).toFixed(1)+'%'}\n本次实际求得平移：${shift.toFixed(1)} mm\n本次实际求得旋转：${rotationDegrees(t).toFixed(3)}°\nICP 平均距离：${q.mean_inlier_distance_m==null?'—':(q.mean_inlier_distance_m*1000).toFixed(1)+' mm'}\nICP P95：${q.p95_inlier_distance_m==null?'—':(q.p95_inlier_distance_m*1000).toFixed(1)+' mm'}\n${e?'已提供真值误差：'+(e.translation_m*1000).toFixed(1)+' mm / '+e.rotation_deg.toFixed(3)+'°':'当前场景没有独立真值误差，只报告点云残差'}\n\n重要：红色大偏移和动画只用于讲解“模板变换到现场坐标”的概念，不是本次算法实际初始位姿或误差。`;});
+  fetch(sceneDir+'/registration_report.json'+assetVersion).then(x=>x.json()).then(r=>{if(request!==displayRequest)return;matchReport=r;setupDemo();const q=r.quality||{};const e=r.synthetic_pose_error;const t=r.template_to_scene||[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];const truth=r.known_scene_transform;const threshold=q.match_threshold_m==null?'—':(q.match_threshold_m*1000).toFixed(0)+' mm';const method=(r.global_registration&&r.global_registration.method)||'多尺度点到面 ICP';document.querySelector('#metrics').textContent=`${label}\n\n这里与“喷涂路径迁移仿真”读取同一份现场点云和同一个配准矩阵。\n红色 = 系统保存的标准车辆原始位姿\n橙色 = 四相机现场融合点云\n灰色 = 匹配后的完整标准车辆\n蓝色 = 匹配后与现场相距 ≤ ${threshold} 的模板表面\n\n实际算法：${method}\n实际输出：template_to_world 4×4 位姿矩阵\n${truth?`仿真真实位姿：(${truth[0][3].toFixed(3)}, ${truth[1][3].toFixed(3)}, ${truth[2][3].toFixed(3)}) m / ${rotationDegrees(truth).toFixed(3)}°\n`:''}匹配估计位姿：(${t[0][3].toFixed(3)}, ${t[1][3].toFixed(3)}, ${t[2][3].toFixed(3)}) m / ${rotationDegrees(t).toFixed(3)}°\n\n现场点云覆盖率：${q.scene_coverage_within_threshold==null?'—':(q.scene_coverage_within_threshold*100).toFixed(1)+'%'}\n模板可见表面比例：${q.template_visible_fraction_within_threshold==null?'—':(q.template_visible_fraction_within_threshold*100).toFixed(1)+'%'}\nICP 平均距离：${q.mean_inlier_distance_m==null?'—':(q.mean_inlier_distance_m*1000).toFixed(1)+' mm'}\nICP P95：${q.p95_inlier_distance_m==null?'—':(q.p95_inlier_distance_m*1000).toFixed(1)+' mm'}\n${e?'车辆位姿误差：'+(e.translation_m*1000).toFixed(1)+' mm / '+e.rotation_deg.toFixed(3)+'°':'当前场景没有独立真值误差，只报告点云残差'}`;});
 }
 function setPaintStage(stage){
   if(!paintDemo)return;
@@ -226,7 +241,7 @@ document.querySelector('#showLiveScan').onclick=()=>setPaintStage('live');
 document.querySelector('#showPathTransfer').onclick=()=>setPaintStage('transfer');
 document.querySelector('#playSpray').onclick=()=>playPaintSimulation();
 loadCameras();
-document.querySelectorAll('button[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='registration'?loadRegistration():b.dataset.mode==='registration_charuco'?loadRegistration('output_registration_charuco_4cam','4 相机 ChArUco 标定后模板匹配'):b.dataset.mode==='paint_transfer'?loadPaintTransfer():b.dataset.mode==='charuco'?loadCharuco():load(b.dataset.mode)); load('ideal');
+document.querySelectorAll('button[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='registration'?loadRegistration():b.dataset.mode==='registration_charuco'?loadRegistration('output_paint_path_transfer','4 相机现场车辆模板匹配'):b.dataset.mode==='paint_transfer'?loadPaintTransfer():b.dataset.mode==='charuco'?loadCharuco():load(b.dataset.mode)); load('ideal');
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 (function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)})();
 </script>

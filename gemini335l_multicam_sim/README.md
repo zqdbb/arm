@@ -266,7 +266,7 @@ cd gemini335l_multicam_sim
 
 网页中三种颜色的含义是：橙色为四相机拼接得到的现场点云，灰色为应用 `template_to_scene` 变换后的完整车辆模板，蓝色为距离现场点云不超过 30 mm 的模板表面。灰色区域没有橙色点，不代表模板错位，而是固定相机没有拍到该区域。模板平移量/旋转量是求得的坐标变换幅度，不是配准误差；误差应看 ICP 平均距离和 P95 距离。
 
-为让前后差异在网页上清晰可见，“匹配前”和“播放对齐动画”会把红色模板人为偏移 `1.4 m / 18°` 后再移动到最终位姿。这只是教学动画，不是当前算法的真实初值或误差；当前实际求得的变换仍以报告中的 `template_to_scene` 为准。
+网页中的“4 相机现场车辆模板匹配”和“喷涂路径迁移仿真”现在共用 `output_paint_path_transfer`。两页读取同一个 `live_fused.ply`、同一个 `template_to_world` 配准矩阵和同一组车辆真值位姿。匹配前显示系统保存的标准车辆原始位姿，动画直接从原始位姿插值到本次实际估计位姿，不再叠加人为教学偏移。
 
 配准结果中的 `template_to_scene` 是模板车身坐标到现场世界坐标的变换。模板喷涂路径应按以下关系变换到机器人基座：
 
@@ -298,6 +298,8 @@ T_base_tcp[i]  = T_base_world × T_world_tcp[i]
 
 当前回归结果为：车辆位姿误差约 `7.0 mm / 0.316°`，点云 ICP RMSE 约 `9.5 mm`；1566 个 TCP 位姿的迁移误差平均约 `14.2 mm`、P95 约 `18.8 mm`，喷枪离车身距离保持为 `280 mm`。
 
+“4 相机现场车辆模板匹配”负责直观验证车辆定位；“喷涂路径迁移仿真”在完全相同的定位结果上继续迁移保存的喷涂路径。因此两页中的标准车辆、现场车辆以及匹配后车辆位姿应分别一致，不能再使用两套独立回归数据。
+
 网页点击“喷涂路径迁移仿真”，按顺序查看：
 
 1. “系统保存”：标准车辆点云和绿色原始喷涂路径。
@@ -312,6 +314,10 @@ T_base_tcp[i]  = T_base_world × T_world_tcp[i]
 | `output_paint_path_transfer/reference_saved.ply` | 系统保存的标准车辆点云 |
 | `output_paint_path_transfer/live_fused.ply` | 模拟现场四相机融合点云 |
 | `output_paint_path_transfer/reference_aligned.ply` | 匹配到现场后的标准点云 |
+| `output_paint_path_transfer/scene.ply` | 模板匹配页面使用的现场点云，与 `live_fused.ply` 相同 |
+| `output_paint_path_transfer/template_initial.ply` | 模板匹配页面使用的标准车辆原始位姿 |
+| `output_paint_path_transfer/template_aligned.ply` | 模板匹配页面使用的匹配后标准车辆 |
+| `output_paint_path_transfer/registration_report.json` | 与喷涂迁移报告共用同一车辆位姿的配准报告 |
 | `paint_path_template.json` | 标准车辆坐标系中的保存路径 |
 | `paint_path_live_world.json` | 迁移到现场世界坐标的路径 |
 | `paint_path_robot_base.json` | 转换到机器人基座坐标的完整位姿 |

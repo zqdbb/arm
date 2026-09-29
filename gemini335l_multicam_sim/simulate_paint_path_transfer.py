@@ -298,6 +298,12 @@ def main():
     aligned = o3d.geometry.PointCloud(reference)
     aligned.transform(estimated_template_to_world)
     pose_delta = np.linalg.inv(true_template_to_world) @ estimated_template_to_world
+    match_threshold = 0.030
+    aligned_to_live = np.asarray(aligned.compute_point_cloud_distance(live))
+    live_to_aligned = np.asarray(live.compute_point_cloud_distance(aligned))
+    visible_aligned = aligned.select_by_index(
+        np.flatnonzero(aligned_to_live <= match_threshold).tolist()
+    )
 
     print("[3/7] Loading vehicle mesh and generating saved paint path", flush=True)
     mesh = load_template(resolve(args.mesh))
@@ -331,6 +337,13 @@ def main():
     o3d.io.write_point_cloud(str(output / "reference_saved.ply"), reference, write_ascii=False)
     o3d.io.write_point_cloud(str(output / "live_fused.ply"), live, write_ascii=False)
     o3d.io.write_point_cloud(str(output / "reference_aligned.ply"), aligned, write_ascii=False)
+    # Compatibility outputs used by the generic template-registration viewer.
+    # These make the matching and paint-transfer pages consume the exact same
+    # live pose and the exact same estimated transformation.
+    o3d.io.write_point_cloud(str(output / "scene.ply"), live, write_ascii=False)
+    o3d.io.write_point_cloud(str(output / "template_initial.ply"), reference, write_ascii=False)
+    o3d.io.write_point_cloud(str(output / "template_aligned.ply"), aligned, write_ascii=False)
+    o3d.io.write_point_cloud(str(output / "template_visible_aligned.ply"), visible_aligned, write_ascii=False)
     write_path_cloud(template_path, output / "paint_path_template.ply", [0.1, 1.0, 0.35])
     write_path_cloud(estimated_world_path, output / "paint_path_live_world.ply", [1.0, 0.15, 0.85])
     write_path_cloud(true_world_path, output / "paint_path_live_truth.ply", [0.1, 0.9, 1.0])
@@ -398,6 +411,36 @@ def main():
     }
     (output / "paint_path_transfer_report.json").write_text(
         json.dumps(report, indent=2), encoding="utf-8"
+    )
+    registration_report = {
+        "template": str(resolve(args.reference)),
+        "scene": str(output / "live_fused.ply"),
+        "synthetic_pose": True,
+        "global_registration": {
+            "method": report["registration"]["method"],
+            "initial_transform": initial.tolist(),
+        },
+        "icp_registration": {
+            "fitness": float(result.fitness),
+            "inlier_rmse_m": float(result.inlier_rmse),
+        },
+        "quality": {
+            "source_points": int(len(aligned.points)),
+            "inlier_points": int(np.count_nonzero(aligned_to_live <= match_threshold)),
+            "inlier_fraction": float(np.mean(aligned_to_live <= match_threshold)),
+            "mean_inlier_distance_m": float(np.mean(aligned_to_live[aligned_to_live <= match_threshold])),
+            "p95_inlier_distance_m": float(np.quantile(aligned_to_live[aligned_to_live <= match_threshold], 0.95)),
+            "scene_coverage_within_threshold": float(np.mean(live_to_aligned <= match_threshold)),
+            "template_visible_fraction_within_threshold": float(np.mean(aligned_to_live <= match_threshold)),
+            "match_threshold_m": match_threshold,
+        },
+        "template_to_scene": estimated_template_to_world.tolist(),
+        "known_scene_transform": true_template_to_world.tolist(),
+        "synthetic_pose_error": report["pose_error"],
+        "shared_with_paint_transfer": True,
+    }
+    (output / "registration_report.json").write_text(
+        json.dumps(registration_report, indent=2), encoding="utf-8"
     )
     print("[7/7] End-to-end paint-path transfer simulation complete", flush=True)
     print(json.dumps(report, indent=2))
