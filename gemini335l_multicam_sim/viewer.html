@@ -21,8 +21,7 @@
     <button data-mode="noise">规格噪声 TSDF</button>
     <button data-mode="truth">原始高细节车模</button>
     <button data-mode="points">4 相机合并点云</button>
-    <button data-mode="registration">模板配准结果</button>
-    <button data-mode="registration_charuco">4 相机现场车辆模板匹配</button>
+    <button data-mode="registration">4 相机现场车辆模板匹配</button>
     <button data-mode="paint_transfer">喷涂路径迁移仿真</button>
     <button data-mode="charuco">ChArUco 标定场景</button>
     <button id="cameraSize">相机显示 ×1</button>
@@ -49,7 +48,7 @@ import * as THREE from 'three';
 import {PLYLoader} from 'three/addons/loaders/PLYLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b0e13);
-const assetVersion='?v=pose-unified1';
+const assetVersion='?v=pose-unified2';
 const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.02,50); camera.position.set(6,4.3,6);
 const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(devicePixelRatio); renderer.setSize(innerWidth,innerHeight); document.body.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement); controls.target.set(0,.8,0); controls.update();
@@ -141,8 +140,9 @@ function playMatchDemo(){
   }
   requestAnimationFrame(frame);
 }
-function loadRegistration(sceneDir='output_registration', label='模板配准结果'){
+function loadRegistration(sceneDir='output_paint_path_transfer', label='4 相机现场车辆模板匹配'){
   const request=++displayRequest;
+  document.querySelectorAll('button[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode==='registration'));
   clearDisplay(); if(cameraModels)scene.remove(cameraModels);
   loader.load(sceneDir+'/scene.ply'+assetVersion,g=>{if(request!==displayRequest)return;g.computeVertexNormals();const sceneObject=new THREE.Points(g,new THREE.PointsMaterial({size:.012,color:0xffa640}));sceneObject.rotation.x=-Math.PI/2;displayObjects.push(sceneObject);scene.add(sceneObject);});
   let fullTemplate=null,movingTemplate=null,visibleTemplate=null,matchReport=null;
@@ -241,7 +241,7 @@ document.querySelector('#showLiveScan').onclick=()=>setPaintStage('live');
 document.querySelector('#showPathTransfer').onclick=()=>setPaintStage('transfer');
 document.querySelector('#playSpray').onclick=()=>playPaintSimulation();
 loadCameras();
-document.querySelectorAll('button[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='registration'?loadRegistration():b.dataset.mode==='registration_charuco'?loadRegistration('output_paint_path_transfer','4 相机现场车辆模板匹配'):b.dataset.mode==='paint_transfer'?loadPaintTransfer():b.dataset.mode==='charuco'?loadCharuco():load(b.dataset.mode)); load('ideal');
+document.querySelectorAll('button[data-mode]').forEach(b=>b.onclick=()=>b.dataset.mode==='registration'?loadRegistration():b.dataset.mode==='paint_transfer'?loadPaintTransfer():b.dataset.mode==='charuco'?loadCharuco():load(b.dataset.mode)); load('ideal');
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 (function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)})();
 </script>
