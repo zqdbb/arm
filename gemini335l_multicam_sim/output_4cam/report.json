@@ -1,7 +1,7 @@
 {
   "project": "Gemini 335L 4 fixed camera simulation",
   "test_definition": "exact fixed extrinsics and no sensor noise",
-  "important_scope": "Specification values are typical/limit values, not calibration from eight physical units.",
+  "important_scope": "Specification values are typical/limit values, not calibration from four physical units.",
   "camera_model": "Orbbec Gemini 335L",
   "camera_parameter_type": "manufacturer_specification_typical_values_not_per_device_calibration",
   "camera_parameter_source_file": "/home/azh/\u6587\u6863/xwechat_files/wxid_tfttzct2ke8122_5342/msg/file/2026-09/Gemini335L\u7cbe\u7b80\u89c4\u683c\u4e66(1).docx",
@@ -146,16 +146,16 @@
   },
   "surface_evaluation": {
     "reconstruction_to_truth": {
-      "mean_m": 0.006018737331032753,
-      "median_m": 0.0052506690844893456,
-      "p95_m": 0.013184553943574429,
-      "max_m": 0.04185612127184868
+      "mean_m": 0.0060158041305840015,
+      "median_m": 0.005246382672339678,
+      "p95_m": 0.013204718008637428,
+      "max_m": 0.041810162365436554
     },
     "truth_to_reconstruction": {
-      "mean_m": 0.21598319709300995,
-      "median_m": 0.1323012262582779,
-      "p95_m": 0.7271533012390137,
-      "max_m": 0.9033811092376709
+      "mean_m": 0.21616670489311218,
+      "median_m": 0.13321730494499207,
+      "p95_m": 0.7257832288742065,
+      "max_m": 0.9040316939353943
     },
     "completeness_definition": "camera-visible ground-truth exterior sampled from the selected ideal depth views",
     "completeness": {
@@ -165,13 +165,13 @@
     },
     "full_mesh_completeness_note": "Includes hidden interior, underside and occluded mechanical surfaces.",
     "full_mesh_completeness": {
-      "within_10mm": 0.29575555555555555,
-      "within_20mm": 0.3610333333333333,
-      "within_50mm": 0.39366111111111113
+      "within_10mm": 0.29467777777777776,
+      "within_20mm": 0.35896666666666666,
+      "within_50mm": 0.391
     },
     "reconstructed_surface_accuracy": {
-      "within_10mm": 0.8074055555555556,
-      "within_20mm": 0.9958833333333333,
+      "within_10mm": 0.8066111111111111,
+      "within_20mm": 0.9961166666666667,
       "within_50mm": 1.0
     }
   },

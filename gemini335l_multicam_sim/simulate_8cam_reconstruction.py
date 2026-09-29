@@ -725,7 +725,7 @@ def main():
             "exact fixed extrinsics and no sensor noise" if args.depth_model == "ideal" and not args.pose_noise
             else "specification-derived synthetic depth noise and/or simulated extrinsic error"
         ),
-        "important_scope": "Specification values are typical/limit values, not calibration from eight physical units.",
+        "important_scope": "Specification values are typical/limit values, not calibration from four physical units.",
         "camera_model": spec["model"],
         "camera_parameter_type": spec["parameter_type"],
         "camera_parameter_source_file": spec["source_file"],

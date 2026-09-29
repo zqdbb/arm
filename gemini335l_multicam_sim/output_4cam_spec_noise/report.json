@@ -1,7 +1,7 @@
 {
   "project": "Gemini 335L 4 fixed camera simulation",
   "test_definition": "specification-derived synthetic depth noise and/or simulated extrinsic error",
-  "important_scope": "Specification values are typical/limit values, not calibration from eight physical units.",
+  "important_scope": "Specification values are typical/limit values, not calibration from four physical units.",
   "camera_model": "Orbbec Gemini 335L",
   "camera_parameter_type": "manufacturer_specification_typical_values_not_per_device_calibration",
   "camera_parameter_source_file": "/home/azh/\u6587\u6863/xwechat_files/wxid_tfttzct2ke8122_5342/msg/file/2026-09/Gemini335L\u7cbe\u7b80\u89c4\u683c\u4e66(1).docx",
@@ -171,16 +171,16 @@
   },
   "surface_evaluation": {
     "reconstruction_to_truth": {
-      "mean_m": 0.007983422838151455,
-      "median_m": 0.007037924136966467,
-      "p95_m": 0.018555419519543648,
-      "max_m": 0.05384422838687897
+      "mean_m": 0.007994980551302433,
+      "median_m": 0.007056553848087788,
+      "p95_m": 0.01862526684999466,
+      "max_m": 0.05892893299460411
     },
     "truth_to_reconstruction": {
-      "mean_m": 0.2123154103755951,
-      "median_m": 0.126911923289299,
-      "p95_m": 0.7201725840568542,
-      "max_m": 0.8918734192848206
+      "mean_m": 0.2117813527584076,
+      "median_m": 0.12617892026901245,
+      "p95_m": 0.7206668257713318,
+      "max_m": 0.8929232358932495
     },
     "completeness_definition": "camera-visible ground-truth exterior sampled from the selected ideal depth views",
     "completeness": {
@@ -190,13 +190,13 @@
     },
     "full_mesh_completeness_note": "Includes hidden interior, underside and occluded mechanical surfaces.",
     "full_mesh_completeness": {
-      "within_10mm": 0.2874055555555556,
-      "within_20mm": 0.36165555555555556,
-      "within_50mm": 0.40166666666666667
+      "within_10mm": 0.29033333333333333,
+      "within_20mm": 0.36341111111111113,
+      "within_50mm": 0.4024611111111111
     },
     "reconstructed_surface_accuracy": {
-      "within_10mm": 0.6682166666666667,
-      "within_20mm": 0.9664055555555555,
+      "within_10mm": 0.6674888888888889,
+      "within_20mm": 0.9659666666666666,
       "within_50mm": 0.9999833333333333
     }
   },
