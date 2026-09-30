@@ -47,3 +47,6 @@ d435i_tsdf_sim/output*/tsdf_mesh.ply
 # Secrets and local configuration
 .env
 *.local
+
+# Local document exports
+/GEMINI335L_DEPLOYMENT.docx
