@@ -1,6 +1,8 @@
-# Gemini 335L 仿真新电脑部署步骤
+# Gemini 330 系列仿真基线新电脑部署步骤
 
-本文从一台全新的 Ubuntu Linux 电脑开始，说明如何从 GitHub 下载项目、创建 Python 环境、运行四相机 Gemini 335L 仿真，并打开网页查看器。所有命令默认在终端执行。
+> 本部署文档运行的是仓库现有的 Gemini 335L 参数仿真基线，不代表最终硬件采购型号。实际部署前请根据 [`docs/project/CAMERA_SELECTION.md`](docs/project/CAMERA_SELECTION.md) 在奥比中光 Gemini 330 系列中完成选型。车辆静止时，真实多机采集应优先采用顺序触发以降低主动红外互扰。
+
+本文从一台全新的 Ubuntu Linux 电脑开始，说明如何从 GitHub 下载项目、创建 Python 环境、运行四相机 Gemini 330 系列仿真基线，并打开网页查看器。所有命令默认在终端执行。
 
 ## 1. 系统要求
 

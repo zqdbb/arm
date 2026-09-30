@@ -1,6 +1,6 @@
 # RGB-D 三维重建与机器人喷涂工作区
 
-本仓库汇总了项目从 Intel RealSense D435/D435i 单相机验证、真实转台扫描、ROS 2 工业 TSDF 重建，到 Orbbec Gemini 335L 固定相机车辆扫描/模板配准和家具喷涂处理的完整实验过程。当前车辆定位主线是四台固定相机；六、八相机脚本仍作为覆盖率对照保留。
+本仓库汇总了项目从 Intel RealSense D435/D435i 单相机验证、真实转台扫描、ROS 2 工业 TSDF 重建，到奥比中光 Gemini 330 系列固定相机车辆扫描/模板配准和家具喷涂处理的完整实验过程。当前车辆定位主线是四台固定相机；六、八相机脚本仍作为覆盖率对照保留。最终 330 系列型号尚未锁定，仓库中的 335L 参数仅作为当前仿真基线。
 
 仓库不是一个单独可执行程序，而是由多个相互关联的子项目、验证工具和第三方参考代码组成。新使用者应先根据目标选择对应目录，不要直接从仓库根目录批量运行所有脚本。
 
@@ -13,7 +13,7 @@
 5. 要接真实相机、机械臂或转台，先阅读 [`REAL_HARDWARE_TOOLS.md`](REAL_HARDWARE_TOOLS.md) 和对应真机目录 README。
 6. 要查方案资料和完整 Git 历史，进入 [`docs/`](docs/README.md)。
 
-当前推荐主线只有一条：**四台固定 Gemini 335L → ChArUco 外参 → RGB-D 融合 → 车辆模板配准 → 喷涂路径迁移**。D435i、六/八相机和第三方工程是验证基线或参考实现，不与当前主线混用。
+当前推荐主线只有一条：**四台固定 Gemini 330 系列相机（型号待选）→ 顺序触发采集 → ChArUco 外参 → RGB-D 融合 → 车辆模板配准 → 喷涂路径迁移**。D435i、六/八相机和第三方工程是验证基线或参考实现，不与当前主线混用。
 
 ## 当前推荐入口
 
@@ -25,6 +25,7 @@
 - [4 台 Gemini 335L ChArUco 实机标定方法](gemini335l_multicam_sim/CHARUCO_CALIBRATION.md)
 - [仓库文档导航](docs/README.md)
 - [完整项目更新历史](docs/history/PROJECT_HISTORY.md)
+- [Gemini 330 系列相机选型建议](docs/project/CAMERA_SELECTION.md)
 - 一键运行：`./gemini335l_multicam_sim/run_validation.sh`
 - 网页查看：`gemini335l_multicam_sim/viewer.html`
 
@@ -37,7 +38,7 @@ flowchart LR
     A[D435i 理想/物理近似仿真] --> B[D435i 真机 + 转台扫描]
     B --> C[ROS 2 Industrial Reconstruction]
     C --> D[点云清理、Mesh 与尺寸分析]
-    A --> E[Gemini 335L 四固定相机扫描与模板配准]
+    A --> E[Gemini 330 系列四固定相机扫描与模板配准]
     B --> F[家具识别、部件分割与喷涂路径]
     D --> F
     C --> G[SNP 机器人抛光/加工仿真]
@@ -48,7 +49,7 @@ flowchart LR
 1. `d435i_tsdf_sim` 验证相机几何、视角数量、TSDF 参数和理论上限。
 2. `real_scan` 验证 D435i、机械臂与转台上的真实采集、分割和重建。
 3. `industrial_reconstruction-main` 将实时 RGB-D 和 TF 位姿接入 ROS 2 TSDF。
-4. `gemini335l_multicam_sim` 验证 4 台 Gemini 335L 固定相机扫描、TSDF 对照、车辆模板配准和喷涂路径迁移。
+4. `gemini335l_multicam_sim` 使用 335L 规格基线验证 4 台 Gemini 330 系列固定相机扫描、TSDF 对照、车辆模板配准和喷涂路径迁移；最终硬件型号待选。
 5. `furniture_spray_deploy` 对家具进行分类、部件分割和喷涂路径规划。
 6. `snp-automate-2023-polishing-simulation-main` 验证重建 Mesh 到机器人加工轨迹的仿真流程。
 
@@ -56,7 +57,7 @@ flowchart LR
 
 | 路径 | 类型 | 主要内容 | 建议用途 |
 | --- | --- | --- | --- |
-| [`gemini335l_multicam_sim/`](gemini335l_multicam_sim/README.md) | 当前主线 | 4 台固定 Gemini 335L、Prius 模型、RGB-D、模板配准、TSDF 对照、喷涂路径迁移和网页查看器 | 验证当前车辆定位方案 |
+| [`gemini335l_multicam_sim/`](gemini335l_multicam_sim/README.md) | 当前主线 | 4 台固定 Gemini 330 系列（335L 规格仿真基线）、Prius 模型、RGB-D、模板配准、TSDF 对照、喷涂路径迁移和网页查看器 | 验证当前车辆定位方案 |
 | [`d435i_tsdf_sim/`](d435i_tsdf_sim/README.md) | 仿真与实验基线 | D435i URDF、PyBullet/Open3D TSDF、椅子和复杂书桌、多视角数量及噪声实验 | 分析 D435 理论上限与 TSDF 参数 |
 | [`industrial_reconstruction-main/`](industrial_reconstruction-main/README.md) | ROS 2 工程 | 实时 RGB-D + TF → Open3D TSDF；本仓库版本包含真机话题、RViz 和帧队列调整 | 接入真实相机和机械臂 |
 | [`项目文件夹(1)/项目文件夹/real_scan/`](项目文件夹%281%29/项目文件夹/real_scan/README.md) | 真机实验档案 | D435i + ECO65-B + Y200RA60 转台；包含 V1–V22 多轮方案、YOLO/SAM、COLMAP、Visual Hull、TSDF | 复现实机转台扫描和查看历史迭代 |
@@ -68,9 +69,11 @@ flowchart LR
 
 项目规划、技术重难点和历史归档已集中在 [`docs/`](docs/README.md)，根目录只保留当前运行入口和硬件工具。
 
-## 当前 Gemini 335L 方案摘要
+## 当前 Gemini 330 系列方案摘要
 
-当前主线采用 4 台固定 Gemini 335L，布置在车辆四角高位，围绕静止车辆顺序采集。默认车辆是 `models/prius_hybrid`，主任务是将系统保存的标准车辆点云与现场融合点云配准，再把模板坐标系中的喷涂 TCP 路径迁移到现场和机器人基座；TSDF 作为重建对照和可视化输出保留。默认快速仿真分辨率为 640×400，采用规格书 1280×800 内参的 0.5 倍缩放。
+当前主线采用 4 台固定的奥比中光 Gemini 330 系列相机，布置在车辆四角高位，对静止车辆顺序采集。具体型号尚未锁定；336L/338L 类固定阵列候选优先评估，335L 作为已有仿真基线和备选。默认车辆是 `models/prius_hybrid`，主任务是将系统保存的标准车辆点云与现场融合点云配准，再把模板坐标系中的喷涂 TCP 路径迁移到现场和机器人基座；TSDF 作为重建对照和可视化输出保留。默认快速仿真分辨率为 640×400，采用现有 335L 规格参数的 0.5 倍缩放。
+
+由于多台主动红外相机同时工作可能产生红外散斑或主动照明互扰，实际工位优先采用顺序触发：一次只让一台相机进行主动深度采集。早期设想中的“同步拍照”主要服务于运动场景和精细建模；当前车辆静止且目标是模板定位，顺序采集更合理。因此 335L 的同步闪光灯线接口不再是决定性选型依据。型号选择应优先比较工作距离内的深度质量、抗环境光、防护等级、PoE/工业网络接口、SDK 顺序触发能力和多机长期稳定性。详细建议见 [`docs/project/CAMERA_SELECTION.md`](docs/project/CAMERA_SELECTION.md)。
 
 ```text
 4 路 RGB-D
@@ -200,7 +203,7 @@ https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
 
 ## 快速验证
 
-### Gemini 335L 当前主线
+### Gemini 330 系列仿真基线
 
 ```bash
 python3 -m venv .venv

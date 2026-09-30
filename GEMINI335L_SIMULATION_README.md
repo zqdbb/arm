@@ -1,6 +1,8 @@
-# Gemini 335L 仿真复现说明
+# Gemini 330 系列仿真复现说明
 
-本文档专门说明 `gemini335l_multicam_sim`：使用四台固定 Gemini 335L 相机对车辆进行 RGB-D 仿真采集，融合点云，验证 TSDF 重建，并将系统保存的车辆模板和喷涂路径迁移到现场车辆坐标。
+> 当前代码使用 Gemini 335L 规格作为仿真参数基线，最终实际设备型号不预先锁定为 335L。对于静止车辆，正式多机采集建议顺序触发，避免多台主动红外相机同时工作产生互扰。硬件选型依据见 [`docs/project/CAMERA_SELECTION.md`](docs/project/CAMERA_SELECTION.md)。
+
+本文档专门说明 `gemini335l_multicam_sim`：使用四台固定的 Gemini 330 系列相机基线对车辆进行 RGB-D 仿真采集，融合点云，验证 TSDF 重建，并将系统保存的车辆模板和喷涂路径迁移到现场车辆坐标。
 
 这是软件链路仿真，不是四台真实相机的 SDK 采集结果。相机内参来自用户提供的 Gemini 335L 规格书典型值；真实部署时必须替换为每台设备从 SDK/EEPROM 读取并经过标定的参数。
 
