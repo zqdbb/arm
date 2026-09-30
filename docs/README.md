@@ -14,6 +14,7 @@
 
 - [Gemini 335L 四相机仿真说明](../gemini335l_multicam_sim/README.md)
 - [Gemini 330 系列相机选型建议](project/CAMERA_SELECTION.md)
+- [Gemini 330 系列联网选型报告](project/GEMINI330_SELECTION_RESEARCH.md)
 - [Gemini 335L 新电脑部署步骤](../GEMINI335L_DEPLOYMENT.md)
 - [D435i TSDF 仿真说明](../d435i_tsdf_sim/README.md)
 - [真实 D435i 工具和安全说明](../REAL_HARDWARE_TOOLS.md)

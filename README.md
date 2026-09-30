@@ -26,6 +26,7 @@
 - [仓库文档导航](docs/README.md)
 - [完整项目更新历史](docs/history/PROJECT_HISTORY.md)
 - [Gemini 330 系列相机选型建议](docs/project/CAMERA_SELECTION.md)
+- [Gemini 330 系列联网选型报告](docs/project/GEMINI330_SELECTION_RESEARCH.md)
 - 一键运行：`./gemini335l_multicam_sim/run_validation.sh`
 - 网页查看：`gemini335l_multicam_sim/viewer.html`
 
